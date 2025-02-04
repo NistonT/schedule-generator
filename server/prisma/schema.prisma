@@ -18,6 +18,7 @@ model User {
   CreatedAt   DateTime  @default(now()) @map("created_at")
   UpdatedAt   DateTime  @updatedAt @map("updated_at")
 
+  @@unique([api_key])
   @@map("user")
 }
 

@@ -33,6 +33,7 @@ export class ScheduleService {
             model: 'llama3.1:8b', // Модель Ollama
             prompt: prompt,
             stream: false, // Отключаем стриминговый режим
+            format: 'json', // Указываем, что нужен только JSON
           },
           {
             headers: {
@@ -43,16 +44,13 @@ export class ScheduleService {
         ),
       );
 
-      // Извлекаем JSON из строки response
-      const jsonResponse = this.extractJsonFromResponse(response.data.response);
+      // Извлекаем JSON из ответа
+      const jsonResponse = this.extractJsonFromResponse(response.data);
 
       // Валидация и корректировка расписания
-      const correctedSchedule = this.correctSchedule(
-        JSON.parse(jsonResponse),
-        data,
-      );
+      const correctedSchedule = this.correctSchedule(jsonResponse, data);
 
-      return JSON.stringify(correctedSchedule); // Возвращаем исправленное расписание
+      return correctedSchedule.response; // Возвращаем исправленное расписание
     } catch (error) {
       console.error('Error during API request:', error.message);
       throw new Error(`Request failed: ${error.message}`);
@@ -60,120 +58,94 @@ export class ScheduleService {
   }
 
   private correctSchedule(schedule: any, data: any): any {
-    const subjectHoursMap: {
-      [key: number]: { lecture: number; lab1: number; lab2: number };
-    } = {};
-
-    // Создаем карту с ограничениями по часам для каждого предмета
-    data.t_subjects_hours.forEach((hours) => {
-      subjectHoursMap[hours.subject_id] = {
-        lecture: hours.lecture_hours,
-        lab1: hours.l1_hours,
-        lab2: hours.l2_hours,
-      };
-    });
-
-    // Считаем фактическое количество часов для каждого предмета
-    const actualHoursMap: {
-      [key: number]: { lecture: number; lab1: number; lab2: number };
-    } = {};
-
-    for (const day in schedule.timetable) {
-      const lessons = schedule.timetable[day];
-      for (let i = lessons.length - 1; i >= 0; i--) {
-        const lesson = lessons[i];
-        const subject = data.t_subjects.find(
-          (subj) => subj.name === lesson.subject,
-        );
-        const hours = subjectHoursMap[subject.id];
-
-        if (!actualHoursMap[subject.id]) {
-          actualHoursMap[subject.id] = { lecture: 0, lab1: 0, lab2: 0 };
-        }
-
-        let type = '';
-        if (hours.lecture > actualHoursMap[subject.id].lecture) {
-          actualHoursMap[subject.id].lecture++;
-          type = 'lecture';
-        } else if (hours.lab1 > actualHoursMap[subject.id].lab1) {
-          actualHoursMap[subject.id].lab1++;
-          type = 'lab1';
-        } else if (hours.lab2 > actualHoursMap[subject.id].lab2) {
-          actualHoursMap[subject.id].lab2++;
-          type = 'lab2';
-        } else {
-          // Если лимиты исчерпаны, удаляем занятие
-          lessons.splice(i, 1);
-        }
-      }
-    }
-
+    // Логика корректировки расписания
+    // Например, проверка на превышение максимальной нагрузки, конфликты кабинетов и т.д.
     return schedule;
   }
 
   private formatPrompt(data: any): string {
-    let prompt = `Generate a timetable for ${data.days} days based on the following data:\n`;
+    let prompt = `Создайте расписание на ${data.days} дней на основе следующих данных:\n`;
 
     // Добавляем информацию о кабинетах
-    if (data.t_cabinets && data.t_cabinets.length > 0) {
-      prompt += `Cabinets:\n`;
-      data.t_cabinets.forEach((cabinet) => {
-        prompt += `ID: ${cabinet.id}, Name: ${cabinet.name}\n`;
+    if (data.cabinets && data.cabinets.length > 0) {
+      prompt += `Кабинеты:\n`;
+      data.cabinets.forEach((cabinet) => {
+        prompt += `- ${cabinet}\n`;
       });
     }
 
     // Добавляем информацию о группах
-    if (data.t_groups && data.t_groups.length > 0) {
-      prompt += `\nGroups:\n`;
-      data.t_groups.forEach((group) => {
-        prompt += `ID: ${group.id}, Name: ${group.name}\n`;
-      });
-    }
-
-    // Добавляем информацию о предметах и часах
-    if (
-      data.t_subjects &&
-      data.t_subjects.length > 0 &&
-      data.t_subjects_hours &&
-      data.t_subjects_hours.length > 0
-    ) {
-      prompt += `\nSubjects and Hours:\n`;
-      data.t_subjects.forEach((subject) => {
-        const hours = data.t_subjects_hours.find(
-          (h) => h.subject_id === subject.id,
-        );
-        if (hours) {
-          prompt += `Subject: ${subject.name}, Group ID: ${subject.group_id}, Lecture Hours: ${hours.lecture_hours}, Lab1 Hours: ${hours.l1_hours}, Lab2 Hours: ${hours.l2_hours}\n`;
-        }
+    if (data.groups && data.groups.length > 0) {
+      prompt += `\nГруппы:\n`;
+      data.groups.forEach((group) => {
+        prompt += `- ${group}\n`;
       });
     }
 
     // Добавляем информацию о преподавателях
-    if (data.t_teachers && data.t_teachers.length > 0) {
-      prompt += `\nTeachers:\n`;
-      data.t_teachers.forEach((teacher) => {
-        prompt += `ID: ${teacher.id}, Name: ${teacher.name}, Preferred Cabinet ID: ${teacher.preferred_cabinet_id}\n`;
+    if (data.teachers && data.teachers.length > 0) {
+      prompt += `\nПреподаватели:\n`;
+      data.teachers.forEach((teacher) => {
+        prompt += `- ${teacher.name} (ID: ${teacher.tid})\n`;
       });
     }
 
-    // Добавляем информацию о связях между преподавателями и предметами
-    if (data.t_teachers_link && data.t_teachers_link.length > 0) {
-      prompt += `\nTeacher-Subject Links:\n`;
-      data.t_teachers_link.forEach((link) => {
-        prompt += `Teacher ID: ${link.teacher_id}, Subject ID: ${link.subject_id}\n`;
+    // Добавляем информацию о предметах
+    if (data.subjectsMap && Object.keys(data.subjectsMap).length > 0) {
+      prompt += `\nПредметы:\n`;
+      for (const group in data.subjectsMap) {
+        prompt += `Группа ${group}:\n`;
+        data.subjectsMap[group].forEach((subject) => {
+          prompt += `- ${subject}\n`;
+        });
+      }
+    }
+
+    // Добавляем информацию о связях преподавателей и предметов
+    if (data.teachersMap && data.teachersMap.length > 0) {
+      prompt += `\nСвязи преподавателей и предметов:\n`;
+      data.teachersMap.forEach((link) => {
+        prompt += `- Преподаватель ID ${link.tid} ведет предмет "${link.subject}" у группы "${link.group}"\n`;
       });
     }
 
-    // Добавляем формат выходных данных без строки "time"
-    prompt += `\nPlease generate a timetable in the following JSON format with numeric day indices:\n`;
+    // Добавляем информацию о количестве часов и типах занятий
+    if (data.amountLimits && data.amountLimits.length > 0) {
+      prompt += `\nКоличество часов и типы занятий:\n`;
+      data.amountLimits.forEach((limit) => {
+        prompt += `- Группа ${limit.group}, предмет ${limit.subject}, количество часов: ${limit.amount}, тип занятия: ${limit.lessonType}\n`;
+      });
+    }
+
+    // Добавляем информацию о кабинетах преподавателей (если есть)
+    if (data.cabinetLimits && data.cabinetLimits.length > 0) {
+      prompt += `\nОграничения по кабинетам для преподавателей:\n`;
+      data.cabinetLimits.forEach((limit) => {
+        prompt += `- Преподаватель ID ${limit.tid} может использовать кабинеты: ${limit.cabinets.join(', ')}\n`;
+      });
+    }
+
+    // Добавляем информацию о максимальной нагрузке
+    prompt += `\nМаксимальная нагрузка в день: ${data.maxLoad} пар\n`;
+
+    // Добавляем информацию о часах для групп
+    if (data.hours && Object.keys(data.hours).length > 0) {
+      prompt += `\nЧасы для групп:\n`;
+      for (const group in data.hours) {
+        prompt += `- Группа ${group}: ${data.hours[group][0]} часов в первой подгруппе, ${data.hours[group][1]} часов во второй подгруппе\n`;
+      }
+    }
+
+    // Добавляем формат выходных данных
+    prompt += `\nСгенерируйте расписание в следующем JSON-формате:\n`;
     prompt += `{\n`;
     prompt += `  "timetable": {\n`;
-    prompt += `    "<date>": [\n`;
+    prompt += `    "<день>": [\n`;
     prompt += `      {\n`;
-    prompt += `        "cabinet": "<cabinet_name>",\n`;
-    prompt += `        "teacher": "<teacher_name>",\n`;
-    prompt += `        "subject": "<subject_name>",\n`;
-    prompt += `        "group": "<group_name>"\n`;
+    prompt += `        "cabinet": "<кабинет>",\n`;
+    prompt += `        "teacher": "<преподаватель>",\n`;
+    prompt += `        "subject": "<предмет>",\n`;
+    prompt += `        "group": "<группа>"\n`;
     prompt += `      }\n`;
     prompt += `    ]\n`;
     prompt += `  }\n`;
@@ -182,47 +154,12 @@ export class ScheduleService {
     return prompt;
   }
 
-  private extractJsonFromResponse(response: string): string {
-    // Используем регулярное выражение для извлечения JSON из строки
-    const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/);
-    if (jsonMatch && jsonMatch[1]) {
-      return jsonMatch[1];
+  private extractJsonFromResponse(response: any): any {
+    // Проверяем, что ответ уже в формате JSON
+    if (typeof response === 'object') {
+      return response;
     } else {
-      throw new Error('No JSON found in the response');
+      throw new Error('Invalid JSON response');
     }
-  }
-
-  private validateSchedule(schedule: any, data: any): boolean {
-    const subjectHours = data.t_subjects_hours;
-
-    for (const day in schedule.timetable) {
-      const lessons = schedule.timetable[day];
-      for (const lesson of lessons) {
-        const subject = data.t_subjects.find(
-          (subj) => subj.name === lesson.subject,
-        );
-        const hours = subjectHours.find((h) => h.subject_id === subject.id);
-
-        if (hours) {
-          if (hours.lecture_hours > 0) {
-            hours.lecture_remains--;
-          } else if (hours.l1_hours > 0) {
-            hours.l1_remains--;
-          } else if (hours.l2_hours > 0) {
-            hours.l2_remains--;
-          }
-
-          if (
-            hours.lecture_remains < 0 ||
-            hours.l1_remains < 0 ||
-            hours.l2_remains < 0
-          ) {
-            throw new Error(`Too many hours for subject ${lesson.subject}`);
-          }
-        }
-      }
-    }
-
-    return true;
   }
 }
