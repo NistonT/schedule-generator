@@ -12,45 +12,40 @@ export class ScheduleService {
 
   async generateSchedule(data: any): Promise<any> {
     const apiUrl = process.env.API_LLAMA; // URL API Ollama
+
     if (!apiUrl || !apiUrl.startsWith('http')) {
       throw new Error('Invalid API_LLAMA URL');
     }
 
     try {
-      // Проверяем наличие параметра days
       if (!data.days || typeof data.days !== 'number' || data.days <= 0) {
         throw new Error('Invalid or missing days parameter');
       }
 
-      // Формируем промпт для нейросети
       const prompt = this.formatPrompt(data);
 
-      // Отправляем запрос без таймаута (timeout: 0)
       const response = await lastValueFrom(
         this.httpService.post(
           apiUrl,
           {
-            model: 'llama3.1:8b', // Модель Ollama
+            model: 'llama3.1:8b',
             prompt: prompt,
-            stream: false, // Отключаем стриминговый режим
-            format: 'json', // Указываем, что нужен только JSON
+            stream: false,
+            format: 'json',
           },
           {
             headers: {
               'Content-Type': 'application/json',
             },
-            timeout: 0, // Устанавливаем бесконечный таймаут
+            timeout: 0,
           },
         ),
       );
 
-      // Извлекаем JSON из ответа
       const jsonResponse = this.extractJsonFromResponse(response.data);
-
-      // Валидация и корректировка расписания
       const correctedSchedule = this.correctSchedule(jsonResponse, data);
 
-      return correctedSchedule.response; // Возвращаем исправленное расписание
+      return correctedSchedule.response;
     } catch (error) {
       console.error('Error during API request:', error.message);
       throw new Error(`Request failed: ${error.message}`);
@@ -58,15 +53,99 @@ export class ScheduleService {
   }
 
   private correctSchedule(schedule: any, data: any): any {
-    // Логика корректировки расписания
-    // Например, проверка на превышение максимальной нагрузки, конфликты кабинетов и т.д.
-    return schedule;
+    const correctedSchedule: any = { timetable: {} };
+    const teacherMap: { [key: string]: string } = {};
+
+    // Создаем мап преподавателей без ID
+    data.teachers.forEach((teacher) => {
+      teacherMap[teacher.tid] = teacher.name;
+    });
+
+    // Список всех занятий для каждой группы
+    const lessonsByGroup: { [key: string]: any[] } = {};
+    data.amountLimits.forEach((limit) => {
+      if (!lessonsByGroup[limit.group]) {
+        lessonsByGroup[limit.group] = [];
+      }
+      if (limit.amount > 0) {
+        lessonsByGroup[limit.group].push({
+          subject: limit.subject,
+          amount: limit.amount,
+          lessonType: limit.lessonType,
+        });
+      }
+    });
+
+    // Расчет общего количества пар и их равномерного распределения по дням
+    let totalRemainingLessons = Object.values(lessonsByGroup)
+      .flat()
+      .reduce((sum, lesson) => sum + lesson.amount, 0);
+
+    const lessonsPerDay = Math.ceil(totalRemainingLessons / data.days); // Количество пар на день
+
+    for (let day = 1; day <= data.days; day++) {
+      correctedSchedule.timetable[day] = [];
+      let totalLoad = 0;
+
+      // Определяем максимальное количество пар для текущего дня
+      const maxLessonsForDay = Math.min(data.maxLoad, lessonsPerDay);
+
+      // Группируем пары по типам (группа + предмет + преподаватель)
+      const groupedLessons: any[] = [];
+      for (const group in lessonsByGroup) {
+        for (const lesson of lessonsByGroup[group]) {
+          if (lesson.amount > 0) {
+            groupedLessons.push({
+              group,
+              subject: lesson.subject,
+              teacher: lesson,
+              amount: lesson.amount,
+            });
+          }
+        }
+      }
+
+      // Сортируем пары по количеству оставшихся занятий (от больших к меньшим)
+      groupedLessons.sort((a, b) => b.amount - a.amount);
+
+      // Добавляем пары в расписание
+      for (const lessonEntry of groupedLessons) {
+        const { group, subject, teacher, amount } = lessonEntry;
+
+        while (totalLoad < maxLessonsForDay && teacher.amount > 0) {
+          const cabinet =
+            data.cabinets[Math.floor(Math.random() * data.cabinets.length)];
+          const teacherName =
+            teacherMap[
+              data.teachersMap.find(
+                (t) => t.group === group && t.subject === subject,
+              )?.tid
+            ];
+
+          correctedSchedule.timetable[day].push({
+            cabinet: cabinet,
+            teacher: teacherName,
+            subject: subject,
+            group: group,
+          });
+
+          totalLoad++;
+          teacher.amount--;
+          totalRemainingLessons--;
+
+          if (totalLoad >= maxLessonsForDay || teacher.amount <= 0) break;
+        }
+
+        if (totalLoad >= maxLessonsForDay) break;
+      }
+    }
+
+    return { response: correctedSchedule };
   }
 
   private formatPrompt(data: any): string {
     let prompt = `Создайте расписание на ${data.days} дней на основе следующих данных:\n`;
 
-    // Добавляем информацию о кабинетах
     if (data.cabinets && data.cabinets.length > 0) {
       prompt += `Кабинеты:\n`;
       data.cabinets.forEach((cabinet) => {
@@ -74,7 +153,6 @@ export class ScheduleService {
       });
     }
 
-    // Добавляем информацию о группах
     if (data.groups && data.groups.length > 0) {
       prompt += `\nГруппы:\n`;
       data.groups.forEach((group) => {
@@ -82,15 +160,13 @@ export class ScheduleService {
       });
     }
 
-    // Добавляем информацию о преподавателях
     if (data.teachers && data.teachers.length > 0) {
       prompt += `\nПреподаватели:\n`;
       data.teachers.forEach((teacher) => {
-        prompt += `- ${teacher.name} (ID: ${teacher.tid})\n`;
+        prompt += `- ${teacher.name}\n`;
       });
     }
 
-    // Добавляем информацию о предметах
     if (data.subjectsMap && Object.keys(data.subjectsMap).length > 0) {
       prompt += `\nПредметы:\n`;
       for (const group in data.subjectsMap) {
@@ -101,15 +177,6 @@ export class ScheduleService {
       }
     }
 
-    // Добавляем информацию о связях преподавателей и предметов
-    if (data.teachersMap && data.teachersMap.length > 0) {
-      prompt += `\nСвязи преподавателей и предметов:\n`;
-      data.teachersMap.forEach((link) => {
-        prompt += `- Преподаватель ID ${link.tid} ведет предмет "${link.subject}" у группы "${link.group}"\n`;
-      });
-    }
-
-    // Добавляем информацию о количестве часов и типах занятий
     if (data.amountLimits && data.amountLimits.length > 0) {
       prompt += `\nКоличество часов и типы занятий:\n`;
       data.amountLimits.forEach((limit) => {
@@ -117,18 +184,15 @@ export class ScheduleService {
       });
     }
 
-    // Добавляем информацию о кабинетах преподавателей (если есть)
     if (data.cabinetLimits && data.cabinetLimits.length > 0) {
       prompt += `\nОграничения по кабинетам для преподавателей:\n`;
       data.cabinetLimits.forEach((limit) => {
-        prompt += `- Преподаватель ID ${limit.tid} может использовать кабинеты: ${limit.cabinets.join(', ')}\n`;
+        prompt += `- Преподаватель может использовать кабинеты: ${limit.cabinets.join(', ')}\n`;
       });
     }
 
-    // Добавляем информацию о максимальной нагрузке
     prompt += `\nМаксимальная нагрузка в день: ${data.maxLoad} пар\n`;
 
-    // Добавляем информацию о часах для групп
     if (data.hours && Object.keys(data.hours).length > 0) {
       prompt += `\nЧасы для групп:\n`;
       for (const group in data.hours) {
@@ -136,7 +200,12 @@ export class ScheduleService {
       }
     }
 
-    // Добавляем формат выходных данных
+    // Добавляем четкие инструкции для модели
+    prompt += `\nВажные ограничения:\n`;
+    prompt += `- Для каждой группы не должно быть больше пар, чем указано в "amountLimits".\n`;
+    prompt += `- Общее количество пар в день не должно превышать "maxLoad", но желательно чтобы было 6 пар в одинь день.\n`;
+    prompt += `- Если для группы нет доступных пар (amount = 0), не планируйте занятия для этой группы.\n`;
+
     prompt += `\nСгенерируйте расписание в следующем JSON-формате:\n`;
     prompt += `{\n`;
     prompt += `  "timetable": {\n`;
@@ -155,7 +224,6 @@ export class ScheduleService {
   }
 
   private extractJsonFromResponse(response: any): any {
-    // Проверяем, что ответ уже в формате JSON
     if (typeof response === 'object') {
       return response;
     } else {
