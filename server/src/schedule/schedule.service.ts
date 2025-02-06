@@ -55,12 +55,15 @@ export class ScheduleService {
   private correctSchedule(schedule: any, data: any): any {
     const correctedSchedule: any = { timetable: {} };
     const teacherMap: { [key: string]: string } = {};
-
     // Создаем мап преподавателей без ID
     data.teachers.forEach((teacher) => {
       teacherMap[teacher.tid] = teacher.name;
     });
-
+    // Создаем мап ограничений по кабинетам для преподавателей
+    const cabinetLimitsMap: { [key: string]: string[] } = {};
+    data.cabinetLimits.forEach((limit) => {
+      cabinetLimitsMap[limit.tid] = limit.cabinets;
+    });
     // Список всех занятий для каждой группы
     const lessonsByGroup: { [key: string]: any[] } = {};
     data.amountLimits.forEach((limit) => {
@@ -80,7 +83,6 @@ export class ScheduleService {
     let totalRemainingLessons = Object.values(lessonsByGroup)
       .flat()
       .reduce((sum, lesson) => sum + lesson.amount, 0);
-
     const lessonsPerDay = Math.ceil(totalRemainingLessons / data.days); // Количество пар на день
 
     for (let day = 1; day <= data.days; day++) {
@@ -100,6 +102,7 @@ export class ScheduleService {
               subject: lesson.subject,
               teacher: lesson,
               amount: lesson.amount,
+              lessonType: lesson.lessonType,
             });
           }
         }
@@ -110,26 +113,69 @@ export class ScheduleService {
 
       // Добавляем пары в расписание
       for (const lessonEntry of groupedLessons) {
-        const { group, subject, teacher, amount } = lessonEntry;
+        const { group, subject, teacher, amount, lessonType } = lessonEntry;
 
         while (totalLoad < maxLessonsForDay && teacher.amount > 0) {
-          const cabinet =
-            data.cabinets[Math.floor(Math.random() * data.cabinets.length)];
-          const teacherName =
-            teacherMap[
-              data.teachersMap.find(
-                (t) => t.group === group && t.subject === subject,
-              )?.tid
+          const teacherTid = data.teachersMap.find(
+            (t) => t.group === group && t.subject === subject,
+          )?.tid;
+
+          // Выбираем кабинет в зависимости от ограничений преподавателя
+          let cabinet;
+          if (cabinetLimitsMap[teacherTid]) {
+            // Если есть ограничения по кабинетам, выбираем случайный из разрешенных
+            cabinet =
+              cabinetLimitsMap[teacherTid][
+                Math.floor(Math.random() * cabinetLimitsMap[teacherTid].length)
+              ];
+          } else {
+            // Если ограничений нет, выбираем случайный из всех доступных
+            cabinet =
+              data.cabinets[Math.floor(Math.random() * data.cabinets.length)];
+          }
+
+          const teacherName = teacherMap[teacherTid];
+
+          // Проверяем, является ли это занятие для подгруппы
+          const isSubgroupLesson = lessonType === '1' || lessonType === '2';
+
+          if (isSubgroupLesson) {
+            // Для подгрупп создаем массив с двумя элементами
+            const subgroupLessons = [
+              {
+                cabinet,
+                teacher: teacherName,
+                subject,
+                group,
+                lessonType,
+              },
+              {
+                cabinet,
+                teacher: teacherName,
+                subject,
+                group,
+                lessonType,
+              },
             ];
 
-          correctedSchedule.timetable[day].push({
-            cabinet: cabinet,
-            teacher: teacherName,
-            subject: subject,
-            group: group,
-          });
+            correctedSchedule.timetable[day].push(subgroupLessons);
+            totalLoad++; // Одна пара = один массив
+          } else {
+            // Для полной группы создаем массив с одним элементом
+            const fullGroupLesson = [
+              {
+                cabinet,
+                teacher: teacherName,
+                subject,
+                group,
+                lessonType,
+              },
+            ];
 
-          totalLoad++;
+            correctedSchedule.timetable[day].push(fullGroupLesson);
+            totalLoad++; // Одна пара = один массив
+          }
+
           teacher.amount--;
           totalRemainingLessons--;
 

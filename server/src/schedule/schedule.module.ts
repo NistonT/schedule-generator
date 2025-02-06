@@ -7,9 +7,9 @@ import { ScheduleService } from './schedule.service';
 @Module({
   imports: [
     HttpModule.register({
-      timeout: 0, // Отключает таймаут
-      maxBodyLength: Infinity, // Разрешает большой размер тела запроса
-      maxContentLength: Infinity, // Разрешает большой размер ответа
+      timeout: 0,
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
     }),
   ],
   controllers: [ScheduleController],
