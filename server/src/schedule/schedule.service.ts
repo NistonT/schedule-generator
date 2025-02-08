@@ -1,279 +1,152 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { lastValueFrom } from 'rxjs';
-import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class ScheduleService {
-  constructor(
-    private prisma: PrismaService,
-    private httpService: HttpService,
-  ) {}
+  constructor(private httpService: HttpService) {}
 
   async generateSchedule(data: any): Promise<any> {
-    const apiUrl = process.env.API_LLAMA; // URL API Ollama
+    const {
+      cabinets,
+      groups,
+      teachers,
+      subjectsMap,
+      teachersMap,
+      amountLimits,
+      cabinetLimits,
+      days,
+      maxLoad,
+      hours,
+    } = data;
 
-    if (!apiUrl || !apiUrl.startsWith('http')) {
-      throw new Error('Invalid API_LLAMA URL');
-    }
+    const timetable: Record<number, any[]> = {};
 
-    try {
-      if (!data.days || typeof data.days !== 'number' || data.days <= 0) {
-        throw new Error('Invalid or missing days parameter');
-      }
+    for (const group of groups) {
+      let totalHours = hours[group].reduce((sum, h) => sum + h, 0);
+      const dailyLoad = Math.floor(totalHours / days);
+      let remainingHours = totalHours % days;
 
-      const prompt = this.formatPrompt(data);
-
-      const response = await lastValueFrom(
-        this.httpService.post(
-          apiUrl,
-          {
-            model: 'llama3.1:8b',
-            prompt: prompt,
-            stream: false,
-            format: 'json',
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            timeout: 0,
-          },
-        ),
+      const subjectQueue = this.createSubjectQueue(
+        subjectsMap[group],
+        amountLimits,
       );
 
-      const jsonResponse = this.extractJsonFromResponse(response.data);
-      const correctedSchedule = this.correctSchedule(jsonResponse, data);
+      // Распределение пар для каждого предмета
+      for (const subjectInfo of subjectQueue) {
+        const subjectHours = subjectInfo.remaining;
+        const dailySubjectLoad = Math.floor(subjectHours / days);
+        let remainingSubjectHours = subjectHours % days;
 
-      return correctedSchedule.response;
-    } catch (error) {
-      console.error('Error during API request:', error.message);
-      throw new Error(`Request failed: ${error.message}`);
-    }
-  }
+        for (let dayIndex = 1; dayIndex <= days; dayIndex++) {
+          if (!timetable[dayIndex]) {
+            timetable[dayIndex] = [];
+          }
 
-  private correctSchedule(schedule: any, data: any): any {
-    const correctedSchedule: any = { timetable: {} };
-    const teacherMap: { [key: string]: string } = {};
-    // Создаем мап преподавателей без ID
-    data.teachers.forEach((teacher) => {
-      teacherMap[teacher.tid] = teacher.name;
-    });
-    // Создаем мап ограничений по кабинетам для преподавателей
-    const cabinetLimitsMap: { [key: string]: string[] } = {};
-    data.cabinetLimits.forEach((limit) => {
-      cabinetLimitsMap[limit.tid] = limit.cabinets;
-    });
-    // Список всех занятий для каждой группы
-    const lessonsByGroup: { [key: string]: any[] } = {};
-    data.amountLimits.forEach((limit) => {
-      if (!lessonsByGroup[limit.group]) {
-        lessonsByGroup[limit.group] = [];
-      }
-      if (limit.amount > 0) {
-        lessonsByGroup[limit.group].push({
-          subject: limit.subject,
-          amount: limit.amount,
-          lessonType: limit.lessonType,
-        });
-      }
-    });
+          const loadForDay =
+            dailySubjectLoad + (remainingSubjectHours > 0 ? 1 : 0);
+          remainingSubjectHours--;
 
-    // Расчет общего количества пар и их равномерного распределения по дням
-    let totalRemainingLessons = Object.values(lessonsByGroup)
-      .flat()
-      .reduce((sum, lesson) => sum + lesson.amount, 0);
-    const lessonsPerDay = Math.ceil(totalRemainingLessons / data.days); // Количество пар на день
+          for (let i = 0; i < loadForDay && subjectInfo.remaining > 0; i++) {
+            if (timetable[dayIndex].length >= maxLoad) break;
 
-    for (let day = 1; day <= data.days; day++) {
-      correctedSchedule.timetable[day] = [];
-      let totalLoad = 0;
+            const teacherInfo = this.findTeacherForSubject(
+              subjectInfo.subject,
+              teachersMap,
+              teachers,
+            );
+            if (!teacherInfo) continue;
 
-      // Определяем максимальное количество пар для текущего дня
-      const maxLessonsForDay = Math.min(data.maxLoad, lessonsPerDay);
+            const cabinet = this.findCabinetForTeacher(
+              teacherInfo.tid,
+              cabinetLimits,
+              cabinets,
+              timetable,
+              dayIndex,
+              timetable[dayIndex].length + 1,
+            );
+            if (!cabinet) continue;
 
-      // Группируем пары по типам (группа + предмет + преподаватель)
-      const groupedLessons: any[] = [];
-      for (const group in lessonsByGroup) {
-        for (const lesson of lessonsByGroup[group]) {
-          if (lesson.amount > 0) {
-            groupedLessons.push({
+            timetable[dayIndex].push({
+              cabinet,
+              teacher: teacherInfo.name,
+              subject: subjectInfo.subject,
               group,
-              subject: lesson.subject,
-              teacher: lesson,
-              amount: lesson.amount,
-              lessonType: lesson.lessonType,
             });
+
+            subjectInfo.remaining--;
+            this.decrementAmountLimit(amountLimits, group, subjectInfo.subject);
           }
         }
       }
-
-      // Сортируем пары по количеству оставшихся занятий (от больших к меньшим)
-      groupedLessons.sort((a, b) => b.amount - a.amount);
-
-      // Добавляем пары в расписание
-      for (const lessonEntry of groupedLessons) {
-        const { group, subject, teacher, amount, lessonType } = lessonEntry;
-
-        while (totalLoad < maxLessonsForDay && teacher.amount > 0) {
-          const teacherTid = data.teachersMap.find(
-            (t) => t.group === group && t.subject === subject,
-          )?.tid;
-
-          // Выбираем кабинет в зависимости от ограничений преподавателя
-          let cabinet;
-          if (cabinetLimitsMap[teacherTid]) {
-            // Если есть ограничения по кабинетам, выбираем случайный из разрешенных
-            cabinet =
-              cabinetLimitsMap[teacherTid][
-                Math.floor(Math.random() * cabinetLimitsMap[teacherTid].length)
-              ];
-          } else {
-            // Если ограничений нет, выбираем случайный из всех доступных
-            cabinet =
-              data.cabinets[Math.floor(Math.random() * data.cabinets.length)];
-          }
-
-          const teacherName = teacherMap[teacherTid];
-
-          // Проверяем, является ли это занятие для подгруппы
-          const isSubgroupLesson = lessonType === '1' || lessonType === '2';
-
-          if (isSubgroupLesson) {
-            // Для подгрупп создаем массив с двумя элементами
-            const subgroupLessons = [
-              {
-                cabinet,
-                teacher: teacherName,
-                subject,
-                group,
-                lessonType,
-              },
-              {
-                cabinet,
-                teacher: teacherName,
-                subject,
-                group,
-                lessonType,
-              },
-            ];
-
-            correctedSchedule.timetable[day].push(subgroupLessons);
-            totalLoad++; // Одна пара = один массив
-          } else {
-            // Для полной группы создаем массив с одним элементом
-            const fullGroupLesson = [
-              {
-                cabinet,
-                teacher: teacherName,
-                subject,
-                group,
-                lessonType,
-              },
-            ];
-
-            correctedSchedule.timetable[day].push(fullGroupLesson);
-            totalLoad++; // Одна пара = один массив
-          }
-
-          teacher.amount--;
-          totalRemainingLessons--;
-
-          if (totalLoad >= maxLessonsForDay || teacher.amount <= 0) break;
-        }
-
-        if (totalLoad >= maxLessonsForDay) break;
-      }
     }
 
-    return { response: correctedSchedule };
+    return { timetable };
   }
 
-  private formatPrompt(data: any): string {
-    let prompt = `Создайте расписание на ${data.days} дней на основе следующих данных:\n`;
-
-    if (data.cabinets && data.cabinets.length > 0) {
-      prompt += `Кабинеты:\n`;
-      data.cabinets.forEach((cabinet) => {
-        prompt += `- ${cabinet}\n`;
-      });
-    }
-
-    if (data.groups && data.groups.length > 0) {
-      prompt += `\nГруппы:\n`;
-      data.groups.forEach((group) => {
-        prompt += `- ${group}\n`;
-      });
-    }
-
-    if (data.teachers && data.teachers.length > 0) {
-      prompt += `\nПреподаватели:\n`;
-      data.teachers.forEach((teacher) => {
-        prompt += `- ${teacher.name}\n`;
-      });
-    }
-
-    if (data.subjectsMap && Object.keys(data.subjectsMap).length > 0) {
-      prompt += `\nПредметы:\n`;
-      for (const group in data.subjectsMap) {
-        prompt += `Группа ${group}:\n`;
-        data.subjectsMap[group].forEach((subject) => {
-          prompt += `- ${subject}\n`;
-        });
-      }
-    }
-
-    if (data.amountLimits && data.amountLimits.length > 0) {
-      prompt += `\nКоличество часов и типы занятий:\n`;
-      data.amountLimits.forEach((limit) => {
-        prompt += `- Группа ${limit.group}, предмет ${limit.subject}, количество часов: ${limit.amount}, тип занятия: ${limit.lessonType}\n`;
-      });
-    }
-
-    if (data.cabinetLimits && data.cabinetLimits.length > 0) {
-      prompt += `\nОграничения по кабинетам для преподавателей:\n`;
-      data.cabinetLimits.forEach((limit) => {
-        prompt += `- Преподаватель может использовать кабинеты: ${limit.cabinets.join(', ')}\n`;
-      });
-    }
-
-    prompt += `\nМаксимальная нагрузка в день: ${data.maxLoad} пар\n`;
-
-    if (data.hours && Object.keys(data.hours).length > 0) {
-      prompt += `\nЧасы для групп:\n`;
-      for (const group in data.hours) {
-        prompt += `- Группа ${group}: ${data.hours[group][0]} часов в первой подгруппе, ${data.hours[group][1]} часов во второй подгруппе\n`;
-      }
-    }
-
-    // Добавляем четкие инструкции для модели
-    prompt += `\nВажные ограничения:\n`;
-    prompt += `- Для каждой группы не должно быть больше пар, чем указано в "amountLimits".\n`;
-    prompt += `- Общее количество пар в день не должно превышать "maxLoad", но желательно чтобы было 6 пар в одинь день.\n`;
-    prompt += `- Если для группы нет доступных пар (amount = 0), не планируйте занятия для этой группы.\n`;
-
-    prompt += `\nСгенерируйте расписание в следующем JSON-формате:\n`;
-    prompt += `{\n`;
-    prompt += `  "timetable": {\n`;
-    prompt += `    "<день>": [\n`;
-    prompt += `      {\n`;
-    prompt += `        "cabinet": "<кабинет>",\n`;
-    prompt += `        "teacher": "<преподаватель>",\n`;
-    prompt += `        "subject": "<предмет>",\n`;
-    prompt += `        "group": "<группа>"\n`;
-    prompt += `      }\n`;
-    prompt += `    ]\n`;
-    prompt += `  }\n`;
-    prompt += `}`;
-
-    return prompt;
+  private createSubjectQueue(subjects: string[], amountLimits: any[]): any[] {
+    return subjects
+      .map((subject) => {
+        const limit = amountLimits.find((l) => l.subject === subject);
+        return { subject, remaining: limit?.amount || 0 };
+      })
+      .filter((item) => item.remaining > 0);
   }
 
-  private extractJsonFromResponse(response: any): any {
-    if (typeof response === 'object') {
-      return response;
+  private findTeacherForSubject(
+    subject: string,
+    teachersMap: any[],
+    teachers: any[],
+  ): any | null {
+    const teacherMapping = teachersMap.find((map) => map.subject === subject);
+    if (!teacherMapping) return null;
+    const teacher = teachers.find((t) => t.tid === teacherMapping.tid);
+    return teacher || null;
+  }
+
+  private findCabinetForTeacher(
+    tid: number,
+    cabinetLimits: any[],
+    cabinets: string[],
+    timetable: Record<number, any[]>,
+    day: number,
+    hour: number,
+  ): string | null {
+    const allowedCabinets =
+      cabinetLimits.find((limit) => limit.tid === tid)?.cabinets || [];
+    for (const cabinet of allowedCabinets) {
+      if (!this.isCabinetBusy(timetable, day, hour, cabinet)) {
+        return cabinet;
+      }
+    }
+    return null;
+  }
+
+  private isCabinetBusy(
+    timetable: Record<number, any[]>,
+    day: number,
+    hour: number,
+    cabinet: string,
+  ): boolean {
+    const lessons = timetable[day]?.filter(
+      (lesson) => lesson.cabinet === cabinet,
+    );
+    return lessons?.some((lesson) => lesson.hour === hour) || false;
+  }
+
+  private decrementAmountLimit(
+    amountLimits: any[],
+    group: string,
+    subject: string,
+  ) {
+    const limit = amountLimits.find(
+      (l) => l.group === group && l.subject === subject,
+    );
+    if (limit && limit.amount > 0) {
+      limit.amount--;
     } else {
-      throw new Error('Invalid JSON response');
+      console.warn(
+        `Лимит для группы ${group} и предмета ${subject} уже достиг нуля.`,
+      );
     }
   }
 }
