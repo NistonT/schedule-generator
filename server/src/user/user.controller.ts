@@ -50,4 +50,12 @@ export class UserController {
   ): Promise<User> {
     return await this.userService.updateUser(id, dto);
   }
+
+  // Обновленние api-key пользователя по url
+  // PUT localhost:5555/api/user/api_key
+  @Put('/api_key')
+  @Auth()
+  async updateApiKey(@CurrentUser('id') id: string) {
+    return await this.userService.updateApiKey(id);
+  }
 }
