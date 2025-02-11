@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { hash } from 'argon2';
+import * as cuid from 'cuid';
 import { PrismaService } from 'src/prisma.service';
 import { RegisterAuth } from './dto/register.dto';
 import { UpdateUserDto } from './dto/user.dto';
-
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
@@ -79,6 +79,32 @@ export class UserService {
         id,
       },
       data,
+    });
+  }
+
+  // Обновленние api key
+  async updateApiKey(id: string) {
+    let isUnique = false;
+    let newApiKey: string;
+
+    while (!isUnique) {
+      newApiKey = cuid();
+      const existingUser = await this.prisma.user.findUnique({
+        where: { api_key: newApiKey },
+      });
+
+      if (!existingUser) {
+        isUnique = true;
+      }
+    }
+
+    return await this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        api_key: newApiKey,
+      },
     });
   }
 }
