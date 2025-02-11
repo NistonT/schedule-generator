@@ -13,39 +13,27 @@ export class ScheduleService {
       cabinetLimits,
       days,
       maxLoad,
-      hours,
     } = data;
 
     const timetable: Record<number, any[]> = {};
 
     for (const group of groups) {
-      let totalHours = hours[group].reduce((sum, h) => sum + h, 0);
-      const dailyLoad = Math.floor(totalHours / days);
-      let remainingHours = totalHours % days;
-
-      // Создаем очередь предметов с учетом всех типов занятий
       const subjectQueue = this.createSubjectQueue(
         subjectsMap[group],
         amountLimits,
       );
 
-      // Распределение пар для каждого предмета
-      for (const subjectInfo of subjectQueue) {
-        const subjectHours = subjectInfo.remaining;
-        const dailySubjectLoad = Math.floor(subjectHours / days);
-        let remainingSubjectHours = subjectHours % days;
+      for (let dayIndex = 1; dayIndex <= days; dayIndex++) {
+        if (!timetable[dayIndex]) {
+          timetable[dayIndex] = [];
+        }
 
-        for (let dayIndex = 1; dayIndex <= days; dayIndex++) {
-          if (!timetable[dayIndex]) {
-            timetable[dayIndex] = [];
-          }
+        // Попытаться заполнить все слоты до maxLoad
+        while (timetable[dayIndex].length < maxLoad) {
+          let subjectAssigned = false;
 
-          const loadForDay =
-            dailySubjectLoad + (remainingSubjectHours > 0 ? 1 : 0);
-          remainingSubjectHours--;
-
-          for (let i = 0; i < loadForDay && subjectInfo.remaining > 0; i++) {
-            if (timetable[dayIndex].length >= maxLoad) break;
+          for (const subjectInfo of subjectQueue) {
+            if (subjectInfo.remaining <= 0) continue;
 
             const teacherInfo = this.findTeacherForSubject(
               subjectInfo.subject,
@@ -62,6 +50,7 @@ export class ScheduleService {
               timetable,
               dayIndex,
               timetable[dayIndex].length + 1,
+              maxLoad,
             );
             if (!cabinet) continue;
 
@@ -69,7 +58,6 @@ export class ScheduleService {
               subjectInfo.lessonType === '1' ||
               subjectInfo.lessonType === '2'
             ) {
-              // Создаем подмассив для lessonType "1" и "2"
               this.addSubgroupLesson(
                 timetable,
                 dayIndex,
@@ -81,21 +69,31 @@ export class ScheduleService {
                 teachers,
                 teachersMap,
                 amountLimits,
+                maxLoad,
               );
-            } else {
-              // Добавляем обычную пару
-              timetable[dayIndex].push({
-                cabinet,
-                teacher: teacherInfo.name,
-                subject: subjectInfo.subject,
-                group,
-                lessonType: subjectInfo.lessonType,
-              });
+            } else if (subjectInfo.lessonType === 'L') {
+              if (timetable[dayIndex].length < maxLoad) {
+                timetable[dayIndex].push([
+                  {
+                    cabinet,
+                    teacher: teacherInfo.name,
+                    subject: subjectInfo.subject,
+                    group,
+                    lessonType: subjectInfo.lessonType,
+                  },
+                ]);
+              }
             }
 
             subjectInfo.remaining--;
             this.decrementAmountLimit(amountLimits, group, subjectInfo.subject);
+            subjectAssigned = true;
+
+            if (timetable[dayIndex].length >= maxLoad) break;
           }
+
+          // Если не удалось назначить ни одного занятия, выходим из цикла
+          if (!subjectAssigned) break;
         }
       }
     }
@@ -105,10 +103,8 @@ export class ScheduleService {
 
   private createSubjectQueue(subjects: string[], amountLimits: any[]): any[] {
     const queue: any[] = [];
-
     for (const subject of subjects) {
       const limits = amountLimits.filter((l) => l.subject === subject);
-
       for (const limit of limits) {
         queue.push({
           subject,
@@ -117,7 +113,6 @@ export class ScheduleService {
         });
       }
     }
-
     return queue.filter((item) => item.remaining > 0);
   }
 
@@ -134,7 +129,6 @@ export class ScheduleService {
       const teacher = teachers.find((t) => t.tid === teacherMapping.tid);
       return teacher || null;
     }
-
     return null;
   }
 
@@ -144,7 +138,8 @@ export class ScheduleService {
     cabinets: string[],
     timetable: Record<number, any[]>,
     day: number,
-    hour: number,
+    effectiveLoad: number,
+    maxLoad: number,
     excludeCabinets: string[] = [],
   ): string | null {
     const allowedCabinets =
@@ -152,7 +147,7 @@ export class ScheduleService {
     for (const cabinet of allowedCabinets) {
       if (
         !excludeCabinets.includes(cabinet) &&
-        !this.isCabinetBusy(timetable, day, hour, cabinet)
+        !this.isCabinetBusy(timetable, day, effectiveLoad, cabinet)
       ) {
         return cabinet;
       }
@@ -163,7 +158,7 @@ export class ScheduleService {
   private isCabinetBusy(
     timetable: Record<number, any[]>,
     day: number,
-    hour: number,
+    effectiveLoad: number,
     cabinet: string,
   ): boolean {
     const lessons = timetable[day]?.filter((lesson) => {
@@ -172,7 +167,14 @@ export class ScheduleService {
       }
       return lesson.cabinet === cabinet;
     });
-    return lessons?.some((lesson) => lesson.hour === hour) || false;
+    return (
+      lessons?.some((lesson) => this.getLessonHour(lesson) === effectiveLoad) ||
+      false
+    );
+  }
+
+  private getLessonHour(lesson: any): number {
+    return Array.isArray(lesson) ? lesson[0].hour : lesson.hour;
   }
 
   private addSubgroupLesson(
@@ -186,10 +188,10 @@ export class ScheduleService {
     teachers: any[],
     teachersMap: any[],
     amountLimits: any[],
+    maxLoad: number,
   ) {
     const subgroupLessons: any[] = [];
 
-    // Добавляем первую подгруппу (lessonType "1")
     if (this.hasAmountLimit(amountLimits, group, subjectInfo.subject, '1')) {
       const teacher1 = this.findTeacherForSubject(
         subjectInfo.subject,
@@ -204,8 +206,8 @@ export class ScheduleService {
         timetable,
         dayIndex,
         timetable[dayIndex].length + 1,
+        maxLoad,
       );
-
       if (teacher1 && cabinet1) {
         subgroupLessons.push({
           cabinet: cabinet1,
@@ -217,7 +219,6 @@ export class ScheduleService {
       }
     }
 
-    // Добавляем вторую подгруппу (lessonType "2"), если она существует в amountLimits
     if (this.hasAmountLimit(amountLimits, group, subjectInfo.subject, '2')) {
       const teacher2 = this.findAlternativeTeacherForSubject(
         subjectInfo.subject,
@@ -233,9 +234,9 @@ export class ScheduleService {
         timetable,
         dayIndex,
         timetable[dayIndex].length + 1,
-        subgroupLessons.map((lesson) => lesson.cabinet), // Исключаем кабинеты, используемые первой подгруппой
+        maxLoad,
+        subgroupLessons.map((lesson) => lesson.cabinet),
       );
-
       if (teacher2 && cabinet2) {
         subgroupLessons.push({
           cabinet: cabinet2,
@@ -244,15 +245,10 @@ export class ScheduleService {
           group,
           lessonType: '2',
         });
-      } else {
-        console.warn(
-          `Не удалось найти ресурсы для second subgroup (lessonType = "2")`,
-        );
       }
     }
 
-    // Убедимся, что в массиве не более двух элементов
-    if (subgroupLessons.length > 0 && subgroupLessons.length <= 2) {
+    if (subgroupLessons.length > 0 && timetable[dayIndex].length < maxLoad) {
       timetable[dayIndex].push(subgroupLessons);
     }
   }
@@ -263,7 +259,8 @@ export class ScheduleService {
     cabinets: string[],
     timetable: Record<number, any[]>,
     day: number,
-    hour: number,
+    effectiveLoad: number,
+    maxLoad: number,
     excludeCabinets: string[] = [],
   ): string | null {
     const allowedCabinets =
@@ -271,7 +268,7 @@ export class ScheduleService {
     for (const cabinet of allowedCabinets) {
       if (
         !excludeCabinets.includes(cabinet) &&
-        !this.isCabinetBusy(timetable, day, hour, cabinet)
+        !this.isCabinetBusy(timetable, day, effectiveLoad, cabinet)
       ) {
         return cabinet;
       }
@@ -289,7 +286,6 @@ export class ScheduleService {
     const alternativeTeachers = teachers.filter(
       (t) => t.name !== currentTeacherName,
     );
-
     for (const teacher of alternativeTeachers) {
       const teacherMapping = teachersMap.find(
         (map) =>
@@ -301,7 +297,6 @@ export class ScheduleService {
         return teacher;
       }
     }
-
     return null;
   }
 
