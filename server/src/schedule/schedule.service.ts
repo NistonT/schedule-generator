@@ -1,40 +1,99 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ScheduleService {
+  constructor(
+    private prisma: PrismaService, // Сервис для работы с базой данных через Prisma
+    private userService: UserService, // Сервис для работы с пользователями
+  ) {}
+
+  // Метод для сохранения расписания в базе данных
+  async generatedSchedulePrisma(api_key: string, data: any): Promise<any> {
+    // Проверка наличия API ключа
+    if (!api_key || api_key.trim() === '') {
+      throw new Error('API key is required and must not be empty');
+    }
+
+    // Поиск пользователя по API ключу
+    const user = await this.userService.getByApiKey(api_key);
+
+    // Если пользователь не найден, выбрасываем ошибку
+    if (!user) {
+      throw new Error('Пользователь не найден');
+    }
+
+    // Генерация расписания на основе переданных данных
+    const schedule_json = await this.generateSchedule(data);
+
+    // Обновление расписания в базе данных для конкретного пользователя
+    return await this.prisma.schedule.update({
+      where: {
+        user_id: user.id,
+      },
+      data: {
+        schedule: schedule_json,
+      },
+    });
+  }
+
+  // Метод для получения расписания по API ключу пользователя
+  async getBySchedule(api_key: string) {
+    // Поиск пользователя по API ключу
+    const user = await this.userService.getByApiKey(api_key);
+
+    // Возвращаем расписание пользователя из базы данных
+    return await this.prisma.schedule.findUnique({
+      where: {
+        user_id: user.id,
+      },
+    });
+  }
+
+  // Метод для генерации расписания
   async generateSchedule(data: any): Promise<any> {
+    // Извлечение данных из входного объекта
     const {
-      cabinets,
-      groups,
-      teachers,
-      subjectsMap,
-      teachersMap,
-      amountLimits,
-      cabinetLimits,
-      days,
-      maxLoad,
+      cabinets, // Список кабинетов
+      groups, // Список групп
+      teachers, // Список преподавателей
+      subjectsMap, // Маппинг предметов по группам
+      teachersMap, // Маппинг преподавателей по предметам и группам
+      amountLimits, // Ограничения по количеству занятий
+      cabinetLimits, // Ограничения по кабинетам для преподавателей
+      days, // Количество дней в расписании
+      maxLoad, // Максимальная нагрузка (количество занятий в день)
     } = data;
 
+    // Инициализация объекта для хранения расписания
     const timetable: Record<number, any[]> = {};
 
+    // Перебор всех групп для составления расписания
     for (const group of groups) {
+      // Создание очереди предметов для текущей группы
       const subjectQueue = this.createSubjectQueue(
         subjectsMap[group],
         amountLimits,
       );
 
+      // Перебор всех дней для составления расписания
       for (let dayIndex = 1; dayIndex <= days; dayIndex++) {
+        // Инициализация расписания для текущего дня, если оно еще не создано
         if (!timetable[dayIndex]) {
           timetable[dayIndex] = [];
         }
 
-        // Попытаться заполнить все слоты до maxLoad
+        // Попытка заполнить все слоты до максимальной нагрузки
         while (timetable[dayIndex].length < maxLoad) {
           let subjectAssigned = false;
 
+          // Перебор всех предметов в очереди
           for (const subjectInfo of subjectQueue) {
+            // Пропуск предмета, если его лимит уже исчерпан
             if (subjectInfo.remaining <= 0) continue;
 
+            // Поиск преподавателя для текущего предмета
             const teacherInfo = this.findTeacherForSubject(
               subjectInfo.subject,
               teachersMap,
@@ -43,6 +102,7 @@ export class ScheduleService {
             );
             if (!teacherInfo) continue;
 
+            // Поиск свободного кабинета для преподавателя
             const cabinet = this.findCabinetForTeacher(
               teacherInfo.tid,
               cabinetLimits,
@@ -54,6 +114,7 @@ export class ScheduleService {
             );
             if (!cabinet) continue;
 
+            // Обработка разных типов занятий (подгруппы, лекции и т.д.)
             if (
               subjectInfo.lessonType === '1' ||
               subjectInfo.lessonType === '2'
@@ -72,6 +133,7 @@ export class ScheduleService {
                 maxLoad,
               );
             } else if (subjectInfo.lessonType === 'L') {
+              // Добавление лекции в расписание
               if (timetable[dayIndex].length < maxLoad) {
                 timetable[dayIndex].push([
                   {
@@ -85,10 +147,13 @@ export class ScheduleService {
               }
             }
 
+            // Уменьшение оставшегося количества занятий по предмету
             subjectInfo.remaining--;
+            // Уменьшение лимита занятий для группы и предмета
             this.decrementAmountLimit(amountLimits, group, subjectInfo.subject);
             subjectAssigned = true;
 
+            // Если расписание на день заполнено, выходим из цикла
             if (timetable[dayIndex].length >= maxLoad) break;
           }
 
@@ -98,12 +163,15 @@ export class ScheduleService {
       }
     }
 
+    // Возвращаем сгенерированное расписание
     return { timetable };
   }
 
+  // Метод для создания очереди предметов с учетом лимитов
   private createSubjectQueue(subjects: string[], amountLimits: any[]): any[] {
     const queue: any[] = [];
     for (const subject of subjects) {
+      // Фильтрация лимитов для текущего предмета
       const limits = amountLimits.filter((l) => l.subject === subject);
       for (const limit of limits) {
         queue.push({
@@ -113,25 +181,30 @@ export class ScheduleService {
         });
       }
     }
+    // Возвращаем только те предметы, у которых остались занятия
     return queue.filter((item) => item.remaining > 0);
   }
 
+  // Метод для поиска преподавателя по предмету и группе
   private findTeacherForSubject(
     subject: string,
     teachersMap: any[],
     teachers: any[],
     group: string,
   ): any | null {
+    // Поиск маппинга преподавателя для предмета и группы
     const teacherMapping = teachersMap.find(
       (map) => map.subject === subject && map.group === group,
     );
     if (teacherMapping) {
+      // Поиск преподавателя по его ID
       const teacher = teachers.find((t) => t.tid === teacherMapping.tid);
       return teacher || null;
     }
     return null;
   }
 
+  // Метод для поиска свободного кабинета для преподавателя
   private findCabinetForTeacher(
     tid: number,
     cabinetLimits: any[],
@@ -142,9 +215,11 @@ export class ScheduleService {
     maxLoad: number,
     excludeCabinets: string[] = [],
   ): string | null {
+    // Получение списка доступных кабинетов для преподавателя
     const allowedCabinets =
       cabinetLimits.find((limit) => limit.tid === tid)?.cabinets || [];
     for (const cabinet of allowedCabinets) {
+      // Проверка, что кабинет не занят и не в списке исключений
       if (
         !excludeCabinets.includes(cabinet) &&
         !this.isCabinetBusy(timetable, day, effectiveLoad, cabinet)
@@ -155,28 +230,33 @@ export class ScheduleService {
     return null;
   }
 
+  // Метод для проверки, занят ли кабинет в определенное время
   private isCabinetBusy(
     timetable: Record<number, any[]>,
     day: number,
     effectiveLoad: number,
     cabinet: string,
   ): boolean {
+    // Фильтрация занятий в кабинете на указанный день
     const lessons = timetable[day]?.filter((lesson) => {
       if (Array.isArray(lesson)) {
         return lesson.some((sublesson) => sublesson.cabinet === cabinet);
       }
       return lesson.cabinet === cabinet;
     });
+    // Проверка, занят ли кабинет в указанное время
     return (
       lessons?.some((lesson) => this.getLessonHour(lesson) === effectiveLoad) ||
       false
     );
   }
 
+  // Метод для получения часа занятия
   private getLessonHour(lesson: any): number {
     return Array.isArray(lesson) ? lesson[0].hour : lesson.hour;
   }
 
+  // Метод для добавления занятия для подгруппы
   private addSubgroupLesson(
     timetable: Record<number, any[]>,
     dayIndex: number,
@@ -192,6 +272,7 @@ export class ScheduleService {
   ) {
     const subgroupLessons: any[] = [];
 
+    // Проверка наличия лимита для первой подгруппы
     if (this.hasAmountLimit(amountLimits, group, subjectInfo.subject, '1')) {
       const teacher1 = this.findTeacherForSubject(
         subjectInfo.subject,
@@ -219,6 +300,7 @@ export class ScheduleService {
       }
     }
 
+    // Проверка наличия лимита для второй подгруппы
     if (this.hasAmountLimit(amountLimits, group, subjectInfo.subject, '2')) {
       const teacher2 = this.findAlternativeTeacherForSubject(
         subjectInfo.subject,
@@ -248,11 +330,13 @@ export class ScheduleService {
       }
     }
 
+    // Добавление занятий для подгрупп в расписание, если есть место
     if (subgroupLessons.length > 0 && timetable[dayIndex].length < maxLoad) {
       timetable[dayIndex].push(subgroupLessons);
     }
   }
 
+  // Метод для поиска уникального кабинета с учетом исключений
   private findUniqueCabinet(
     tid: number,
     cabinetLimits: any[],
@@ -276,6 +360,7 @@ export class ScheduleService {
     return null;
   }
 
+  // Метод для поиска альтернативного преподавателя для предмета
   private findAlternativeTeacherForSubject(
     subject: string,
     currentTeacherName: string | null,
@@ -283,6 +368,7 @@ export class ScheduleService {
     teachersMap: any[],
     group: string,
   ): any | null {
+    // Фильтрация преподавателей, исключая текущего
     const alternativeTeachers = teachers.filter(
       (t) => t.name !== currentTeacherName,
     );
@@ -300,6 +386,7 @@ export class ScheduleService {
     return null;
   }
 
+  // Метод для проверки наличия лимита занятий для группы и предмета
   private hasAmountLimit(
     amountLimits: any[],
     group: string,
@@ -314,6 +401,7 @@ export class ScheduleService {
     );
   }
 
+  // Метод для уменьшения лимита занятий для группы и предмета
   private decrementAmountLimit(
     amountLimits: any[],
     group: string,

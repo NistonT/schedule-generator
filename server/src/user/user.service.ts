@@ -3,12 +3,14 @@ import { User } from '@prisma/client';
 import { hash } from 'argon2';
 import { PrismaService } from 'src/prisma.service';
 import { RegisterAuth } from './dto/register.dto';
+import { UpdateUserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async create(dto: RegisterAuth) {
+  // Создайние пользователя
+  async create(dto: RegisterAuth): Promise<User> {
     return await this.prisma.user.create({
       data: {
         username: dto.username,
@@ -26,7 +28,13 @@ export class UserService {
     });
   }
 
-  async getById(id: string) {
+  // Получение всех пользователей
+  async getByAll(): Promise<User[]> {
+    return await this.prisma.user.findMany();
+  }
+
+  // Получение пользователя по id
+  async getById(id: string): Promise<User> {
     return await this.prisma.user.findUnique({
       where: {
         id,
@@ -37,6 +45,16 @@ export class UserService {
     });
   }
 
+  // Получение пользователя по api-key
+  async getByApiKey(api_key: string): Promise<User> {
+    return await this.prisma.user.findUnique({
+      where: {
+        api_key,
+      },
+    });
+  }
+
+  // Получение пользователя по имени
   async getByUsername(username): Promise<User> {
     return await this.prisma.user.findUnique({
       where: {
@@ -45,6 +63,22 @@ export class UserService {
       include: {
         schedule: true,
       },
+    });
+  }
+
+  // Обновленние пользователя по id
+  async updateUser(id: string, dto: UpdateUserDto): Promise<User> {
+    let data = dto;
+
+    if (dto.password) {
+      data = { ...dto, password: await hash(dto.password) };
+    }
+
+    return this.prisma.user.update({
+      where: {
+        id,
+      },
+      data,
     });
   }
 }

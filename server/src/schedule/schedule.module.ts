@@ -1,6 +1,7 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
+import { UserService } from 'src/user/user.service';
 import { ScheduleController } from './schedule.controller';
 import { ScheduleService } from './schedule.service';
 
@@ -13,6 +14,6 @@ import { ScheduleService } from './schedule.service';
     }),
   ],
   controllers: [ScheduleController],
-  providers: [ScheduleService, PrismaService],
+  providers: [ScheduleService, PrismaService, UserService],
 })
 export class ScheduleModule {}

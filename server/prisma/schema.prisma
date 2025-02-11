@@ -26,7 +26,7 @@ model Schedule {
   id        String   @id @default(cuid())
   user      User     @relation("UserToSchedule", fields: [user_id], references: [id])
   user_id   String   @unique
-  schedule  Json
+  schedule  Json     @map("schedule_json")
   CreatedAt DateTime @default(now()) @map("created_at")
   UpdatedAt DateTime @updatedAt @map("updated_at")
 

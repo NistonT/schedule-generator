@@ -21,6 +21,7 @@ export class AuthService {
     private userService: UserService,
   ) {}
 
+  // Вход в систему
   async login(dto: AuthDto) {
     const { password, ...user } = await this.validateUser(dto);
     const tokens = this.issueToken(user.id);
@@ -31,6 +32,7 @@ export class AuthService {
     };
   }
 
+  // Регистрация пользователя
   async register(dto: RegisterAuth) {
     const oldUser = await this.userService.getByUsername(dto.username);
 
@@ -50,6 +52,7 @@ export class AuthService {
     };
   }
 
+  // Регистрация токенов
   private issueToken(user_id: string) {
     const data = { id: user_id };
 
@@ -64,6 +67,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
+  // Валидация пользователя
   private async validateUser(dto: AuthDto) {
     const user = await this.userService.getByUsername(dto.username);
 
@@ -76,6 +80,7 @@ export class AuthService {
     return user;
   }
 
+  // Полученние нового токена
   async getNewTokens(refreshToken: string) {
     const result = await this.jwt.verifyAsync(refreshToken);
     if (!result) throw new UnauthorizedException('Токен не валидный');
@@ -90,6 +95,7 @@ export class AuthService {
     };
   }
 
+  // Добавление Refresh токен
   addRefreshTokenToResponse(res: Response, refreshToken: string) {
     const expiresIn = new Date();
     expiresIn.setDate(expiresIn.getDate() + this.EXPIRE_DAY_REFRESH_TOKEN);
@@ -103,6 +109,7 @@ export class AuthService {
     });
   }
 
+  // Удаление Refresh токена
   removeRefreshTokenToResponse(res: Response) {
     res.cookie(this.REFRESH_TOKEN_NAME, '', {
       httpOnly: true,
