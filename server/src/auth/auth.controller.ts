@@ -18,6 +18,7 @@ import { RegisterAuth } from './dto/register.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // Вход в систему
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   @Post('login')
@@ -28,6 +29,7 @@ export class AuthController {
     return response;
   }
 
+  // Регистрация пользователя
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   @Post('register')
@@ -41,6 +43,7 @@ export class AuthController {
     return response;
   }
 
+  // Создание нового токена
   @HttpCode(200)
   @Post('login/access-token')
   async getNewTokens(
@@ -64,6 +67,7 @@ export class AuthController {
     return response;
   }
 
+  // Выход из системы
   @HttpCode(200)
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
