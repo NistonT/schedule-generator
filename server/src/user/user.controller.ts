@@ -35,7 +35,7 @@ export class UserController {
   }
 
   // Обновленние данные пользователя по url
-  // PUT localhost:5555/api/user/user_id
+  // PUT localhost:5555/api/user/update
   // {
   // "username": ?string,
   // "email": ?string,

@@ -82,6 +82,7 @@ export class UserService {
     });
   }
 
+  // Удаление пользователя по id
   async deleteUser(id: string): Promise<User> {
     return await this.prisma.user.delete({
       where: {
