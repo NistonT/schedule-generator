@@ -82,6 +82,14 @@ export class UserService {
     });
   }
 
+  async deleteUser(id: string): Promise<User> {
+    return await this.prisma.user.delete({
+      where: {
+        id,
+      },
+    });
+  }
+
   // Обновленние api key
   async updateApiKey(id: string) {
     let isUnique = false;
