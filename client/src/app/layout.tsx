@@ -1,3 +1,4 @@
+import { Header } from "@/components/Header";
 import { SITE_NAME } from "@/constants/seo.constants";
 import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
@@ -30,8 +31,8 @@ export default function RootLayout({
 		<html lang='en'>
 			<body className={`${zen.variable} antialiased`}>
 				<Providers>
-					{children}
-
+					<Header />
+					<section>{children}</section>
 					<Toaster theme='light' position='top-center' duration={1500} />
 				</Providers>
 			</body>

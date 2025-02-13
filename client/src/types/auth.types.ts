@@ -5,10 +5,17 @@ export interface IAuthForm {
 
 export type TypeUserForm = Omit<IUser, "id"> & { password?: string };
 
+export interface IRegForm {
+	username: string;
+	email: string;
+	password: string;
+}
 export interface IRegisterForm {
 	username: string;
 	email: string;
 	password: string;
+	passwordConfirm: string;
+	isConfirm: string;
 }
 
 export interface IUser {

@@ -8,7 +8,7 @@ async function bootstrap() {
   app.setGlobalPrefix('/api'); // localhost:3000/api/...
   app.use(cookieParser());
   app.enableCors({
-    origin: [process.env.CLIENT],
+    origin: [process.env.CLIENT, 'http://localhost:3000'],
     credentials: true,
     exposedHeaders: 'set-cookie',
   });
