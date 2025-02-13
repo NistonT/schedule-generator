@@ -2,9 +2,9 @@
 class DASHBOARD {
 	private root = "/i";
 
-	HOME = this.root;
-	AUTHORIZATION = `${this.root}/authorization`;
-	REGISTRATION = `${this.root}/registration`;
+	HOME = "/";
+	AUTHORIZATION = `/authorization`;
+	REGISTRATION = `/registration`;
 	DOCUMENTATION = `${this.root}/documentation`;
 	PROFILE = `${this.root}/profile`;
 }

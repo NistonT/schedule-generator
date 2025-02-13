@@ -2,26 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+	.gradient-border {
+		--tw-border-opacity: 1;
+		border-image-source: linear-gradient(
+			to right,
+			theme("colors.indigo.500"),
+			theme("colors.blue.500")
+		);
+		border-image-slice: 1;
+	}
 }

@@ -1,5 +1,5 @@
 import { axiosClassic } from "@/api/interceptors";
-import { IAuthForm, IAuthResponse, IRegisterForm } from "@/types/auth.types";
+import { IAuthForm, IAuthResponse, IRegForm } from "@/types/auth.types";
 import { removeFromStorage, saveTokenStorage } from "./auth-token.service";
 
 export enum EnumTokens {
@@ -15,17 +15,15 @@ export const authService = {
 		);
 
 		if (response.data.accessToken) saveTokenStorage(response.data.accessToken);
-
+		console.log(response);
 		return response;
 	},
 
-	async registerMain(data: IRegisterForm) {
+	async registerMain(data: IRegForm) {
 		const response = await axiosClassic.post<IAuthResponse>(
 			`/auth/register`,
 			data
 		);
-
-		if (response.data.accessToken) saveTokenStorage(response.data.accessToken);
 
 		return response;
 	},
