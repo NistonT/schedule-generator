@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest, response: NextResponse) {
 
 	const refreshToken = cookies.get(EnumTokens.REFRESH_TOKEN)?.value;
 
-	// Страница Администратора
+	// Страница Авторизированного пользователя
 	const isDashboardPage = url.includes("/i");
 
 	// Страница Авторизации
