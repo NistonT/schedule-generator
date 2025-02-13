@@ -1,4 +1,5 @@
 "use client";
+import { ReactNode } from "react";
 import { UseFormRegister } from "react-hook-form";
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
 	maxLengthValue?: number;
 	patternValue?: RegExp | undefined;
 	patternMessage?: string | undefined;
+	icon?: ReactNode;
 };
 
 export const Field = ({
@@ -27,6 +29,7 @@ export const Field = ({
 	maxLengthValue = 255,
 	patternValue = /^.*$/,
 	patternMessage = "",
+	icon,
 }: Props) => {
 	return (
 		<>
@@ -37,27 +40,33 @@ export const Field = ({
 				>
 					{label}
 				</label>
-				<input
-					{...register(name, {
-						required,
-						minLength: {
-							value: minLengthValue,
-							message: `Имя пользователя должно содержать не менее ${minLengthValue} символов`,
-						},
-						maxLength: {
-							value: maxLengthValue,
-							message: `Имя пользователя должно содержать не более ${maxLengthValue} символов`,
-						},
-						pattern: {
-							value: patternValue,
-							message: patternMessage,
-						},
-					})}
-					type={type}
-					id={name}
-					className='w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out'
-					required={isRequired}
-				/>
+				<div className='relative'>
+					<div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-indigo-500'>
+						{icon}
+					</div>
+					<input
+						{...register(name, {
+							required,
+							minLength: {
+								value: minLengthValue,
+								message: `Имя пользователя должно содержать не менее ${minLengthValue} символов`,
+							},
+							maxLength: {
+								value: maxLengthValue,
+								message: `Имя пользователя должно содержать не более ${maxLengthValue} символов`,
+							},
+							pattern: {
+								value: patternValue,
+								message: patternMessage,
+							},
+						})}
+						type={type}
+						id={name}
+						className='w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 pl-10 leading-8 transition-colors duration-200 ease-in-out'
+						required={isRequired}
+					/>
+				</div>
+
 				{errors && <p className='text-red-500 text-xs mt-1'>{errors}</p>}
 			</div>
 		</>

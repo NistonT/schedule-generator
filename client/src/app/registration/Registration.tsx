@@ -9,6 +9,7 @@ import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { authService } from "@/services/auth.service";
 import { IRegForm, IRegisterForm } from "@/types/auth.types";
 import { useMutation } from "@tanstack/react-query";
+import { KeySquare, LogIn, Mail, User, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -66,6 +67,7 @@ export const Registration = () => {
 					<ButtonLink
 						href={DASHBOARD_PAGES.AUTHORIZATION}
 						title={"Авторизация"}
+						icon={<LogIn />}
 					/>
 				</div>
 				<form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
@@ -81,6 +83,7 @@ export const Registration = () => {
 						maxLengthValue={50}
 						patternValue={/^(?=(?:.*[a-zA-Z]){3})[a-zA-Z0-9]+$/}
 						patternMessage='Пароль должен содержать хотя бы три английские буквы (нижний или верхний регистр). Допускаются только латинские буквы и цифры.'
+						icon={<User />}
 					/>
 
 					<Field
@@ -97,6 +100,7 @@ export const Registration = () => {
 						patternMessage='Адрес электронной почты должен содержать:
 		Латинские буквы, цифры и символы перед @.
 		Доменное имя после @ и доменную зону (например, .com, .co.uk).'
+						icon={<Mail />}
 					/>
 
 					<PasswordForm
@@ -104,6 +108,7 @@ export const Registration = () => {
 						errors={errors["password"]?.message}
 						label={"Пароль"}
 						name={EnumRegister.PASSWORD}
+						icon={<KeySquare />}
 					/>
 
 					<PasswordForm
@@ -111,6 +116,7 @@ export const Registration = () => {
 						errors={errors.passwordConfirm?.message}
 						label={"Подтвердите пароль"}
 						name={EnumRegister.PASSWORD_CONFIRM}
+						icon={<KeySquare />}
 					/>
 
 					<CheckboxConfirm
@@ -127,7 +133,7 @@ export const Registration = () => {
 						<div className='text-red-500 text-sm mt-2'>{message}</div>
 					)}
 
-					<ButtonSubmit title={"Зарегистрироваться"} />
+					<ButtonSubmit title={"Зарегистрироваться"} icon={<UserPlus />} />
 				</form>
 				<div className='flex flex-col space-y-4 items-center text-center max-w-md mx-auto'>
 					<div className='text-sm text-gray-600'>
