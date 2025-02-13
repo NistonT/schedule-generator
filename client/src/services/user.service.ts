@@ -9,6 +9,8 @@ class UserService {
 		return response;
 	}
 
+	// useProfile>useQuery
+
 	async update(data: TypeUserForm) {
 		const response = await axiosWithAuto.put(`${this.BASE_URL}/update`, data);
 		return response;

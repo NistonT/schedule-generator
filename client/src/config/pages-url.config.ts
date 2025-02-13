@@ -5,8 +5,10 @@ class DASHBOARD {
 	HOME = "/";
 	AUTHORIZATION = `/authorization`;
 	REGISTRATION = `/registration`;
-	DOCUMENTATION = `${this.root}/documentation`;
+	DOCUMENTATION = `/documentation`;
 	PROFILE = `${this.root}/profile`;
+	SETTING = `${this.root}/setting`;
+	ABOUT = `${this.root}/about`;
 }
 
 export const DASHBOARD_PAGES = new DASHBOARD();

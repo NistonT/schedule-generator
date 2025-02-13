@@ -8,6 +8,7 @@ import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { authService } from "@/services/auth.service";
 import { IAuthForm } from "@/types/auth.types";
 import { useMutation } from "@tanstack/react-query";
+import { Lock, LogIn, User, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -50,6 +51,7 @@ export const Authorization = () => {
 					<ButtonLink
 						href={DASHBOARD_PAGES.REGISTRATION}
 						title={"Регистрация"}
+						icon={<UserPlus />}
 					/>
 				</div>
 				<form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
@@ -63,6 +65,7 @@ export const Authorization = () => {
 						errors={errors.username?.message}
 						minLengthValue={3}
 						maxLengthValue={64}
+						icon={<User />}
 					/>
 
 					<Field
@@ -75,9 +78,10 @@ export const Authorization = () => {
 						errors={errors.password?.message}
 						minLengthValue={6}
 						maxLengthValue={64}
+						icon={<Lock />}
 					/>
 
-					<ButtonSubmit title={"Войти"} />
+					<ButtonSubmit title={"Войти"} icon={<LogIn />} />
 				</form>
 				<div className='flex flex-col space-y-4 items-center text-center max-w-md mx-auto'>
 					<div className='text-sm text-gray-600'>
