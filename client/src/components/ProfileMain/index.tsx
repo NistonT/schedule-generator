@@ -47,7 +47,7 @@ export const ProfileMain = ({ children }: Props) => {
 		<>
 			{isAuth ? (
 				<>
-					<div className='flex container mx-auto w-full justify-end items-center gap-4 p-4 bg-white shadow-sm'>
+					<div className='flex container mx-auto w-full justify-end items-center gap-4 p-4 bg-white'>
 						<div className='text-gray-700 flex items-center gap-1'>
 							<User className='w-5 h-5' /> {data?.username}
 						</div>

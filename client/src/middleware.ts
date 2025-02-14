@@ -10,6 +10,9 @@ export async function middleware(request: NextRequest, response: NextResponse) {
 	// Страница Авторизированного пользователя
 	const isDashboardPage = url.includes("/i");
 
+	// Главная страница
+	const isMainPage = "/";
+
 	// Страница Авторизации
 	const isAuthPage = url.includes("/authorization");
 

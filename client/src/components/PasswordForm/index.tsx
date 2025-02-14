@@ -9,11 +9,15 @@ export enum EnumRegister {
 	PASSWORD = "password",
 	PASSWORD_CONFIRM = "passwordConfirm",
 	IS_CONFIRM = "isConfirm",
+
+	OLD_PASSWORD = "passwordOld",
+	NEW_PASSWORD = "passwordNew",
+	CONFIRM_PASSWORD = "passwordConfirm",
 }
 
 type Props = {
-	register: UseFormRegister<IRegisterForm>;
-	errors: string | undefined;
+	register: UseFormRegister<IRegisterForm> | any;
+	errors: string | undefined | any;
 	label: string;
 	name: EnumRegister;
 	icon?: ReactNode;
