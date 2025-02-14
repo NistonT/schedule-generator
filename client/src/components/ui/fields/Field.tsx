@@ -9,12 +9,13 @@ type Props = {
 	isRequired: boolean;
 	required: boolean | string;
 	register: UseFormRegister<any>;
-	errors: string | undefined;
+	errors: string | undefined | any;
 	minLengthValue?: number;
 	maxLengthValue?: number;
 	patternValue?: RegExp | undefined;
 	patternMessage?: string | undefined;
 	icon?: ReactNode;
+	default?: string | undefined;
 };
 
 export const Field = ({
@@ -30,6 +31,7 @@ export const Field = ({
 	patternValue = /^.*$/,
 	patternMessage = "",
 	icon,
+	default: defaultValue,
 }: Props) => {
 	return (
 		<>
@@ -64,6 +66,7 @@ export const Field = ({
 						id={name}
 						className='w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 pl-10 leading-8 transition-colors duration-200 ease-in-out'
 						required={isRequired}
+						defaultValue={defaultValue}
 					/>
 				</div>
 

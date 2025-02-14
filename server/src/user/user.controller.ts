@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Post,
   Put,
   UsePipes,
   ValidationPipe,
@@ -67,5 +68,17 @@ export class UserController {
   @Auth()
   async updateApiKey(@CurrentUser('id') id: string) {
     return await this.userService.updateApiKey(id);
+  }
+
+  // Проверка пароля пользователя по url
+  // POST localhost:5555/api/user/check
+  @Post('/check')
+  @HttpCode(202)
+  @Auth()
+  async checkPasswords(
+    @CurrentUser('id') id: string,
+    @Body('password') password: string,
+  ) {
+    return await this.userService.checkPassword(id, password);
   }
 }

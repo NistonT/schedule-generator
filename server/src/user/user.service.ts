@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { hash } from 'argon2';
+import { hash, verify } from 'argon2';
 import * as cuid from 'cuid';
 import { PrismaService } from 'src/prisma.service';
 import { RegisterAuth } from './dto/register.dto';
@@ -80,6 +80,17 @@ export class UserService {
       },
       data,
     });
+  }
+
+  // Проверка пароля
+  async checkPassword(id: string, password: string) {
+    const user = await this.getById(id);
+
+    if (!user.password.startsWith('$')) {
+      throw new Error('Неверный формат хэша пароля');
+    }
+
+    return await verify(user.password, password);
   }
 
   // Удаление пользователя по id
