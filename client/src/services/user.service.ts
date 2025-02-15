@@ -1,5 +1,7 @@
 import { axiosWithAuto } from "@/api/interceptors";
 import { IPassword, IUser, TypeUserForm } from "@/types/auth.types";
+import { GitHubUser } from "@/types/git.types";
+import axios from "axios";
 
 class UserService {
 	private BASE_URL = "/user";
@@ -27,6 +29,19 @@ class UserService {
 			password
 		);
 		return response;
+	}
+
+	async gitHub(): Promise<GitHubUser | null> {
+		try {
+			const response = await axios.get<GitHubUser>(
+				`https://api.github.com/users/NistonT`
+			);
+
+			return response.data;
+		} catch (error) {
+			console.log(error);
+			return null;
+		}
 	}
 }
 
