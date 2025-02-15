@@ -21,6 +21,9 @@ type Props = {
 
 export const PasswordSettingForm = ({ data }: Props) => {
 	const [isModal, setIsModal] = useState<boolean>(false);
+	const [isPasswordValid, setIsPasswordValid] = useState<boolean | null | void>(
+		null
+	);
 
 	const handlerIsModal = () => {
 		setIsModal(!isModal);
@@ -41,19 +44,19 @@ export const PasswordSettingForm = ({ data }: Props) => {
 		},
 	});
 
-	const { mutate: PasswordCheck } = useMutation({
+	const { mutate: checkPassword } = useMutation({
 		mutationKey: ["updatePassword"],
 		mutationFn: (password: IPassword) => userService.check(password),
-		onSuccess: () => {
-			return true;
+		onSuccess: response => {
+			setIsPasswordValid(true);
 		},
-		onError: () => {
-			toast("Старый пароль неверный");
-			return false;
+		onError: error => {
+			setIsPasswordValid(false);
 		},
 	});
 
 	const onSubmit: SubmitHandler<IUpdatePassword> = formData => {
+		setIsPasswordValid(true);
 		const userData: TypeUserForm = {
 			username: data!.username || "",
 			email: data!.email || "",
@@ -63,11 +66,18 @@ export const PasswordSettingForm = ({ data }: Props) => {
 			CreatedAt: data!.CreatedAt,
 			UpdatedAt: data!.UpdatedAt,
 		};
+		// if (isCheck) {
+		// 	return;
+		// }
 
-		PasswordCheck({ password: formData.password });
+		// setIsPasswordValid(checkPassword({ password: formData.password }));
 
-		console.log(formData.passwordConfirm);
-		console.log(formData.password);
+		checkPassword({ password: formData.passwordOld });
+
+		if (!isPasswordValid) {
+			toast("Старый пароль неверный");
+			return;
+		}
 
 		if (formData.passwordConfirm !== formData.password) {
 			toast("Подтвержденный пароль неверный");

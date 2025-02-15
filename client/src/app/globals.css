@@ -21,4 +21,22 @@
 		-ms-overflow-style: none; /* IE и Edge */
 		scrollbar-width: none; /* Firefox */
 	}
+
+	.swiper-button-prev,
+	.swiper-button-next {
+		color: #3b82f6; /* Цвет кнопок */
+		background-color: rgba(255, 255, 255, 0.8); /* Фон кнопок */
+		border-radius: 50%;
+		width: 40px;
+		height: 40px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
+
+	.swiper-button-prev::after,
+	.swiper-button-next::after {
+		font-size: 20px;
+	}
 }
