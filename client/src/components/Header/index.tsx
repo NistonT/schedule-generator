@@ -8,14 +8,17 @@ export const Header = () => {
 
 	return (
 		<header>
-			<div className='container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center mt-5 relative z-50'>
+			<div className='container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center mt-5 relative z-40'>
 				<div className='flex items-center fixed top-5'>
 					<Link
-						className='text-3xl px-6 py-4 text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-md transition-all cursor-default flex items-center gap-3'
+						className='text-3xl px-6 py-4 text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-md transition-all cursor-default flex items-center gap-3 relative'
 						href={"/"}
 					>
 						<Bot className='w-10 h-10' />
 						ГЕНЕРАТОР API
+						<div className='absolute right-1 top-1 rotate-45 text-[14px] text-white z-50'>
+							BETA
+						</div>
 					</Link>
 					<span className='text-gray-600 text-xl bg-white py-4 px-8	'>
 						| {word}

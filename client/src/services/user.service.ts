@@ -23,12 +23,14 @@ class UserService {
 		return response;
 	}
 
-	async check(password: IPassword) {
+	async check(password: IPassword): Promise<boolean> {
 		const response = await axiosWithAuto.post(
 			`${this.BASE_URL}/check`,
 			password
 		);
-		return response;
+		console.log(response);
+
+		return response.data;
 	}
 
 	async gitHub(): Promise<GitHubUser | null> {

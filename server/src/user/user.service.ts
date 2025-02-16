@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { hash, verify } from 'argon2';
 import * as cuid from 'cuid';
+import { console } from 'inspector';
 import { PrismaService } from 'src/prisma.service';
 import { RegisterAuth } from './dto/register.dto';
 import { UpdateUserDto } from './dto/user.dto';
@@ -86,11 +87,27 @@ export class UserService {
   async checkPassword(id: string, password: string) {
     const user = await this.getById(id);
 
+    console.log(user.password);
+    console.log(password);
+
     if (!user.password.startsWith('$')) {
       throw new Error('Неверный формат хэша пароля');
     }
 
-    return await verify(user.password, password);
+    console.log(user.password);
+    console.log(password);
+
+    const isCheck = await verify(user.password, password);
+
+    console.log(isCheck);
+
+    if (!isCheck) {
+      throw new NotFoundException('Пароли не совпадают');
+    }
+
+    console.log(isCheck);
+
+    return isCheck;
   }
 
   // Удаление пользователя по id

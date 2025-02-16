@@ -1,6 +1,7 @@
 import { NO_INDEX_PAGE } from "@/constants/seo.constants";
 import { Metadata } from "next";
 import { Profile } from "./Profile";
+import Providers from "./providers";
 
 export const metadata: Metadata = {
 	title: "Профиль",
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
 export default function ProfilePage() {
 	return (
 		<>
-			<Profile />
+			<Providers>
+				<Profile />
+			</Providers>
 		</>
 	);
 }
