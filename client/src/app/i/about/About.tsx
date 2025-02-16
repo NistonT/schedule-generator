@@ -114,6 +114,7 @@ export const About = () => {
 									<li>Frontend: Next.js, TypeScript, Tailwind CSS</li>
 									<li>Backend: Nest.js, TypeScript, Prisma</li>
 								</ul>
+								<div className='mt-4'>Версия сайта: 0.1</div>
 								<p className='mt-4'>
 									Данные пользователя получены через GitHub API.
 								</p>
