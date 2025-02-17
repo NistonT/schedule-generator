@@ -9,18 +9,23 @@ type Props = {
 };
 
 export const Days = ({ date }: Props) => {
-	const [arrayDays, setArrayDays] = useAtom<number[]>(daysArrayAtom);
+	const [arrayDays, setArrayDays] = useAtom(daysArrayAtom);
 
 	const daysInMonth = date.daysInMonth();
 	const firstDayOfMonth = date.startOf("month").day();
 	const adjustedFirstDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
 
+	// Обработчик клика по дню
 	const handleDayClick = (day: number) => {
-		if (arrayDays.includes(day)) {
-			setArrayDays(prev => prev.filter(d => d !== day));
-		} else {
-			setArrayDays(prev => [...prev, day]);
-		}
+		setArrayDays(prev => {
+			if (prev.includes(day)) {
+				// Если день уже выбран, удаляем его из массива
+				return prev.filter(d => d !== day);
+			} else {
+				// Если день не выбран, добавляем его в массив
+				return [...prev, day];
+			}
+		});
 	};
 
 	return (
@@ -45,7 +50,6 @@ export const Days = ({ date }: Props) => {
 					const dayOfWeek = date.date(day).day();
 					const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 					const isToday = date.date(day).isSame(dayjs(), "day");
-
 					const isSelected = arrayDays.includes(day);
 
 					return (
@@ -59,7 +63,7 @@ export const Days = ({ date }: Props) => {
 										? "border-indigo-600 bg-indigo-50 font-bold"
 										: "border-indigo-200"
 								}
-                ${isSelected ? "bg-indigo-200 text-indigo-900" : ""}`}
+                ${isSelected ? "!bg-indigo-200 !text-indigo-900" : ""}`}
 						>
 							{day}
 						</div>
