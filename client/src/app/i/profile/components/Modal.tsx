@@ -9,6 +9,7 @@ import { MaxLoad } from "@/components/Generation/MaxLoad";
 import { SubjectMap } from "@/components/Generation/SubjectsMap";
 import { Teachers } from "@/components/Generation/Teachers";
 import { TeachersMap } from "@/components/Generation/TeachersMap";
+import { useProfile } from "@/hook/useProfile";
 import { modalAtom } from "@/jotai/modal";
 import {
 	amountLimitsAtom,
@@ -22,7 +23,11 @@ import {
 	teachersAtom,
 	teachersMapAtom,
 } from "@/jotai/schedule";
+import { scheduleService } from "@/services/schedule.service";
+import { TypeScheduleForm } from "@/types/schedule.types";
+import { useMutation } from "@tanstack/react-query";
 import { useAtom } from "jotai";
+import { toast } from "sonner";
 
 export const Modal = () => {
 	const [cabinets, setCabinets] = useAtom(cabinetsAtom);
@@ -39,6 +44,43 @@ export const Modal = () => {
 
 	const handlerIsModal = () => {
 		setIsModal(!isModal);
+	};
+
+	const { data } = useProfile();
+
+	const { mutate } = useMutation({
+		mutationKey: ["generation"],
+		mutationFn: ({ data, api }: { data: TypeScheduleForm; api: string }) =>
+			scheduleService.schedule(data, api),
+		onSuccess: () => {
+			toast("Расписание сгенерировано");
+		},
+		onError: error => {
+			console.log(error);
+		},
+	});
+
+	const handleQueryGeneration = () => {
+		const schedule: TypeScheduleForm = {
+			cabinets,
+			groups,
+			teachers,
+			subjectsMap,
+			teachersMap,
+			amountLimits,
+			cabinetLimits,
+			days,
+			maxLoad,
+			hours,
+		};
+
+		if (!data) {
+			return;
+		}
+
+		const { api_key } = data;
+
+		mutate({ data: schedule, api: api_key });
 	};
 
 	return (
@@ -71,6 +113,13 @@ export const Modal = () => {
 				</div>
 				{/* Кнопки */}
 				<div className='flex justify-end gap-2 mt-4'>
+					<a
+						href={`http://localhost:5555/api/schedule/generate?api-key=${data?.api_key}`}
+						target='_blank'
+					>
+						Перейти к расписанию
+					</a>
+
 					<button
 						type='button'
 						className='bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600'
@@ -79,6 +128,7 @@ export const Modal = () => {
 						Закрыть
 					</button>
 					<button
+						onClick={handleQueryGeneration}
 						type='submit'
 						className='bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700'
 					>
