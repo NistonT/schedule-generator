@@ -1,5 +1,6 @@
 "use client";
 
+import { EnumRegister, PasswordForm } from "@/components/PasswordForm";
 import { ButtonLink } from "@/components/ui/buttons/ButtonLink";
 import { ButtonSubmit } from "@/components/ui/buttons/ButtonSubmit";
 import { Field } from "@/components/ui/fields/Field";
@@ -68,16 +69,11 @@ export const Authorization = () => {
 						icon={<User />}
 					/>
 
-					<Field
-						label={"Пароль"}
-						name={"password"}
-						type={"password"}
-						isRequired={true}
-						required={"Введите пароль"}
+					<PasswordForm
 						register={register}
 						errors={errors.password?.message}
-						minLengthValue={6}
-						maxLengthValue={64}
+						label={"Пароль"}
+						name={EnumRegister.PASSWORD}
 						icon={<Lock />}
 					/>
 
