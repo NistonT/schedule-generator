@@ -38,7 +38,7 @@ export const Profile = () => {
 					</a>
 				</div>
 				<Swiper spaceBetween={50} slidesPerView={1} initialSlide={0}>
-					{[0, 1, 2, 3, 4, 5].map(offset => (
+					{[0].map(offset => (
 						<SwiperSlide key={offset}>
 							{<Days date={currentDate.add(offset, "month")} />}
 						</SwiperSlide>

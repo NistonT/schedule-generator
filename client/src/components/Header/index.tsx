@@ -16,7 +16,7 @@ export const Header = () => {
 					>
 						<Bot className='w-10 h-10' />
 						ГЕНЕРАТОР API
-						<div className='absolute right-1 top-1 rotate-45 text-[14px] text-white z-50'>
+						<div className='absolute right-1 top-1 rotate-45 text-[14px] text-white z-50 animate-pulse'>
 							BETA
 						</div>
 					</Link>

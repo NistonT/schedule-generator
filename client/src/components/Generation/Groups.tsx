@@ -1,37 +1,15 @@
 "use client";
+import { messageGroups } from "@/constants/messageToast.constants";
+import { useHandleAddCommon } from "@/hook/useHandleAddCommon";
 import { groupsAtom } from "@/jotai/schedule";
 import { useAtom } from "jotai";
-import { useState } from "react";
-import { toast } from "sonner";
 import { ButtonGeneration } from "../ui/buttons/ButtonGeneration";
 import { FieldGeneration } from "../ui/fields/FieldGeneration";
 
 export const Groups = () => {
 	const [groups, setGroups] = useAtom<string[]>(groupsAtom);
-	const [inputValue, setInputValue] = useState("");
-
-	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setInputValue(e.target.value);
-	};
-
-	const handleAdd = () => {
-		const trimmedValue = inputValue.trim();
-
-		if (trimmedValue) {
-			if (groups.includes(trimmedValue)) {
-				toast.error("Группа уже добавлена!");
-			} else {
-				setGroups(prev => [...prev, trimmedValue]);
-				setInputValue("");
-				toast.success("Группа добавлена!");
-			}
-		}
-	};
-
-	const handleRemove = (field: string) => {
-		setGroups(prev => prev.filter(f => f !== field));
-		toast.success(`Группа "${field}" удалена!`);
-	};
+	const { handleAdd, handleRemove, inputValue, setInputValue } =
+		useHandleAddCommon(groups, setGroups, messageGroups);
 
 	return (
 		<>
@@ -56,7 +34,7 @@ export const Groups = () => {
 					label={"Группы"}
 					name={"groups"}
 					value={inputValue}
-					onChange={handleInputChange}
+					onChange={event => setInputValue(event.target.value)}
 				/>
 				<ButtonGeneration title={"Добавить"} />
 			</form>
