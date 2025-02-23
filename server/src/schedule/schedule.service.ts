@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { UserService } from 'src/user/user.service';
 
@@ -43,6 +43,10 @@ export class ScheduleService {
     // Поиск пользователя по API ключу
     const user = await this.userService.getByApiKey(api_key);
 
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
     // Возвращаем расписание пользователя из базы данных
     return await this.prisma.schedule.findUnique({
       where: {
@@ -53,21 +57,24 @@ export class ScheduleService {
 
   // Метод для генерации расписания
   async generateSchedule(data: any): Promise<any> {
-    // Извлечение данных из входного объекта
     const {
-      cabinets, // Список кабинетов
-      groups, // Список групп
-      teachers, // Список преподавателей
-      subjectsMap, // Маппинг предметов по группам
-      teachersMap, // Маппинг преподавателей по предметам и группам
-      amountLimits, // Ограничения по количеству занятий
-      cabinetLimits, // Ограничения по кабинетам для преподавателей
-      days, // Количество дней в расписании
-      maxLoad, // Максимальная нагрузка (количество занятий в день)
+      cabinets,
+      groups,
+      teachers,
+      subjectsMap,
+      teachersMap,
+      amountLimits,
+      cabinetLimits,
+      days,
+      maxLoad,
     } = data;
 
-    // Инициализация объекта для хранения расписания
     const timetable: Record<number, any[]> = {};
+
+    // Инициализация расписания для каждого дня
+    for (let dayIndex = 1; dayIndex <= days; dayIndex++) {
+      timetable[dayIndex] = [];
+    }
 
     // Перебор всех групп для составления расписания
     for (const group of groups) {
@@ -77,93 +84,73 @@ export class ScheduleService {
         amountLimits,
       );
 
-      // Перебор всех дней для составления расписания
-      for (let dayIndex = 1; dayIndex <= days; dayIndex++) {
-        // Инициализация расписания для текущего дня, если оно еще не создано
-        if (!timetable[dayIndex]) {
-          timetable[dayIndex] = [];
-        }
+      // Распределение предметов по дням
+      let dayIndex = 1;
+      for (const subjectInfo of subjectQueue) {
+        while (subjectInfo.remaining > 0) {
+          // Поиск преподавателя для текущего предмета
+          const teacherInfo = this.findTeacherForSubject(
+            subjectInfo.subject,
+            teachersMap,
+            teachers,
+            group,
+          );
+          if (!teacherInfo) continue;
 
-        // Попытка заполнить все слоты до максимальной нагрузки
-        while (timetable[dayIndex].length < maxLoad) {
-          let subjectAssigned = false;
+          // Поиск свободного кабинета для преподавателя
+          const cabinet = this.findCabinetForTeacher(
+            teacherInfo.tid,
+            cabinetLimits,
+            cabinets,
+            timetable,
+            dayIndex,
+            timetable[dayIndex].length + 1,
+            maxLoad,
+          );
+          if (!cabinet) continue;
 
-          // Перебор всех предметов в очереди
-          for (const subjectInfo of subjectQueue) {
-            // Пропуск предмета, если его лимит уже исчерпан
-            if (subjectInfo.remaining <= 0) continue;
-
-            // Поиск преподавателя для текущего предмета
-            const teacherInfo = this.findTeacherForSubject(
-              subjectInfo.subject,
-              teachersMap,
-              teachers,
-              group,
-            );
-            if (!teacherInfo) continue;
-
-            // Поиск свободного кабинета для преподавателя
-            const cabinet = this.findCabinetForTeacher(
-              teacherInfo.tid,
-              cabinetLimits,
-              cabinets,
+          // Добавление занятия в расписание
+          if (
+            subjectInfo.lessonType === '1' ||
+            subjectInfo.lessonType === '2'
+          ) {
+            this.addSubgroupLesson(
               timetable,
               dayIndex,
-              timetable[dayIndex].length + 1,
+              subjectInfo,
+              teacherInfo,
+              cabinetLimits,
+              cabinets,
+              group,
+              teachers,
+              teachersMap,
+              amountLimits,
               maxLoad,
             );
-            if (!cabinet) continue;
-
-            // Обработка разных типов занятий (подгруппы, лекции и т.д.)
-            if (
-              subjectInfo.lessonType === '1' ||
-              subjectInfo.lessonType === '2'
-            ) {
-              this.addSubgroupLesson(
-                timetable,
-                dayIndex,
-                subjectInfo,
-                teacherInfo,
-                cabinetLimits,
-                cabinets,
-                group,
-                teachers,
-                teachersMap,
-                amountLimits,
-                maxLoad,
-              );
-            } else if (subjectInfo.lessonType === 'L') {
-              // Добавление лекции в расписание
-              if (timetable[dayIndex].length < maxLoad) {
-                timetable[dayIndex].push([
-                  {
-                    cabinet,
-                    teacher: teacherInfo.name,
-                    subject: subjectInfo.subject,
-                    group,
-                    lessonType: subjectInfo.lessonType,
-                  },
-                ]);
-              }
+          } else if (subjectInfo.lessonType === 'L') {
+            if (timetable[dayIndex].length < maxLoad) {
+              timetable[dayIndex].push([
+                {
+                  cabinet,
+                  teacher: teacherInfo.name,
+                  subject: subjectInfo.subject,
+                  group,
+                  lessonType: subjectInfo.lessonType,
+                },
+              ]);
             }
-
-            // Уменьшение оставшегося количества занятий по предмету
-            subjectInfo.remaining--;
-            // Уменьшение лимита занятий для группы и предмета
-            this.decrementAmountLimit(amountLimits, group, subjectInfo.subject);
-            subjectAssigned = true;
-
-            // Если расписание на день заполнено, выходим из цикла
-            if (timetable[dayIndex].length >= maxLoad) break;
           }
 
-          // Если не удалось назначить ни одного занятия, выходим из цикла
-          if (!subjectAssigned) break;
+          // Уменьшение оставшегося количества занятий по предмету
+          subjectInfo.remaining--;
+          this.decrementAmountLimit(amountLimits, group, subjectInfo.subject);
+
+          // Переход к следующему дню
+          dayIndex = (dayIndex % days) + 1;
         }
       }
     }
 
-    // Возвращаем сгенерированное расписание
     return { timetable };
   }
 

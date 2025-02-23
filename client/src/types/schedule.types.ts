@@ -33,3 +33,11 @@ export type TypeScheduleForm = {
 	maxLoad: number;
 	hours: Record<string, number[]>;
 };
+
+export type TypeGetSchedule = {
+	cabinet: string;
+	group: string;
+	lessonType: string;
+	subject: string;
+	teacher: string;
+};

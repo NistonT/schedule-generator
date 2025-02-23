@@ -74,6 +74,12 @@ export const TeachersMap = () => {
 		}
 	};
 
+	// Функция для получения имени преподавателя по его tid
+	const getTeacherName = (tid: number) => {
+		const teacher = teachers.find(t => t.tid === tid);
+		return teacher ? teacher.name : "Неизвестный преподаватель";
+	};
+
 	useEffect(() => {
 		console.log(subjectsMap);
 	}, [subjectsMap]);
@@ -83,11 +89,13 @@ export const TeachersMap = () => {
 			<div className='mb-4 p-4 border rounded-lg flex flex-wrap gap-2'>
 				{teachersMap.map(record => (
 					<div
-						key={record.tid}
+						key={`${record.tid}-${record.group}-${record.subject}`} // Уникальный ключ
 						className='px-3 py-1 bg-gray-200 rounded-full cursor-pointer hover:bg-gray-300 transition-colors'
 						onClick={() => handleRemoveTeachersMap(record.tid)}
 					>
-						{`Группа: ${record.group}, Преподаватель: ${record.tid}, Предмет: ${record.subject}`}
+						{`Группа: ${record.group}, Преподаватель: ${getTeacherName(
+							record.tid
+						)}, Предмет: ${record.subject}`}
 					</div>
 				))}
 			</div>

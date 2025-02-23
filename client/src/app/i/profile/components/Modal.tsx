@@ -4,8 +4,8 @@ import { CabinetLimits } from "@/components/Generation/CabinetLimits";
 import { Cabinets } from "@/components/Generation/Cabinets";
 import { Days } from "@/components/Generation/Days";
 import { Groups } from "@/components/Generation/Groups";
-import { Hours } from "@/components/Generation/Hours";
 import { MaxLoad } from "@/components/Generation/MaxLoad";
+import { ScheduleResult } from "@/components/Generation/ScheduleResult";
 import { SubjectMap } from "@/components/Generation/SubjectsMap";
 import { Teachers } from "@/components/Generation/Teachers";
 import { TeachersMap } from "@/components/Generation/TeachersMap";
@@ -94,24 +94,22 @@ export const Modal = () => {
 							<Groups />
 							<Teachers />
 						</div>
-
-						{/* Секция 2: Предметы, Ограничения кабинетов, Дни */}
 						<div className='space-y-6'>
 							<SubjectMap />
 							<CabinetLimits />
 							<Days />
 						</div>
 
-						{/* Секция 3: Максимальная нагрузка, Часы, Преподаватели и ограничения */}
 						<div className='space-y-6'>
 							<MaxLoad />
-							<Hours />
 							<TeachersMap />
 							<AmountLimits />
 						</div>
 					</div>
+					<div>
+						<ScheduleResult />
+					</div>
 				</div>
-				{/* Кнопки */}
 				<div className='flex justify-end gap-2 mt-4'>
 					<a
 						href={`http://localhost:5555/api/schedule/generate?api-key=${data?.api_key}`}

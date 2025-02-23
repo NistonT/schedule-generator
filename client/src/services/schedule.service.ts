@@ -12,6 +12,13 @@ class ScheduleService {
 
 		return response;
 	}
+
+	async getSchedule(api: string) {
+		const response = await axiosWithAuto.get(
+			`${this.BASE_URL}/generate?api-key=${api}`
+		);
+		return response;
+	}
 }
 
 export const scheduleService = new ScheduleService();
