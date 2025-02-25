@@ -1,14 +1,11 @@
 "use client";
-import { AmountLimits } from "@/components/Generation/AmountLimits";
 import { CabinetLimits } from "@/components/Generation/CabinetLimits";
 import { Cabinets } from "@/components/Generation/Cabinets";
 import { Days } from "@/components/Generation/Days";
 import { Groups } from "@/components/Generation/Groups";
 import { MaxLoad } from "@/components/Generation/MaxLoad";
-import { ScheduleResult } from "@/components/Generation/ScheduleResult";
-import { SubjectMap } from "@/components/Generation/SubjectsMap";
+import { MultiSubject } from "@/components/Generation/MultiSubject";
 import { Teachers } from "@/components/Generation/Teachers";
-import { TeachersMap } from "@/components/Generation/TeachersMap";
 import { useProfile } from "@/hook/useProfile";
 import { modalAtom } from "@/jotai/modal";
 import {
@@ -64,22 +61,32 @@ export const Modal = () => {
 		const schedule: TypeScheduleForm = {
 			cabinets,
 			groups,
-			teachers,
+			teachers: teachers.map(teacher => ({
+				tid: teacher.tid,
+				name: teacher.name,
+			})),
 			subjectsMap,
 			teachersMap,
 			amountLimits,
 			cabinetLimits,
 			days,
 			maxLoad,
-			hours,
+			hours: groups.reduce((acc, group) => {
+				acc[group] = hours[group] || [0, 0];
+				return acc;
+			}, {} as Record<string, number[]>),
 		};
 
+		console.log("Отправляемые данные:", JSON.stringify(schedule, null, 2));
+
 		if (!data) {
+			toast.error("Данные пользователя отсутствуют!");
 			return;
 		}
 
 		const { api_key } = data;
 
+		// Отправляем данные на сервер
 		mutate({ data: schedule, api: api_key });
 	};
 
@@ -95,20 +102,16 @@ export const Modal = () => {
 							<Teachers />
 						</div>
 						<div className='space-y-6'>
-							<SubjectMap />
+							<MaxLoad />
 							<CabinetLimits />
 							<Days />
 						</div>
 
 						<div className='space-y-6'>
-							<MaxLoad />
-							<TeachersMap />
-							<AmountLimits />
+							<MultiSubject />
 						</div>
 					</div>
-					<div>
-						<ScheduleResult />
-					</div>
+					<div>{/* <ScheduleResult /> */}</div>
 				</div>
 				<div className='flex justify-end gap-2 mt-4'>
 					<a

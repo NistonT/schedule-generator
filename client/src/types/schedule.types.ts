@@ -1,3 +1,19 @@
+export type SetAtom<Args extends any[], Result> = (...args: Args) => Result;
+
+export type CombinedRecord = {
+	group: string;
+	subject: string;
+	teacherName: string;
+	amount: number;
+	lessonType: "L" | "1" | "2";
+};
+
+export interface IMessageHandleAdd {
+	messageAdd: string;
+	messageAlready: string;
+	messageRemove: string;
+}
+
 export type TypeTeachers = {
 	tid: number;
 	name: string;

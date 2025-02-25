@@ -17,4 +17,4 @@ export const daysAtom = atom<number>(0);
 export const maxLoadAtom = atom<number>(6);
 export const hoursAtom = atom<Record<string, number[]>>({});
 
-export const countTeacherAtom = atom<number>(0);
+export const countTeacherAtom = atom<number>(1);
