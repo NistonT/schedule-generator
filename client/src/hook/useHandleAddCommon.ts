@@ -1,13 +1,6 @@
+import { IMessageHandleAdd, SetAtom } from "@/types/schedule.types";
 import { SetStateAction, useState } from "react";
 import { toast } from "sonner";
-
-type SetAtom<Args extends any[], Result> = (...args: Args) => Result;
-
-export interface IMessageHandleAdd {
-	messageAdd: string;
-	messageAlready: string;
-	messageRemove: string;
-}
 
 export const useHandleAddCommon = (
 	namesState: string[],
