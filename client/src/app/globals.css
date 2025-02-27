@@ -13,15 +13,6 @@
 		border-image-slice: 1;
 	}
 
-	.no-scrollbar::-webkit-scrollbar {
-		display: none;
-	}
-
-	.no-scrollbar {
-		-ms-overflow-style: none; /* IE и Edge */
-		scrollbar-width: none; /* Firefox */
-	}
-
 	.swiper-button-prev,
 	.swiper-button-next {
 		color: #3b82f6; /* Цвет кнопок */
@@ -39,4 +30,40 @@
 	.swiper-button-next::after {
 		font-size: 20px;
 	}
+}
+
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+	background: transparent;
+	border-radius: 0px;
+	border: 0px solid transparent;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: transparent;
+	border-radius: 0px;
+	border: 0px solid transparent;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb:active {
+	background: transparent;
+	border-color: transparent;
+}
+
+::-webkit-scrollbar-track-piece {
+	background: transparent;
+}
+
+* {
+	scrollbar-color: transparent transparent;
+	scrollbar-width: thin;
 }
