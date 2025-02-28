@@ -1,7 +1,7 @@
 "use client";
-import { m } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import { useRouter } from "next/navigation";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 
 type Props = {
 	href: string;
@@ -20,36 +20,72 @@ export const ButtonMotionLink = ({
 	className,
 	indexButton = 0,
 }: Props) => {
+	const [isClicked, setIsClicked] = useState<boolean>(false);
 	const { push } = useRouter();
 
 	return (
-		<m.div
-			initial={{
-				opacity: 0,
-				y: -20,
-			}}
-			animate={{
-				opacity: 1,
-				y: 0,
-			}}
-			transition={{
-				duration: 1,
-				delay: indexButton * 0.5,
-			}}
-			whileInView={{
-				y: 0,
-				opacity: 1,
-			}}
-			viewport={{ once: false }}
-			className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-md shadow-md hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 flex items-center gap-3 ${className}`}
-			onClick={event => {
-				setTimeout(() => {
-					push(href);
-				}, 1000);
-			}}
-		>
-			{icon}
-			{title}
-		</m.div>
+		<>
+			<m.div
+				initial={{
+					opacity: 0,
+					y: -20,
+				}}
+				animate={{
+					opacity: 1,
+					y: 0,
+				}}
+				transition={{
+					duration: 0.2,
+					delay: indexButton * 0.5,
+				}}
+				whileInView={{
+					y: 0,
+					opacity: 1,
+				}}
+				whileDrag={{
+					backgroundColor: "red",
+				}}
+				viewport={{ once: false }}
+				className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-md shadow-md hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 flex items-center gap-3 cursor-pointer ${className}`}
+				onClick={event => {
+					setIsClicked(true);
+
+					setTimeout(() => {
+						push(href);
+					}, 1000);
+				}}
+			>
+				{icon}
+				{title}
+			</m.div>
+			<AnimatePresence>
+				{isClicked && (
+					<m.div
+						layout
+						initial={{
+							opacity: 1,
+						}}
+						transition={{
+							duration: 1,
+						}}
+						className={`px-4 py-2 text-sm font-medium text-transparent bg-gradient-to-r from-indigo-700 to-blue-700 rounded-md shadow-md  transition-all duration-300 flex items-center gap-3 cursor-pointer z-50 overflow-hidden relative -top-10 ${className}`}
+					>
+						<m.span
+							animate={{
+								x: `${100}%`,
+								className: "bg-gradient-to-r from-indigo-700 to-blue-700",
+							}}
+							transition={{
+								duration: 1,
+								ease: "easeInOut",
+							}}
+							className='text-white w-full relative mr-4'
+						>
+							{icon}
+						</m.span>
+					</m.div>
+				)}
+			</AnimatePresence>
+		</>
 	);
 };
