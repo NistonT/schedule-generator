@@ -2,7 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes gradient-flow {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+.animate-gradient-flow {
+	animation: gradient-flow 8s ease infinite;
+}
+
 @layer utilities {
+	.mask-pixel {
+		mask-image: radial-gradient(black 1px, transparent 1px);
+		mask-size: 15px 15px;
+		-webkit-mask-image: radial-gradient(black 1px, transparent 1px);
+		-webkit-mask-size: 15px 15px;
+	}
+
 	.gradient-border {
 		--tw-border-opacity: 1;
 		border-image-source: linear-gradient(

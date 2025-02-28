@@ -2,7 +2,7 @@
 import { words } from "@/constants/words.constants";
 import { useWordsHeader } from "@/hook/useWordsHeader";
 import { Bot } from "lucide-react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -34,7 +34,6 @@ export const Header = () => {
 			if (currentScrollY > prevScrollY) {
 				setIsVisible(false);
 			} else {
-				// Прокрутка вверх
 				setIsVisible(true);
 			}
 
@@ -48,7 +47,7 @@ export const Header = () => {
 	}, [prevScrollY]);
 
 	return (
-		<motion.header
+		<m.header
 			initial={{ y: 0, opacity: 1 }}
 			animate={{
 				y: isVisible ? 0 : -100,
@@ -58,21 +57,21 @@ export const Header = () => {
 				y: { type: "spring", stiffness: 100, damping: 20 },
 				opacity: { duration: 0.2 },
 			}}
-			className='relative w-full z-30'
+			className='absolute w-full z-30'
 		>
-			<div className='container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center mt-5 relative'>
-				<motion.div
+			<div className='mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center relative'>
+				<m.div
 					initial={{ opacity: 0 }}
 					whileInView={{ opacity: 1 }}
 					className='flex items-center top-5'
 				>
-					<motion.div className='relative text-3xl px-6 py-4 text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-md transition-all cursor-default flex items-center gap-3 overflow-hidden'>
+					<m.div className='relative xl:text-3xl lg:text-2xl md:text-xl px-6 py-4 text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-md transition-all cursor-default flex items-center gap-3 overflow-hidden'>
 						<Link className='flex items-center gap-3 relative z-10' href={"/"}>
-							<Bot className='w-10 h-10' />
+							<Bot className='xl:w-10 xl:h-10 lg:w-8 lg:h-8 md:w-6 md:h-6 sm:block hidden' />
 							ГЕНЕРАТОР API
 						</Link>
 
-						<motion.div
+						<m.div
 							className='absolute inset-0 bg-[length:200%_200%] bg-gradient-to-r from-transparent via-white/15 to-transparent transform rotate-0'
 							animate={{
 								backgroundPosition: ["100% 100%", "-100% -100%"],
@@ -83,12 +82,12 @@ export const Header = () => {
 								ease: "linear",
 							}}
 						/>
-					</motion.div>
-					<span className='text-gray-600 text-xl bg-white py-4 px-8 transition-all'>
+					</m.div>
+					<span className='text-gray-600 text-xl py-4 px-8 transition-all'>
 						| {headerText}
 					</span>
-				</motion.div>
+				</m.div>
 			</div>
-		</motion.header>
+		</m.header>
 	);
 };

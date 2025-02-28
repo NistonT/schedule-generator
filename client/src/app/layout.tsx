@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { SITE_NAME } from "@/constants/seo.constants";
 import type { Metadata } from "next";
-import { Noto_Sans } from "next/font/google";
+import { Montserrat, Noto_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -12,6 +12,13 @@ const zen = Noto_Sans({
 	display: "swap",
 	variable: "--font-zen",
 	style: ["normal"],
+});
+
+const montserrat = Montserrat({
+	variable: "--font-montserrat",
+	subsets: ["cyrillic", "latin"],
+	weight: ["400", "500", "600", "700"],
+	preload: true,
 });
 
 export const metadata: Metadata = {
@@ -29,7 +36,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='en' className='light'>
-			<body className={`${zen.variable} antialiased`}>
+			<body className={`${zen.variable} ${montserrat.variable} antialiased`}>
 				<Providers>
 					<Header />
 					<section>{children}</section>
