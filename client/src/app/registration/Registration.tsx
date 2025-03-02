@@ -1,6 +1,6 @@
 "use client";
 import { EnumRegister, PasswordForm } from "@/components/PasswordForm";
-import { ButtonLink } from "@/components/ui/buttons/ButtonLink";
+import { ButtonMotionLink } from "@/components/ui/buttons/ButtonMotionLink";
 import { ButtonSubmit } from "@/components/ui/buttons/ButtonSubmit";
 import { CheckboxConfirm } from "@/components/ui/checkbox/CheckboxConfirm";
 import { Field } from "@/components/ui/fields/Field";
@@ -10,6 +10,7 @@ import { authService } from "@/services/auth.service";
 import { IRegForm, IRegisterForm } from "@/types/auth.types";
 import { useMutation } from "@tanstack/react-query";
 import { KeySquare, LogIn, Mail, User, UserPlus } from "lucide-react";
+import { m } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -62,14 +63,27 @@ export const Registration = () => {
 	return (
 		<div className='min-h-screen flex items-center justify-center'>
 			<div className='w-full max-w-md p-8 space-y-3 bg-white backdrop-blur-lg'>
-				<div className='flex items-center justify-between'>
+				<m.div
+					initial={{
+						opacity: 0,
+						y: -20,
+					}}
+					animate={{
+						opacity: 1,
+						y: 0,
+					}}
+					transition={{
+						duration: 0.2,
+					}}
+					className='flex items-center justify-between'
+				>
 					<Title title={"Регистрация"} />
-					<ButtonLink
+					<ButtonMotionLink
 						href={DASHBOARD_PAGES.AUTHORIZATION}
 						title={"Авторизация"}
 						icon={<LogIn />}
 					/>
-				</div>
+				</m.div>
 				<form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
 					<Field
 						label={"Имя пользователя"}
@@ -125,17 +139,58 @@ export const Registration = () => {
 						register={register}
 						required={"Вы должны подтвердить условия использования"}
 					/>
-					<div className='text-red-500 text-sm mt-2'>
+					<m.div
+						initial={{
+							opacity: 0,
+							x: -20,
+						}}
+						animate={{
+							opacity: 1,
+							x: 0,
+						}}
+						transition={{
+							duration: 0.2,
+						}}
+						className='text-red-500 text-sm mt-2'
+					>
 						{errors.isConfirm?.message}
-					</div>
+					</m.div>
 
 					{isError && (
-						<div className='text-red-500 text-sm mt-2'>{message}</div>
+						<m.div
+							initial={{
+								opacity: 0,
+								x: -20,
+							}}
+							animate={{
+								opacity: 1,
+								x: 0,
+							}}
+							transition={{
+								duration: 0.2,
+							}}
+							className='text-red-500 text-sm mt-2'
+						>
+							{message}
+						</m.div>
 					)}
 
 					<ButtonSubmit title={"Зарегистрироваться"} icon={<UserPlus />} />
 				</form>
-				<div className='flex flex-col space-y-4 items-center text-center max-w-md mx-auto'>
+				<m.div
+					initial={{
+						opacity: 0,
+						x: -20,
+					}}
+					animate={{
+						opacity: 1,
+						x: 0,
+					}}
+					transition={{
+						duration: 0.2,
+					}}
+					className='flex flex-col space-y-4 items-center text-center max-w-md mx-auto'
+				>
 					<div className='text-sm text-gray-600'>
 						<Link
 							href={DASHBOARD_PAGES.HOME}
@@ -144,7 +199,7 @@ export const Registration = () => {
 							Вернуться на главную
 						</Link>
 					</div>
-				</div>
+				</m.div>
 			</div>
 		</div>
 	);
