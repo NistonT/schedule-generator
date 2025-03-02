@@ -24,7 +24,7 @@ export const ButtonMotionLink = ({
 	const { push } = useRouter();
 
 	return (
-		<>
+		<div className='relative inline-block'>
 			<m.div
 				initial={{
 					opacity: 0,
@@ -46,7 +46,7 @@ export const ButtonMotionLink = ({
 					backgroundColor: "red",
 				}}
 				viewport={{ once: false }}
-				className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-md shadow-md hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 flex items-center gap-3 cursor-pointer ${className}`}
+				className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-md shadow-md hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 flex items-center gap-3 cursor-pointer relative ${className}`}
 				onClick={event => {
 					setIsClicked(true);
 
@@ -57,35 +57,35 @@ export const ButtonMotionLink = ({
 			>
 				{icon}
 				{title}
-			</m.div>
-			<AnimatePresence>
-				{isClicked && (
-					<m.div
-						layout
-						initial={{
-							opacity: 1,
-						}}
-						transition={{
-							duration: 1,
-						}}
-						className={`px-4 py-2 text-sm font-medium text-transparent bg-gradient-to-r from-indigo-700 to-blue-700 rounded-md shadow-md  transition-all duration-300 flex items-center gap-3 cursor-pointer z-50 overflow-hidden relative -top-10 ${className}`}
-					>
-						<m.span
-							animate={{
-								x: `${100}%`,
-								className: "bg-gradient-to-r from-indigo-700 to-blue-700",
+				<AnimatePresence>
+					{isClicked && (
+						<m.div
+							layout
+							initial={{
+								opacity: 1,
 							}}
 							transition={{
 								duration: 1,
-								ease: "easeInOut",
 							}}
-							className='text-white w-full relative mr-4'
+							className={`px-4 py-2 text-sm font-medium text-transparent bg-gradient-to-r from-indigo-700 to-blue-700 rounded-md shadow-md  transition-all duration-300 flex items-center gap-3 cursor-pointer z-50 overflow-hidden absolute w-full ${className} -ml-4 pr-8`}
 						>
-							{icon}
-						</m.span>
-					</m.div>
-				)}
-			</AnimatePresence>
-		</>
+							<m.span
+								animate={{
+									x: `${100}%`,
+									className: "bg-gradient-to-r from-indigo-700 to-blue-700",
+								}}
+								transition={{
+									duration: 1,
+									ease: "easeInOut",
+								}}
+								className='text-white w-full relative'
+							>
+								{icon}
+							</m.span>
+						</m.div>
+					)}
+				</AnimatePresence>
+			</m.div>
+		</div>
 	);
 };
