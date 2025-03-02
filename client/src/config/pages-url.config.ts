@@ -7,6 +7,7 @@ class DASHBOARD {
 	REGISTRATION = `/registration`;
 	DOCUMENTATION = `/documentation`;
 	PROFILE = `${this.root}/profile`;
+	GENERATION = `${this.root}/generation`;
 	SETTING = `${this.root}/setting`;
 	ABOUT = `${this.root}/about`;
 }

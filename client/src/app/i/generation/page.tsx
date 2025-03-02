@@ -1,15 +1,15 @@
 import { NO_INDEX_PAGE } from "@/constants/seo.constants";
 import { Metadata } from "next";
-import { Profile } from "./Profile";
+import { Generation } from "./Generation";
 
 export const metadata: Metadata = {
-	title: "Профиль",
+	title: "Генерация",
 	...NO_INDEX_PAGE,
 };
-export default function ProfilePage() {
+export default function GenerationPage() {
 	return (
 		<>
-			<Profile />
+			<Generation />
 		</>
 	);
 }
