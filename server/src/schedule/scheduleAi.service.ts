@@ -56,23 +56,23 @@ export class ScheduleAiService {
 
       const response: AxiosResponse = await axios.post(
         'https://openrouter.ai/api/v1/chat/completions',
-				{
-					model: 'qwen/qwen2.5-vl-72b-instruct:free',
-					response_format: { type: 'json_object' },
-					temperature: 0.3, // Немного увеличим для гибкости
-					top_p: 0.95,
-					max_tokens: 4000, // Увеличим лимит токенов
-					messages: [
-						systemMessage,
-						{
-							role: 'user',
-							content: JSON.stringify({
-								...scheduleData,
-								priority_rules: ['amountLimits', 'maxLoad', 'hours'] 
-							}),
-						},
-					],
-				}
+        {
+          model: 'qwen/qwen2.5-vl-72b-instruct:free',
+          response_format: { type: 'json_object' },
+          temperature: 0.3, // Немного увеличим для гибкости
+          top_p: 0.95,
+          max_tokens: 4000, // Увеличим лимит токенов
+          messages: [
+            systemMessage,
+            {
+              role: 'user',
+              content: JSON.stringify({
+                ...scheduleData,
+                priority_rules: ['amountLimits', 'maxLoad', 'hours'],
+              }),
+            },
+          ],
+        },
         {
           headers: {
             Authorization: `Bearer ${OPENROUTER_API_KEY}`,
