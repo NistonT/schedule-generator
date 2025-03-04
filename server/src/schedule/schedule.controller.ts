@@ -8,10 +8,14 @@ import {
   Query,
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
+import { ScheduleAiService } from './scheduleAi.service';
 
 @Controller('schedule')
 export class ScheduleController {
-  constructor(private readonly scheduleService: ScheduleService) {}
+  constructor(
+    private readonly scheduleService: ScheduleService,
+    private readonly scheduleAiService: ScheduleAiService,
+  ) {}
 
   // Генерирование расписание по url:
   // POST localhost:5555/api/schedule/generate:
@@ -68,6 +72,11 @@ export class ScheduleController {
     }
 
     return await this.scheduleService.generatedSchedulePrisma(api_key, data);
+  }
+
+  @Post('generateAi')
+  async generateAi(@Body() data: any) {
+    return await this.scheduleAiService.generateSchedule(data);
   }
 
   // Получение расписание через api-key по url:

@@ -1,6 +1,6 @@
-import Providers from "./providers";
+import Providers from "./Providers";
 
-export default function SettingLayout({
+export default function ILayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;

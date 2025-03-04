@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { ScheduleController } from './schedule.controller';
 import { ScheduleService } from './schedule.service';
+import { ScheduleAiService } from './scheduleAi.service';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { ScheduleService } from './schedule.service';
     }),
   ],
   controllers: [ScheduleController],
-  providers: [ScheduleService, PrismaService, UserService],
+  providers: [ScheduleService, PrismaService, UserService, ScheduleAiService],
 })
 export class ScheduleModule {}
