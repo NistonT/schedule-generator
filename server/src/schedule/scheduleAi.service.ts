@@ -86,7 +86,6 @@ ${this.formatTeachersMap(scheduleData.teachersMap)}
 ${this.formatCabinetLimits(scheduleData.cabinetLimits)}
 ${this.formatAmountLimits(scheduleData.amountLimits)}
 ${this.formatDays(scheduleData.days)}
-${this.formatHours(scheduleData.hours)}
 • Макс. пары/день: ${scheduleData.maxLoad}
 
 3. Критические правила:
@@ -95,24 +94,9 @@ ${this.formatHours(scheduleData.hours)}
 → Кабинеты должны соответствовать ограничениям
 → Преподаватели только свои предметы
 → Строго соблюдать лимиты занятий
-→ Распределение: равномерное по дням (если hours = [0,0])
 
-4. Пример для ${scheduleData.maxLoad} пар/день:
-{
-  "timetable": {
-    "2025-03-13": ${JSON.stringify(
-      Array(scheduleData.maxLoad).fill({
-        group: 'Г1',
-        subject: 'Пример',
-        teacher: 'Преподаватель',
-        cabinet: '101',
-        lessonType: 'L',
-      }),
-    )}
-  }
-}
 
-5. Запрещено:
+4. Запрещено:
 × Менять структуру JSON
 × Добавлять текстовые комментарии
 × Использовать непредусмотренные данные
@@ -177,15 +161,5 @@ ${this.formatHours(scheduleData.hours)}
   private formatDays(days: string[]): string {
     if (!days?.length) return '• Дни не указаны\n';
     return `• Учебные дни:\n${days.map((d) => `  - ${d}`).join('\n')}\n`;
-  }
-
-  private formatHours(hours: Record<string, number[]>): string {
-    if (!hours) return '• Часы подгрупп: Не распределены\n';
-    return `• Часы подгрупп:\n${Object.entries(hours)
-      .map(
-        ([group, h]) =>
-          `  - Группа ${group}: Подгруппа 1 - ${h[0]}ч, Подгруппа 2 - ${h[1]}ч`,
-      )
-      .join('\n')}\n`;
   }
 }
