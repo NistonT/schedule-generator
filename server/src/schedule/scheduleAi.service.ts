@@ -15,151 +15,160 @@ export class ScheduleAiService {
     const YOUR_SITE_URL = process.env.DOMAIN || '';
     const YOUR_SITE_NAME = process.env.NAME_SITE || '';
 
-    if (!OPENROUTER_API_KEY) throw new Error('TOKEN_AI не установлен');
+    // Проверка наличия токена
+    if (!OPENROUTER_API_KEY) {
+      throw new Error('TOKEN_AI не установлен');
+    }
 
     try {
+      // Формирование системного сообщения
       const systemMessage = {
         role: 'system',
-        content: this.generateSystemContent(scheduleData),
+        content: `
+          Ты — система для генерации расписания занятий. 
+          На вход ты получаешь данные о кабинетах, группах, учителях, предметах, ограничениях и днях.
+          Твоя задача — сгенерировать полное расписание в следующем формате:
+          {
+            "groupTimetables": {
+              "<название группы>": {
+                "<дата>": [
+                  [
+                    {
+                      "group": "<название группы>",
+                      "cabinet": "<номер кабинета>",
+                      "subject": "<название предмета>",
+                      "teacher": "<имя учителя>",
+                      "lessonType": "<тип урока>"
+                    }
+                  ],
+                  ...
+                ]
+              },
+              ...
+            }
+          }
+          Убедись, что расписание соответствует всем ограничениям:
+          - amountLimits: Количество занятий по каждому предмету должно точно соответствовать указанному значению.
+          - maxLoad: Максимальная нагрузка для каждой группы в день не должна превышать указанное значение.
+          - cabinetLimits: Кабинеты не должны использоваться одновременно разными группами.
+          - teachersMap: Учителя должны быть назначены только на те предметы и группы, которые указаны.
+          Пример корректного расписания:
+          {
+            "groupTimetables": {
+              "Г1": {
+                "2023-10-01": [
+                  [
+                    {
+                      "group": "Г1",
+                      "cabinet": "101",
+                      "subject": "Математика",
+                      "teacher": "Иванов",
+                      "lessonType": "L"
+                    }
+                  ],
+                  [
+                    {
+                      "group": "Г1",
+                      "cabinet": "102",
+                      "subject": "Физика",
+                      "teacher": "Петрова",
+                      "lessonType": "L"
+                    }
+                  ]
+                ],
+                "2023-10-02": [
+                  [
+                    {
+                      "group": "Г1",
+                      "cabinet": "101",
+                      "subject": "Математика",
+                      "teacher": "Иванов",
+                      "lessonType": "L"
+                    }
+                  ]
+                ]
+              }
+            }
+          }
+          Если ты не можешь сгенерировать полное расписание, верни частичное расписание, но постарайся учесть все ограничения.
+        `,
       };
 
+      // Формирование пользовательского сообщения
+      const userMessage = {
+        role: 'user',
+        content: JSON.stringify(scheduleData),
+      };
+
+      // Отправка POST-запроса в API OpenRouter
       const response: AxiosResponse = await axios.post(
         'https://openrouter.ai/api/v1/chat/completions',
         {
-          model: 'qwen/qwen2.5-vl-72b-instruct:free',
-          response_format: { type: 'json_object' },
-          temperature: 0.3,
-          top_p: 0.95,
-          max_tokens: 4000,
-          messages: [
-            systemMessage,
-            {
-              role: 'user',
-              content: JSON.stringify({
-                ...scheduleData,
-                priority_rules: ['amountLimits', 'maxLoad', 'hours'],
-              }),
-            },
-          ],
+          model: 'qwen/qwen2.5-vl-72b-instruct:free', // Указываем модель
+          response_format: { type: 'json_object' }, // Формат ответа
+          messages: [systemMessage, userMessage],
         },
         {
           headers: {
-            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-            'HTTP-Referer': YOUR_SITE_URL,
-            'X-Title': YOUR_SITE_NAME,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${OPENROUTER_API_KEY}`, // Токен авторизации
+            'HTTP-Referer': YOUR_SITE_URL, // URL вашего сайта
+            'X-Title': YOUR_SITE_NAME, // Название вашего сайта
+            'Content-Type': 'application/json', // Тип контента
           },
         },
       );
 
-      return JSON.parse(response.data.choices[0].message.content);
+      // Логируем полный ответ API для отладки
+      console.log('Полный ответ API:', response.data);
+
+      // Извлекаем содержимое поля content из ответа
+      const content = response.data.choices[0].message.content;
+
+      // Попытка распарсить JSON
+      let parsedContent;
+      try {
+        parsedContent = JSON.parse(content);
+      } catch (parseError) {
+        // Если JSON некорректный, пытаемся исправить его
+        console.warn('Некорректный JSON, попытка исправления...');
+        const fixedContent = this.fixJson(content);
+        parsedContent = JSON.parse(fixedContent);
+      }
+
+      // Возвращаем распарсенный объект
+      return parsedContent;
     } catch (error) {
-      console.error('AI Error:', error.response?.data || error.message);
-      throw new Error(`Ошибка ИИ: ${error.message}`);
+      // Логируем ошибку и выбрасываем исключение
+      console.error('Ошибка при генерации расписания:', error);
+      throw error; // Перебрасываем ошибку дальше
     }
   }
 
-  private generateSystemContent(scheduleData: any): string {
-    return `Ты генератор учебных расписаний. Строго соблюдай правила:
+  /**
+   * Исправляет некорректный JSON
+   */
+  private fixJson(jsonString: string): string {
+    // Удаляем лишние символы и пробелы
+    jsonString = jsonString.trim();
+    if (!jsonString.startsWith('{')) {
+      jsonString = '{' + jsonString;
+    }
+    if (!jsonString.endsWith('}')) {
+      jsonString = jsonString + '}';
+    }
 
-1. Формат ответа:
-{
-  "timetable": {
-    "YYYY-MM-DD": [
-      {
-        "group": "название группы",
-        "subject": "название предмета",
-        "teacher": "ФИО преподавателя",
-        "cabinet": "номер кабинета",
-        "lessonType": "L|1|2"
-      }
-    ]
-  }
-}
+    // Заменяем одинарные кавычки на двойные
+    jsonString = jsonString.replace(/'/g, '"');
 
-2. Входные параметры:
-${this.formatCabinets(scheduleData.cabinets)}
-${this.formatGroups(scheduleData.groups)}
-${this.formatTeachers(scheduleData.teachers)}
-${this.formatSubjectsMap(scheduleData.subjectsMap)}
-${this.formatTeachersMap(scheduleData.teachersMap)}
-${this.formatCabinetLimits(scheduleData.cabinetLimits)}
-${this.formatAmountLimits(scheduleData.amountLimits)}
-${this.formatDays(scheduleData.days)}
-• Макс. пары/день: ${scheduleData.maxLoad}
+    // Убираем запятые перед закрывающей скобкой
+    jsonString = jsonString.replace(/,\s*([\]}])/g, '$1');
 
-3. Критические правила:
-→ L-тип: для всей группы
-→ 1/2-тип: раздельные подгруппы
-→ Кабинеты должны соответствовать ограничениям
-→ Преподаватели только свои предметы
-→ Строго соблюдать лимиты занятий
+    // Убираем лишние запятые между элементами массива
+    jsonString = jsonString.replace(/,\s*,/g, ',');
 
+    // Убираем лишние символы в конце строки
+    jsonString = jsonString.replace(/[\n\r]+/g, '');
 
-4. Запрещено:
-× Менять структуру JSON
-× Добавлять текстовые комментарии
-× Использовать непредусмотренные данные
-
-Сгенерируй ТОЛЬКО валидный JSON!`;
-  }
-
-  private formatCabinets(cabinets: string[]): string {
-    return `• Кабинеты: ${cabinets?.join(', ') || 'Не указаны'}\n`;
-  }
-
-  private formatGroups(groups: string[]): string {
-    return `• Группы: ${groups?.join(', ') || 'Не указаны'}\n`;
-  }
-
-  private formatTeachers(teachers: any[]): string {
-    if (!teachers?.length) return '• Преподаватели: Не указаны\n';
-    return `• Преподаватели:\n${teachers
-      .map((t) => `  - ${t.name} (ID: ${t.tid})`)
-      .join('\n')}\n`;
-  }
-
-  private formatSubjectsMap(subjectsMap: Record<string, string[]>): string {
-    if (!subjectsMap) return '• Предметы по группам: Не указаны\n';
-    return `• Предметы по группам:\n${Object.entries(subjectsMap)
-      .map(([group, subjects]) => `  - ${group}: ${subjects.join(', ')}`)
-      .join('\n')}\n`;
-  }
-
-  private formatTeachersMap(teachersMap: any[]): string {
-    if (!teachersMap?.length)
-      return '• Назначения преподавателей: Нет данных\n';
-    return `• Назначения преподавателей:\n${teachersMap
-      .map(
-        (tm) =>
-          `  - Преподаватель ID:${tm.tid} ведет "${tm.subject}" у группы ${tm.group}`,
-      )
-      .join('\n')}\n`;
-  }
-
-  private formatAmountLimits(amountLimits: any[]): string {
-    if (!amountLimits?.length) return '• Лимиты занятий: Не заданы\n';
-    return `• Лимиты занятий:\n${amountLimits
-      .map(
-        (al) =>
-          `  - Группа ${al.group}: ${al.amount} пар по "${al.subject}" (тип ${al.lessonType})`,
-      )
-      .join('\n')}\n`;
-  }
-
-  private formatCabinetLimits(cabinetLimits: any[]): string {
-    if (!cabinetLimits?.length)
-      return '• Ограничения кабинетов: Нет ограничений\n';
-    return `• Ограничения кабинетов:\n${cabinetLimits
-      .map(
-        (cl) =>
-          `  - Преподаватель ID:${cl.tid} может использовать: ${cl.cabinets.join(', ')}`,
-      )
-      .join('\n')}\n`;
-  }
-
-  private formatDays(days: string[]): string {
-    if (!days?.length) return '• Дни не указаны\n';
-    return `• Учебные дни:\n${days.map((d) => `  - ${d}`).join('\n')}\n`;
+    return jsonString;
   }
 }
