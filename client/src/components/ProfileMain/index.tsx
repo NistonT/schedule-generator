@@ -1,6 +1,9 @@
 "use client";
 
-import { ButtonSubmit } from "@/components/ui/buttons/ButtonSubmit";
+import {
+	ButtonSubmit,
+	EnumTypeButton,
+} from "@/components/ui/buttons/ButtonSubmit";
 import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { navigateProfile } from "@/constants/profile.constants";
 import { useProfile } from "@/hook/useProfile";
@@ -62,7 +65,7 @@ export const ProfileMain = ({ children }: Props) => {
 						transition={{
 							duration: 1,
 						}}
-						className='flex mx-auto w-full justify-end items-center gap-4 p-4 bg-white'
+						className='flex mx-auto w-full justify-end items-center gap-4 p-4 bg-transparent relative z-30'
 					>
 						<m.div className='text-gray-700 flex items-center gap-1'>
 							<User className='w-5 h-5' /> {data?.username}
@@ -78,6 +81,7 @@ export const ProfileMain = ({ children }: Props) => {
 								onClick={onLogout}
 								title='Выйти'
 								icon={<LogOut className='w-5 h-5' />}
+								type={EnumTypeButton.BUTTON}
 							/>
 						</m.div>
 					</m.div>

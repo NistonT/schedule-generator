@@ -37,6 +37,7 @@ export const Authorization = () => {
 			push(DASHBOARD_PAGES.PROFILE);
 		},
 		onError: error => {
+			toast.error("Произошла ошибка!");
 			console.log(error);
 		},
 	});
