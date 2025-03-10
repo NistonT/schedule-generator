@@ -45,7 +45,7 @@ export type TypeScheduleForm = {
 	teachersMap: TypeTeachersMap[];
 	amountLimits: TypeAmountLimits[];
 	cabinetLimits: TypeCabinetLimits[];
-	days: number;
+	days: string[];
 	maxLoad: number;
 	hours: Record<string, number[]>;
 };

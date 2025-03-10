@@ -13,7 +13,7 @@ export const subjectsMapAtom = atom<Record<string, string[]>>({});
 export const teachersMapAtom = atom<TypeTeachersMap[]>([]);
 export const amountLimitsAtom = atom<TypeAmountLimits[]>([]);
 export const cabinetLimitsAtom = atom<TypeCabinetLimits[]>([]);
-export const daysAtom = atom<number>(0);
+export const daysAtom = atom<string[]>([]);
 export const maxLoadAtom = atom<number>(6);
 export const hoursAtom = atom<Record<string, number[]>>({});
 
