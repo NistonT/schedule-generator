@@ -45,7 +45,7 @@ export class CabinetsService {
       (cabinet) => cabinet === name,
     );
 
-    if (filterCabinets) {
+    if (filterCabinets.length > 0) {
       throw new ConflictException('Кабинет уже создан!');
     }
 

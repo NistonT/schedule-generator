@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { Schedule } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { UserService } from 'src/user/user.service';
+import { Groups } from './dto/groups.types';
 
 @Injectable()
 export class GroupsService {
@@ -9,7 +11,8 @@ export class GroupsService {
     private userService: UserService,
   ) {}
 
-  async add(name: string, apiKey: string) {
+  // Добавленние группы
+  async add(name: string, apiKey: string): Promise<Schedule> {
     if (!name) {
       throw new BadRequestException('Вы не ввели название группы');
     }
@@ -29,9 +32,14 @@ export class GroupsService {
       throw new BadRequestException('Пользователь не найден');
     }
 
-    const filterGroups = schedule.groups.filter((group) => group === name);
+    const filterGroups = schedule.groups.filter((group) => {
+      return group === name;
+    });
 
-    if (filterGroups) {
+    console.log(filterGroups);
+    console.log(filterGroups.length);
+
+    if (filterGroups.length > 0) {
       throw new BadRequestException(`Группа ${name} уже создана`);
     }
 
@@ -47,7 +55,8 @@ export class GroupsService {
     });
   }
 
-  async get(apiKey: string) {
+  // Вывод групп
+  async get(apiKey: string): Promise<Groups[]> {
     if (!apiKey) {
       throw new BadRequestException('Вы не ввели ключ api');
     }
@@ -68,7 +77,12 @@ export class GroupsService {
     });
   }
 
-  async change(oldName: string, newName: string, apiKey: string) {
+  // Изменить группу
+  async change(
+    oldName: string,
+    newName: string,
+    apiKey: string,
+  ): Promise<Schedule> {
     if (!oldName) {
       throw new BadRequestException('Вы не ввели название группы');
     }
@@ -98,7 +112,7 @@ export class GroupsService {
 
     const groupIndex = schedule.groups.indexOf(oldName);
 
-    if (!groupIndex) {
+    if (groupIndex === -1) {
       throw new BadRequestException('Группа не найдена');
     }
 
@@ -115,7 +129,8 @@ export class GroupsService {
     });
   }
 
-  async delete(name: string, apiKey: string) {
+  // Удалить группу
+  async delete(name: string, apiKey: string): Promise<Schedule> {
     if (!name) {
       throw new BadRequestException('Вы не ввели название группы');
     }
