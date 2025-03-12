@@ -36,9 +36,6 @@ export class GroupsService {
       return group === name;
     });
 
-    console.log(filterGroups);
-    console.log(filterGroups.length);
-
     if (filterGroups.length > 0) {
       throw new BadRequestException(`Группа ${name} уже создана`);
     }
@@ -118,6 +115,12 @@ export class GroupsService {
 
     const groupUpdate = [...schedule.groups];
     groupUpdate[groupIndex] = newName;
+
+    const filterGroup = schedule.groups.filter((group) => group === newName);
+
+    if (filterGroup.length > 0) {
+      throw new BadRequestException('Имя группы уже занято');
+    }
 
     return await this.prisma.schedule.update({
       where: {

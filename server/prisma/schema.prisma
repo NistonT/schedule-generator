@@ -39,7 +39,7 @@ model Schedule {
 }
 
 model Teacher {
-  tid      Int        @id
+  tid      Int        @id @default(autoincrement())
   name     String
   schedule Schedule[]
 }

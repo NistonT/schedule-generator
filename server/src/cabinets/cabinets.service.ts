@@ -126,6 +126,14 @@ export class CabinetsService {
     const cabinetUpdate = [...schedule.cabinets];
     cabinetUpdate[cabinetIndex] = newName;
 
+    const filterCabinets = schedule.cabinets.filter(
+      (cabinet) => cabinet === newName,
+    );
+
+    if (filterCabinets.length > 0) {
+      throw new BadRequestException('Имя кабинета уже занято');
+    }
+
     return await this.prisma.schedule.update({
       where: {
         user_id: user.id,
