@@ -43,6 +43,9 @@ export class ScheduleService {
       where: {
         user_id: user.id,
       },
+      include: {
+        teachers: true,
+      },
     });
   }
 

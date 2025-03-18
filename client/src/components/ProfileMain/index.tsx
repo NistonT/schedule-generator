@@ -90,7 +90,7 @@ export const ProfileMain = ({ children }: Props) => {
 						<div className='w-1/5 p-5 fixed flex flex-col gap-5'>
 							<LayoutGroup>
 								{navigateProfile.map(link => (
-									<m.div layout>
+									<m.div layout key={link.title}>
 										<ButtonNavigate
 											key={link.title}
 											icon={<link.icon />}

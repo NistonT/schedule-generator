@@ -1,5 +1,6 @@
 import { axiosWithAuto } from "@/api/interceptors";
-import { TypeScheduleForm } from "@/types/schedule.types";
+import { ISchedule, TypeScheduleForm } from "@/types/schedule.types";
+import { AxiosResponse } from "axios";
 class ScheduleService {
 	private BASE_URL = "/schedule";
 
@@ -13,7 +14,7 @@ class ScheduleService {
 		return response;
 	}
 
-	async getSchedule(api: string) {
+	async getSchedule(api: string): Promise<AxiosResponse<ISchedule>> {
 		const response = await axiosWithAuto.get(
 			`${this.BASE_URL}/generate?api-key=${api}`
 		);

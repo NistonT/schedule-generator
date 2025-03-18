@@ -1,3 +1,14 @@
+export interface ISchedule {
+	id: string;
+	user_id: string;
+	cabinets: string[];
+	groups: string[];
+	schedule: TypeScheduleForm;
+	teachers: TypeTeachers[];
+	CreatedAt: string;
+	UpdatedAt: string;
+}
+
 export type SetAtom<Args extends any[], Result> = (...args: Args) => Result;
 
 export type CombinedRecord = {
