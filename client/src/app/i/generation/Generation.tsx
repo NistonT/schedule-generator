@@ -1,12 +1,9 @@
 "use client";
 import {
 	EnumTypeField,
-	MainFieldArray,
-} from "@/components/MainGeneration/MainFieldArray";
-import {
-	EnumTypeFieldObject,
-	MainFieldObject,
-} from "@/components/MainGeneration/MainFieldObject";
+	MainField,
+} from "@/components/MainGeneration/MainField";
+
 import { useProfile } from "@/hook/useProfile";
 import {
 	dataIsLoadingAtom,
@@ -50,11 +47,23 @@ export const Generation = () => {
 	return (
 		<>
 			<div className='space-y-6'>
-				<MainFieldArray title={"Кабинеты"} field={EnumTypeField.CABINETS} />
-				<MainFieldArray title={"Группы"} field={EnumTypeField.GROUP} />
-				<MainFieldObject
+				<MainField
+					title={"Кабинеты"}
+					field={EnumTypeField.CABINETS}
+					label={"Кабинет"}
+					name={"cabinet"}
+				/>
+				<MainField
+					title={"Группы"}
+					field={EnumTypeField.GROUP}
+					label={"Группа"}
+					name={"group"}
+				/>
+				<MainField
 					title={"Преподаватели"}
-					field={EnumTypeFieldObject.Teachers}
+					field={EnumTypeField.TEACHERS}
+					label={"Преподаватель"}
+					name={"teacher"}
 				/>
 			</div>
 		</>
