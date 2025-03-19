@@ -10,7 +10,7 @@ export enum EnumTypeButton {
 type Props = {
 	title: string;
 	icon?: ReactNode;
-	onClick?: () => void;
+	onClick?: (event: any) => void;
 	className?: string;
 	type?: EnumTypeButton;
 };

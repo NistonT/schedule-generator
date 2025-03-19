@@ -1,18 +1,14 @@
 import { axiosWithAuto } from "@/api/interceptors";
-
-export interface IPutCabinets {
-	oldName: string;
-	newName: string;
-}
+import { IAddField, IDeleteField, IPutField } from "@/types/generation.types";
 
 class CabinetsService {
 	private BASE_URL = "/cabinets";
 	private API_QUERY = `?api-key=`;
 
-	async addCabinets(name: string, api: string) {
+	async addCabinets(data: IAddField, api: string) {
 		const response = await axiosWithAuto.post(
 			`${this.BASE_URL}${this.API_QUERY}${api}`,
-			name
+			data
 		);
 
 		return response;
@@ -26,7 +22,7 @@ class CabinetsService {
 		return response;
 	}
 
-	async putCabinets(data: IPutCabinets, api: string) {
+	async putCabinets(data: IPutField, api: string) {
 		const response = await axiosWithAuto.put(
 			`${this.BASE_URL}${this.API_QUERY}${api}`,
 			data
@@ -35,15 +31,15 @@ class CabinetsService {
 		return response;
 	}
 
-	async deleteCabinets(name: string, api: string) {
+	async deleteCabinets(data: IDeleteField, api: string) {
 		const response = await axiosWithAuto.delete(
 			`${this.BASE_URL}${this.API_QUERY}${api}`,
 			{
-				data: name,
+				data,
 			}
 		);
 		return response;
 	}
 }
 
-export const scheduleService = new CabinetsService();
+export const cabinetService = new CabinetsService();
