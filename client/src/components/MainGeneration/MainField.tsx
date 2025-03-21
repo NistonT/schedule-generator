@@ -1,13 +1,8 @@
 "use client";
 
-import {
-	dataIsLoadingAtom,
-	dataProfileAtom,
-	dataScheduleAtom,
-} from "@/jotai/generation";
-import { IUser } from "@/types/auth.types";
+import { dataIsLoadingAtom, dataScheduleAtom } from "@/jotai/generation";
 import { ISchedule } from "@/types/schedule.types";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { LoadingGeneration } from "../Loading/LoadingGeneration";
 import { AddField } from "./AddField";
@@ -29,11 +24,8 @@ type Props = {
 };
 
 export const MainField = ({ title, field, name, label }: Props) => {
-	const [isLoading, setIsLoading] = useAtom<boolean>(dataIsLoadingAtom);
-	const [dataProfile, setDataProfile] = useAtom<IUser | null>(dataProfileAtom);
-	const [dataSchedule, setDataSchedule] = useAtom<ISchedule | null>(
-		dataScheduleAtom
-	);
+	const isLoading = useAtomValue<boolean>(dataIsLoadingAtom);
+	const dataSchedule = useAtomValue<ISchedule | null>(dataScheduleAtom);
 
 	const [fields, setField] = useState<string[] | any>([]);
 

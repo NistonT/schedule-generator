@@ -1,9 +1,11 @@
 import { dataProfileAtom } from "@/jotai/generation";
 import { cabinetService } from "@/services/cabinets.service";
+import { groupService } from "@/services/groups.service";
+import { teachersService } from "@/services/teachers.service";
 import { IUser } from "@/types/auth.types";
 import { IAddField } from "@/types/generation.types";
 import { useMutation } from "@tanstack/react-query";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { ButtonGeneration } from "../ui/buttons/ButtonGeneration";
@@ -17,7 +19,7 @@ type Props = {
 
 export const AddField = ({ label, name, field }: Props) => {
 	const { register, handleSubmit, reset } = useForm<IAddField>();
-	const [dataProfile, setDataProfile] = useAtom<IUser | null>(dataProfileAtom);
+	const dataProfile = useAtomValue<IUser | null>(dataProfileAtom);
 
 	const { mutate: addCabinet } = useMutation({
 		mutationKey: ["addFieldCabinet"],
@@ -33,9 +35,43 @@ export const AddField = ({ label, name, field }: Props) => {
 		},
 	});
 
+	const { mutate: addGroup } = useMutation({
+		mutationKey: ["addFieldGroup"],
+		mutationFn: (data: IAddField) =>
+			groupService.addGroups(data, dataProfile!.api_key),
+		onSuccess: () => {
+			toast.success("Группа добавлен");
+			reset();
+			location.reload();
+		},
+		onError: (error: any) => {
+			toast.error(error.response.data.message);
+		},
+	});
+
+	const { mutate: addTeacher } = useMutation({
+		mutationKey: ["addFieldTeacher"],
+		mutationFn: (data: IAddField) =>
+			teachersService.addTeachers(data, dataProfile!.api_key),
+		onSuccess: () => {
+			toast.success("Преподаватель добавлен");
+			reset();
+			location.reload();
+		},
+		onError: (error: any) => {
+			toast.error(error.response.data.message);
+		},
+	});
+
 	const onSubmit: SubmitHandler<IAddField> = data => {
 		if (field === "CABINETS") {
 			addCabinet(data);
+		} else if (field === "GROUP") {
+			addGroup(data);
+		} else if (field === "TEACHERS") {
+			addTeacher(data);
+		} else {
+			toast.error("Ошибка при выбери полей MainGeneration(AddField)");
 		}
 	};
 

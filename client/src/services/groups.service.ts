@@ -1,11 +1,11 @@
 import { axiosWithAuto } from "@/api/interceptors";
 import { IAddField, IDeleteField, IPutField } from "@/types/generation.types";
 
-class CabinetsService {
-	private BASE_URL = "/cabinets";
+class GroupsService {
+	private BASE_URL = "/groups";
 	private API_QUERY = `?api-key=`;
 
-	async addCabinets(data: IAddField, api: string) {
+	async addGroups(data: IAddField, api: string) {
 		const response = await axiosWithAuto.post(
 			`${this.BASE_URL}${this.API_QUERY}${api}`,
 			data
@@ -14,7 +14,7 @@ class CabinetsService {
 		return response;
 	}
 
-	async getCabinets(api: string) {
+	async getGroups(api: string) {
 		const response = await axiosWithAuto.get(
 			`${this.BASE_URL}${this.API_QUERY}${api}`
 		);
@@ -22,7 +22,7 @@ class CabinetsService {
 		return response;
 	}
 
-	async putCabinets(data: IPutField, api: string) {
+	async changeGroups(data: IPutField, api: string) {
 		const response = await axiosWithAuto.put(
 			`${this.BASE_URL}${this.API_QUERY}${api}`,
 			data
@@ -31,7 +31,7 @@ class CabinetsService {
 		return response;
 	}
 
-	async deleteCabinets(data: IDeleteField, api: string) {
+	async deleteGroups(data: IDeleteField, api: string) {
 		const response = await axiosWithAuto.delete(
 			`${this.BASE_URL}${this.API_QUERY}${api}`,
 			{
@@ -43,4 +43,4 @@ class CabinetsService {
 	}
 }
 
-export const cabinetService = new CabinetsService();
+export const groupService = new GroupsService();
