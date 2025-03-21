@@ -45,6 +45,8 @@ export const PutField = ({ fieldElem, field }: Props) => {
 		if (field === "CABINETS") {
 			console.log(result);
 			changeCabinet(result);
+		} else if (field === "GROUP") {
+		} else if (field === "TEACHERS") {
 		}
 	};
 	return (
