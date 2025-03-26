@@ -15,6 +15,5 @@ export const amountLimitsAtom = atom<TypeAmountLimits[]>([]);
 export const cabinetLimitsAtom = atom<TypeCabinetLimits[]>([]);
 export const daysAtom = atom<string[]>([]);
 export const maxLoadAtom = atom<number>(6);
-export const hoursAtom = atom<Record<string, number[]>>({});
 
 export const countTeacherAtom = atom<number>(1);

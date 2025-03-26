@@ -14,7 +14,6 @@ import {
 	cabinetsAtom,
 	daysAtom,
 	groupsAtom,
-	hoursAtom,
 	maxLoadAtom,
 	subjectsMapAtom,
 	teachersAtom,
@@ -36,7 +35,6 @@ export const Modal = () => {
 	const [cabinetLimits, setCabinetLimits] = useAtom(cabinetLimitsAtom);
 	const [days, setDays] = useAtom(daysAtom);
 	const [maxLoad, setMaxLoad] = useAtom(maxLoadAtom);
-	const [hours, setHours] = useAtom(hoursAtom);
 	const [isModal, setIsModal] = useAtom(modalAtom);
 
 	const handlerIsModal = () => {
@@ -71,10 +69,6 @@ export const Modal = () => {
 			cabinetLimits,
 			days,
 			maxLoad,
-			hours: groups.reduce((acc, group) => {
-				acc[group] = hours[group] || [0, 0];
-				return acc;
-			}, {} as Record<string, number[]>),
 		};
 
 		console.log("Отправляемые данные:", JSON.stringify(schedule, null, 2));

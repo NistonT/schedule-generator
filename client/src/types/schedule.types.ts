@@ -58,7 +58,6 @@ export type TypeScheduleForm = {
 	cabinetLimits: TypeCabinetLimits[];
 	days: string[];
 	maxLoad: number;
-	hours: Record<string, number[]>;
 };
 
 export type TypeGetSchedule = {
