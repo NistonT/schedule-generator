@@ -43,8 +43,15 @@ export class ScheduleService {
       where: {
         user_id: user.id,
       },
-      include: {
+      select: {
+        id: false,
+        user_id: false,
+        schedule: true,
+        cabinets: true,
         teachers: true,
+        groups: true,
+        CreatedAt: true,
+        UpdatedAt: true,
       },
     });
   }
@@ -71,23 +78,27 @@ export class ScheduleService {
       for (const day of days) {
         groupTimetables[group][day] = [];
       }
-    }
 
-    // Создаем карту доступности преподавателей и кабинетов
-    const teacherAvailability: Record<string, boolean[]> = {};
-    const cabinetAvailability: Record<string, boolean[]> = {};
+      // Проверяем, есть ли предметы для группы
+      const subjects = subjectsMap[group] || [];
+      if (!Array.isArray(subjects)) {
+        throw new Error(`Invalid subjects data for group ${group}`);
+      }
 
-    for (const day of days) {
-      teacherAvailability[day] = Array(maxLoad).fill(true);
-      cabinetAvailability[day] = Array(maxLoad).fill(true);
-    }
-
-    // Перебор всех групп
-    for (const group of groups) {
+      // Создаем очередь предметов
       const subjectQueue = this.createSubjectQueue(
-        subjectsMap[group],
+        subjects,
         amountLimits.filter((limit) => limit.group === group),
       );
+
+      // Инициализация карты доступности преподавателей и кабинетов
+      const teacherAvailability: Record<string, boolean[]> = {};
+      const cabinetAvailability: Record<string, boolean[]> = {};
+
+      for (const day of days) {
+        teacherAvailability[day] = Array(maxLoad).fill(true);
+        cabinetAvailability[day] = Array(maxLoad).fill(true);
+      }
 
       let dayIndex = 0;
       for (const subjectInfo of subjectQueue) {
@@ -150,6 +161,10 @@ export class ScheduleService {
 
   // Метод для создания очереди предметов с учетом лимитов
   private createSubjectQueue(subjects: string[], amountLimits: any[]): any[] {
+    if (!Array.isArray(subjects)) {
+      throw new Error('Subjects must be an array');
+    }
+
     const queue: any[] = [];
     for (const subject of subjects) {
       const limits = amountLimits.filter((l) => l.subject === subject);

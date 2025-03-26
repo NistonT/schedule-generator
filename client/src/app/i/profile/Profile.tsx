@@ -1,12 +1,13 @@
 "use client";
 import { ButtonSubmit } from "@/components/ui/buttons/ButtonSubmit";
 import { useProfile } from "@/hook/useProfile";
+import { dataProfileAtom } from "@/jotai/generation";
 import { modalAtom } from "@/jotai/modal";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { Calendar } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "swiper/css";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Days } from "./components/Days";
@@ -18,10 +19,19 @@ export const Profile = () => {
 	const [currentDate, setCurrentDate] = useState(dayjs());
 	const [isModal, setIsModal] = useAtom<boolean>(modalAtom);
 	const { data } = useProfile();
+	const setDataProfile = useSetAtom(dataProfileAtom);
 
 	const handlerIsModal = () => {
 		setIsModal(!isModal);
 	};
+
+	useEffect(() => {
+		if (!data) {
+			return;
+		}
+
+		setDataProfile(data);
+	}, [data]);
 
 	return (
 		<>

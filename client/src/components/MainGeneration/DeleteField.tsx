@@ -2,10 +2,12 @@
 
 import { dataProfileAtom } from "@/jotai/generation";
 import { cabinetService } from "@/services/cabinets.service";
+import { groupService } from "@/services/groups.service";
+import { teachersService } from "@/services/teachers.service";
 import { IUser } from "@/types/auth.types";
 import { IDeleteField } from "@/types/generation.types";
 import { useMutation } from "@tanstack/react-query";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { Delete } from "lucide-react";
 import { toast } from "sonner";
 import { ButtonSubmit } from "../ui/buttons/ButtonSubmit";
@@ -17,7 +19,7 @@ type Props = {
 };
 
 export const DeleteField = ({ fieldElem, field }: Props) => {
-	const [dataProfile, setDataProfile] = useAtom<IUser | null>(dataProfileAtom);
+	const dataProfile = useAtomValue<IUser | null>(dataProfileAtom);
 
 	const { mutate: deleteCabinet } = useMutation({
 		mutationKey: ["deleteFieldCabinet"],
@@ -26,6 +28,35 @@ export const DeleteField = ({ fieldElem, field }: Props) => {
 		onSuccess: () => {
 			toast.success("Кабинет успешно удален");
 			location.reload();
+		},
+		onError: (error: any) => {
+			toast.success(error.response.data.message);
+		},
+	});
+
+	const { mutate: deleteGroup } = useMutation({
+		mutationKey: ["deleteFieldGroup"],
+		mutationFn: (data: IDeleteField) =>
+			groupService.deleteGroups(data, dataProfile!.api_key),
+		onSuccess: () => {
+			toast.success("Группа успешно удален");
+			location.reload();
+		},
+		onError: (error: any) => {
+			toast.success(error.response.data.message);
+		},
+	});
+
+	const { mutate: deleteTeacher } = useMutation({
+		mutationKey: ["deleteFieldTeacher"],
+		mutationFn: (data: IDeleteField) =>
+			teachersService.deleteTeachers(data, dataProfile!.api_key),
+		onSuccess: () => {
+			toast.success("Группа успешно удален");
+			location.reload();
+		},
+		onError: (error: any) => {
+			toast.success(error.response.data.message);
 		},
 	});
 
@@ -36,6 +67,10 @@ export const DeleteField = ({ fieldElem, field }: Props) => {
 
 		if (field === "CABINETS") {
 			deleteCabinet(data);
+		} else if (field === "GROUP") {
+			deleteGroup(data);
+		} else if (field === "TEACHERS") {
+			deleteTeacher(data);
 		}
 	};
 
