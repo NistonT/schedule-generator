@@ -8,6 +8,7 @@ class DASHBOARD {
 	DOCUMENTATION = `/documentation`;
 	PROFILE = `${this.root}/profile`;
 	GENERATION = `${this.root}/generation`;
+	SCHEDULE = `${this.root}/schedule`;
 	SETTING = `${this.root}/setting`;
 	ABOUT = `${this.root}/about`;
 }

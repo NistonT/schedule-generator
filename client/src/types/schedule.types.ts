@@ -1,14 +1,27 @@
+export interface Lesson {
+	group: string;
+	cabinet: string;
+	subject: string;
+	teacher: string;
+	lessonType: string;
+}
+
+type DaySchedule = Lesson[][];
+interface GroupSchedule {
+	[day: string]: DaySchedule;
+}
+export interface GroupTimetables {
+	[group: string]: GroupSchedule;
+}
+
 export interface ISchedule {
-	id: string;
-	user_id: string;
 	cabinets: string[];
 	groups: string[];
-	schedule: TypeScheduleForm;
+	schedule: GroupTimetables;
 	teachers: TypeTeachers[];
 	CreatedAt: string;
 	UpdatedAt: string;
 }
-
 export type SetAtom<Args extends any[], Result> = (...args: Args) => Result;
 
 export type CombinedRecord = {

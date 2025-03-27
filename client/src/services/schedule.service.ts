@@ -14,7 +14,7 @@ class ScheduleService {
 		return response;
 	}
 
-	async getSchedule(api: string): Promise<AxiosResponse<ISchedule>> {
+	async getSchedule(api: string): Promise<AxiosResponse<ISchedule | null>> {
 		const response = await axiosWithAuto.get(
 			`${this.BASE_URL}/generate?api-key=${api}`
 		);
