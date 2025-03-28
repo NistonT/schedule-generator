@@ -84,11 +84,14 @@ export const Schedule = () => {
 	);
 
 	const handleDragStart = (event: DragStartEvent) => {
+		console.log("Drag start:", event.active.id);
 		setActiveId(event.active.id as string);
 	};
 
 	const handleDragEnd = (event: DragEndEvent) => {
+		console.log("Drag end:", event.active.id, event.over?.id);
 		const { active, over } = event;
+
 		if (!over || !schedule || active.id === over.id) return;
 
 		const [sourceGroup, sourceDay, sourceIndex] = active.id
@@ -125,15 +128,31 @@ export const Schedule = () => {
 		setActiveId(null);
 	};
 
+	if (isPending) {
+		return <p className='text-center text-gray-500'>Загрузка расписания...</p>;
+	}
+
+	if (!schedule) {
+		return <p className='text-center text-gray-500'>Расписание недоступно</p>;
+	}
+
 	return (
 		<div className='p-6'>
 			<h1 className='text-3xl font-bold text-center mb-8'>Расписание</h1>
-			{!isPending && schedule && (
-				<DndContext
-					sensors={sensors}
-					collisionDetection={closestCenter}
-					onDragStart={handleDragStart}
-					onDragEnd={handleDragEnd}
+			<DndContext
+				sensors={sensors}
+				collisionDetection={closestCenter}
+				onDragStart={handleDragStart}
+				onDragEnd={handleDragEnd}
+			>
+				<SortableContext
+					items={Object.entries(schedule.groupTimetables).flatMap(
+						([group, days]) =>
+							Object.entries(days).flatMap(([day, lessons]) =>
+								lessons.map((_, index) => `${group}-${day}-${index}`)
+							)
+					)}
+					strategy={verticalListSortingStrategy}
 				>
 					<div className='space-y-8'>
 						{Object.entries(schedule.groupTimetables).map(([group, days]) => (
@@ -155,78 +174,73 @@ export const Schedule = () => {
 											<h3 className='text-lg font-medium flex items-center gap-2'>
 												<Calendar size={18} className='text-gray-500' /> {day}
 											</h3>
-											<SortableContext
-												items={lessons.map((_, i) => `${group}-${day}-${i}`)}
-												strategy={verticalListSortingStrategy}
-											>
+											<ul className='space-y-4'>
 												{lessons.length === 0 ? (
 													<p className='text-gray-500 flex items-center gap-2'>
 														<BookOpen size={16} /> Нет занятий
 													</p>
 												) : (
-													<ul className='space-y-4'>
-														{lessons.map((lessonSlot, index) => (
-															<SortableItem
-																key={`${group}-${day}-${index}`}
-																id={`${group}-${day}-${index}`}
-															>
-																<li className='bg-white p-3 rounded-md shadow-sm space-y-1'>
-																	{Array.isArray(lessonSlot) &&
-																		lessonSlot.map((lesson, lessonIndex) => (
-																			<div
-																				key={lessonIndex}
-																				className='bg-white shadow-sm rounded-lg p-4 space-y-2'
-																			>
-																				<div className='flex items-center gap-2'>
-																					<BookOpen
-																						size={18}
-																						className='text-blue-500'
-																					/>
-																					<span className='text-gray-700 font-medium'>
-																						{lesson.subject}
-																					</span>
-																				</div>
-																				<div className='flex items-center gap-2 text-sm text-gray-600'>
-																					<MapPin
-																						size={16}
-																						className='text-green-500'
-																					/>
-																					<span>Кабинет: {lesson.cabinet}</span>
-																				</div>
-																				<div className='flex items-center gap-2 text-sm text-gray-600'>
-																					<User
-																						size={16}
-																						className='text-purple-500'
-																					/>
-																					<span>
-																						Преподаватель: {lesson.teacher}
-																					</span>
-																				</div>
-																				<div className='flex items-center gap-2 text-sm text-gray-600'>
-																					<Clock
-																						size={16}
-																						className='text-yellow-500'
-																					/>
-																					<span>
-																						Тип занятия: {lesson.lessonType}
-																					</span>
-																				</div>
+													lessons.map((lessonSlot, index) => (
+														<SortableItem
+															key={`${group}-${day}-${index}`}
+															id={`${group}-${day}-${index}`}
+														>
+															<li className='bg-white p-3 rounded-md shadow-sm space-y-1'>
+																{Array.isArray(lessonSlot) &&
+																	lessonSlot.map((lesson, lessonIndex) => (
+																		<div
+																			key={lessonIndex}
+																			className='bg-white shadow-sm rounded-lg p-4 space-y-2'
+																		>
+																			<div className='flex items-center gap-2'>
+																				<BookOpen
+																					size={18}
+																					className='text-blue-500'
+																				/>
+																				<span className='text-gray-700 font-medium'>
+																					{lesson.subject}
+																				</span>
 																			</div>
-																		))}
-																</li>
-															</SortableItem>
-														))}
-													</ul>
+																			<div className='flex items-center gap-2 text-sm text-gray-600'>
+																				<MapPin
+																					size={16}
+																					className='text-green-500'
+																				/>
+																				<span>Кабинет: {lesson.cabinet}</span>
+																			</div>
+																			<div className='flex items-center gap-2 text-sm text-gray-600'>
+																				<User
+																					size={16}
+																					className='text-purple-500'
+																				/>
+																				<span>
+																					Преподаватель: {lesson.teacher}
+																				</span>
+																			</div>
+																			<div className='flex items-center gap-2 text-sm text-gray-600'>
+																				<Clock
+																					size={16}
+																					className='text-yellow-500'
+																				/>
+																				<span>
+																					Тип занятия: {lesson.lessonType}
+																				</span>
+																			</div>
+																		</div>
+																	))}
+															</li>
+														</SortableItem>
+													))
 												)}
-											</SortableContext>
+											</ul>
 										</div>
 									))}
 								</div>
 							</div>
 						))}
 					</div>
-				</DndContext>
-			)}
+				</SortableContext>
+			</DndContext>
 		</div>
 	);
 };
