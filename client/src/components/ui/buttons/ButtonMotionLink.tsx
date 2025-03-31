@@ -52,7 +52,7 @@ export const ButtonMotionLink = ({
 
 					setTimeout(() => {
 						push(href);
-					}, 1000);
+					}, 0);
 				}}
 			>
 				{icon}
