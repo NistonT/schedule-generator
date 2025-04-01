@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { ScheduleController } from './schedule.controller';
+import { ScheduleDefaultService } from './schedule.default.service';
 import { ScheduleService } from './schedule.service';
 import { ScheduleAiService } from './scheduleAi.service';
 
@@ -15,6 +16,12 @@ import { ScheduleAiService } from './scheduleAi.service';
     }),
   ],
   controllers: [ScheduleController],
-  providers: [ScheduleService, PrismaService, UserService, ScheduleAiService],
+  providers: [
+    ScheduleService,
+    PrismaService,
+    UserService,
+    ScheduleAiService,
+    ScheduleDefaultService,
+  ],
 })
 export class ScheduleModule {}

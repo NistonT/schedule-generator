@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { UserService } from 'src/user/user.service';
 
@@ -9,8 +13,7 @@ export class ScheduleService {
     private userService: UserService,
   ) {}
 
-  // Метод для сохранения расписания в базе данных
-  async generatedSchedulePrisma(api_key: string, data: any): Promise<any> {
+  async addGeneratedSchedulePrisma(api_key: string, data: any): Promise<any> {
     if (!api_key || api_key.trim() === '') {
       throw new Error('API key is required and must not be empty');
     }
@@ -22,9 +25,49 @@ export class ScheduleService {
 
     const schedule_json = await this.generateSchedule(data);
 
+    return await this.prisma.schedule.create({
+      data: {
+        schedule: schedule_json,
+        user_id: user.id,
+        cabinets: [],
+        groups: [],
+        teachers: { create: [] },
+        mapSubject: { create: [] },
+        mapTeacher: { create: [] },
+        amountLimits: { create: [] },
+        limitCabinets: { create: [] },
+        isShow: true,
+      },
+    });
+  }
+
+  // Метод для сохранения/обновления расписания в базе данных
+  async generatedSchedulePrisma(
+    api_key: string,
+    scheduleId: string,
+    data: any,
+  ): Promise<any> {
+    // Проверка API ключа
+    if (!api_key || api_key.trim() === '') {
+      throw new BadRequestException(
+        'API key is required and must not be empty',
+      );
+    }
+
+    // Поиск пользователя
+    const user = await this.userService.getByApiKey(api_key);
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
+    // Генерация расписания
+    const schedule_json = await this.generateSchedule(data);
+
+    // Обновление конкретного расписания
     return await this.prisma.schedule.update({
       where: {
-        user_id: user.id,
+        id: scheduleId,
+        user_id: user.id, // Дополнительная проверка, что расписание принадлежит пользователю
       },
       data: {
         schedule: schedule_json,
@@ -32,26 +75,52 @@ export class ScheduleService {
     });
   }
 
-  // Метод для получения расписания по API ключу пользователя
-  async getBySchedule(api_key: string) {
+  // Метод для получения конкретного расписания по ID расписания и API ключу пользователя
+  async getScheduleById(api_key: string, scheduleId: string) {
     const user = await this.userService.getByApiKey(api_key);
     if (!user) {
       throw new NotFoundException('Пользователь не найден');
     }
 
-    return await this.prisma.schedule.findUnique({
+    return await this.prisma.schedule.findFirst({
       where: {
-        user_id: user.id,
+        id: scheduleId,
+        user_id: user.id, // Проверяем, что расписание принадлежит пользователю
       },
       select: {
-        id: false,
-        user_id: false,
+        id: true,
         schedule: true,
         cabinets: true,
         teachers: true,
         groups: true,
         CreatedAt: true,
         UpdatedAt: true,
+      },
+    });
+  }
+
+  // Метод для получения всех расписаний пользователя
+  async getAllUserSchedules(api_key: string) {
+    const user = await this.userService.getByApiKey(api_key);
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
+    return await this.prisma.schedule.findMany({
+      where: {
+        user_id: user.id,
+      },
+      select: {
+        id: true,
+        schedule: true,
+        cabinets: true,
+        teachers: true,
+        groups: true,
+        CreatedAt: true,
+        UpdatedAt: true,
+      },
+      orderBy: {
+        CreatedAt: 'desc', // Сортировка по дате создания (новые сначала)
       },
     });
   }

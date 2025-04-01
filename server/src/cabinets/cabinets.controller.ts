@@ -9,9 +9,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Schedule } from '@prisma/client';
 import { CabinetsService } from './cabinets.service';
-import { Cabinets } from './dto/cabinets.type';
 import { ChangeCabinetDto } from './dto/change.type';
 
 @Controller('cabinets')
@@ -33,13 +31,24 @@ export class CabinetsController {
   async add(
     @Body('name') name: string,
     @Query('api-key') api_key: string,
-  ): Promise<Schedule> {
-    return await this.cabinetsService.addCabinet(name, api_key);
+    @Query('schedule_id') scheduleId: string,
+  ): Promise<string[]> {
+    return await this.cabinetsService.addCabinet(name, api_key, scheduleId);
   }
 
   @Get()
-  async get(@Query('api-key') api_key: string): Promise<Cabinets[]> {
-    return await this.cabinetsService.getCabinets(api_key);
+  async get(
+    @Query('api-key') api_key: string,
+    @Query('schedule_id') scheduleId: string,
+  ): Promise<string[]> {
+    return await this.cabinetsService.getCabinets(api_key, scheduleId);
+  }
+
+  @Get('/all')
+  async getAll(
+    @Query('api-key') api_key: string,
+  ): Promise<{ id: string; cabinets: string[] }[]> {
+    return await this.cabinetsService.getAllCabinets(api_key);
   }
 
   /*
@@ -53,10 +62,16 @@ export class CabinetsController {
   async change(
     @Body() dto: ChangeCabinetDto,
     @Query('api-key') api_key: string,
-  ): Promise<Schedule> {
+    @Query('schedule_id') scheduleId: string,
+  ): Promise<string[]> {
     const { oldName, newName } = dto;
 
-    return await this.cabinetsService.changeCabinet(oldName, newName, api_key);
+    return await this.cabinetsService.changeCabinet(
+      oldName,
+      newName,
+      api_key,
+      scheduleId,
+    );
   }
 
   /*
@@ -68,7 +83,8 @@ export class CabinetsController {
   async delete(
     @Body('name') name: string,
     @Query('api-key') api_key: string,
-  ): Promise<Schedule> {
-    return this.cabinetsService.deleteCabinet(name, api_key);
+    @Query('schedule_id') scheduleId: string,
+  ): Promise<string[]> {
+    return this.cabinetsService.deleteCabinet(name, api_key, scheduleId);
   }
 }

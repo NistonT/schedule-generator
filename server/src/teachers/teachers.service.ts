@@ -1,8 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { Schedule, Teacher } from '@prisma/client';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Teacher } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { UserService } from 'src/user/user.service';
-import { ITeachers } from './dto/teacher.types';
 
 @Injectable()
 export class TeachersService {
@@ -11,197 +14,195 @@ export class TeachersService {
     private userService: UserService,
   ) {}
 
-  async add(name: string, apiKey: string): Promise<Schedule> {
-    if (!name) {
-      throw new BadRequestException('Вы не ввели имя преподавателя');
-    }
-
-    if (!apiKey) {
-      throw new BadRequestException('Вы не ввели ключ api');
+  private async validateUser(apiKey: string) {
+    if (!apiKey?.trim()) {
+      throw new BadRequestException('API ключ обязателен');
     }
 
     const user = await this.userService.getByApiKey(apiKey);
     if (!user) {
-      throw new BadRequestException('Пользователь не найден');
+      throw new NotFoundException('Пользователь не найден');
+    }
+    return user;
+  }
+
+  async add(
+    name: string,
+    apiKey: string,
+    scheduleId?: string,
+  ): Promise<Teacher> {
+    if (!name?.trim()) {
+      throw new BadRequestException('Имя преподавателя обязательно');
     }
 
-    const schedule = await this.prisma.schedule.findUnique({
+    const user = await this.validateUser(apiKey);
+
+    // Если scheduleId не указан, используем последнее расписание пользователя
+    const targetSchedule = scheduleId
+      ? await this.prisma.schedule.findFirst({
+          where: { id: scheduleId, user_id: user.id },
+        })
+      : await this.prisma.schedule.findFirst({
+          where: { user_id: user.id },
+          orderBy: { CreatedAt: 'desc' },
+        });
+
+    if (!targetSchedule) {
+      throw new NotFoundException('Расписание не найдено');
+    }
+
+    // Проверяем существование преподавателя
+    const existingTeacher = await this.prisma.teacher.findFirst({
       where: {
-        user_id: user.id,
-      },
-      include: {
-        teachers: true,
+        name,
+        schedule: { some: { id: targetSchedule.id } },
       },
     });
-    if (!schedule) {
-      throw new BadRequestException('Расписание не найдено');
+
+    if (existingTeacher) {
+      throw new BadRequestException('Этот преподаватель уже существует');
     }
 
-    const isTeacherExists = schedule.teachers.some(
-      (teacher) => teacher.name === name,
-    );
-    if (isTeacherExists) {
-      throw new BadRequestException('Этот преподаватель уже создан');
-    }
-
-    const teacher = await this.prisma.teacher.create({
+    // Создаем преподавателя и связываем с расписанием
+    return this.prisma.teacher.create({
       data: {
-        name: name,
+        name,
         schedule: {
-          connect: {
-            id: schedule.id,
-          },
+          connect: { id: targetSchedule.id },
         },
-      },
-    });
-
-    if (!teacher) {
-      throw new BadRequestException('Преподаватель не создан');
-    }
-
-    return await this.prisma.schedule.update({
-      where: {
-        id: schedule.id,
-      },
-      data: {
-        teachers: {
-          connect: {
-            tid: teacher.tid,
-          },
-        },
-      },
-      include: {
-        teachers: true,
       },
     });
   }
 
-  async get(apiKey: string): Promise<ITeachers[]> {
-    if (!apiKey) {
-      throw new BadRequestException('Вы не ввели ключ api');
-    }
+  async get(apiKey: string, scheduleId?: string): Promise<Teacher[]> {
+    const user = await this.validateUser(apiKey);
 
-    const user = await this.userService.getByApiKey(apiKey);
+    const where = scheduleId
+      ? {
+          schedule: {
+            some: {
+              id: scheduleId,
+              user_id: user.id,
+            },
+          },
+        }
+      : {
+          schedule: {
+            some: {
+              user_id: user.id,
+            },
+          },
+        };
 
-    if (!user) {
-      throw new BadRequestException('Пользователь не найден');
-    }
+    return this.prisma.teacher.findMany({
+      where,
+      orderBy: { name: 'asc' },
+    });
+  }
 
-    return await this.prisma.schedule.findMany({
+  async getAllTeachers(apiKey: string): Promise<Teacher[]> {
+    // Валидация пользователя
+    const user = await this.validateUser(apiKey);
+
+    // Получаем все расписания пользователя с преподавателями
+    const schedules = await this.prisma.schedule.findMany({
       where: {
         user_id: user.id,
       },
-      select: {
-        teachers: true,
+      include: {
+        teachers: {
+          orderBy: {
+            name: 'asc', // Сортировка преподавателей по имени
+          },
+        },
       },
     });
+
+    // Объединяем всех преподавателей из всех расписаний
+    const allTeachers = schedules.flatMap((schedule) => schedule.teachers);
+
+    // Удаляем дубликаты преподавателей (если один преподаватель в нескольких расписаниях)
+    const uniqueTeachers = allTeachers.filter(
+      (teacher, index, self) =>
+        index === self.findIndex((t) => t.tid === teacher.tid),
+    );
+
+    return uniqueTeachers;
   }
 
   async change(
-    oldName: string,
+    teacherId: number,
     newName: string,
     apiKey: string,
   ): Promise<Teacher> {
-    if (!oldName) {
-      throw new BadRequestException('Вы не ввели название преподавателя');
+    if (!newName?.trim()) {
+      throw new BadRequestException('Новое имя преподавателя обязательно');
     }
 
-    if (!newName) {
-      throw new BadRequestException('Вы не ввели новое имя преподавателя');
+    await this.validateUser(apiKey);
+
+    // Проверяем существование преподавателя
+    const teacher = await this.prisma.teacher.findUnique({
+      where: { tid: teacherId },
+      include: { schedule: true },
+    });
+
+    if (!teacher) {
+      throw new NotFoundException('Преподаватель не найден');
     }
 
-    if (!apiKey) {
-      throw new BadRequestException('Вы не ввели ключ api');
-    }
-
-    const user = await this.userService.getByApiKey(apiKey);
-
-    if (!user) {
-      throw new BadRequestException('Пользователь не найден');
-    }
-
-    const schedule = await this.prisma.schedule.findUnique({
+    // Проверяем уникальность нового имени
+    const nameExists = await this.prisma.teacher.findFirst({
       where: {
-        user_id: user.id,
-      },
-      include: {
-        teachers: true,
+        name: newName,
+        tid: { not: teacherId },
+        schedule: { some: { id: { in: teacher.schedule.map((s) => s.id) } } },
       },
     });
 
-    if (!schedule) {
-      throw new BadRequestException('Расписание не найдено');
+    if (nameExists) {
+      throw new BadRequestException(
+        'Преподаватель с таким именем уже существует',
+      );
     }
 
-    const teacher = schedule.teachers.find(
-      (teacher) => teacher.name === oldName,
-    );
-
-    if (!teacher) {
-      throw new BadRequestException('Преподаватель не найден');
-    }
-
-    const filterTeacher = schedule.teachers.filter(
-      (tid) => tid.name === newName,
-    );
-
-    if (filterTeacher.length > 0) {
-      throw new BadRequestException('Имя преподавателя уже существует');
-    }
-
-    return await this.prisma.teacher.update({
-      where: {
-        tid: teacher.tid,
-      },
-      data: {
-        name: newName,
-      },
-      include: {
-        schedule: true,
-      },
+    return this.prisma.teacher.update({
+      where: { tid: teacherId },
+      data: { name: newName },
     });
   }
 
-  async delete(name: string, apiKey: string): Promise<Teacher> {
-    if (!name) {
-      throw new BadRequestException('Вы не ввели имя преподавателя');
-    }
+  async delete(teacherId: number, apiKey: string): Promise<Teacher> {
+    // Валидация пользователя
+    const user = await this.validateUser(apiKey);
 
-    if (!apiKey) {
-      throw new BadRequestException('Вы не ввели ключ api');
-    }
-
-    const user = await this.userService.getByApiKey(apiKey);
-
-    if (!user) {
-      throw new BadRequestException('Пользователь не найден');
-    }
-
-    const schedule = await this.prisma.schedule.findUnique({
+    // Находим преподавателя с проверкой, что он принадлежит пользователю
+    const teacher = await this.prisma.teacher.findUnique({
       where: {
-        user_id: user.id,
+        tid: teacherId, // Убедитесь, что teacherId передается правильно
       },
       include: {
-        teachers: true,
+        schedule: {
+          where: {
+            user_id: user.id, // Проверяем принадлежность расписания пользователю
+          },
+        },
       },
     });
 
-    if (!schedule) {
-      throw new BadRequestException('Расписание не найдено');
-    }
-
-    const teacher = schedule.teachers.find((teacher) => teacher.name === name);
-
     if (!teacher) {
-      throw new BadRequestException('Преподаватель не найден');
+      throw new NotFoundException('Преподаватель не найден');
     }
 
+    // Дополнительная проверка, что преподаватель принадлежит пользователю
+    if (teacher.schedule.length === 0) {
+      throw new NotFoundException('Преподаватель не принадлежит пользователю');
+    }
+
+    // Удаляем преподавателя
     return await this.prisma.teacher.delete({
       where: {
-        tid: teacher.tid,
-      },
-      include: {
-        schedule: true,
+        tid: teacherId,
       },
     });
   }

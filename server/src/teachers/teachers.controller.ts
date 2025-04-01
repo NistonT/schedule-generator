@@ -9,8 +9,8 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Schedule, Teacher } from '@prisma/client';
-import { ChangeTeachersDto, ITeachers } from './dto/teacher.types';
+import { Teacher } from '@prisma/client';
+import { ChangeTeachersDto } from './dto/teacher.types';
 import { TeachersService } from './teachers.service';
 
 @Controller('teachers')
@@ -21,13 +21,22 @@ export class TeachersController {
   async add(
     @Body('name') name: string,
     @Query('api-key') apiKey: string,
-  ): Promise<Schedule> {
-    return await this.teachersService.add(name, apiKey);
+    @Query('schedule_id') scheduleId: string,
+  ): Promise<Teacher> {
+    return await this.teachersService.add(name, apiKey, scheduleId);
   }
 
   @Get()
-  async get(@Query('api-key') apiKey: string): Promise<ITeachers[]> {
-    return await this.teachersService.get(apiKey);
+  async get(
+    @Query('api-key') apiKey: string,
+    @Query('schedule_id') scheduleId: string,
+  ): Promise<Teacher[]> {
+    return await this.teachersService.get(apiKey, scheduleId);
+  }
+
+  @Get('/all')
+  async getAll(@Query('api-key') apiKey: string): Promise<Teacher[]> {
+    return await this.teachersService.getAllTeachers(apiKey);
   }
 
   @UsePipes(new ValidationPipe())
@@ -36,15 +45,15 @@ export class TeachersController {
     @Body() dto: ChangeTeachersDto,
     @Query('api-key') apiKey: string,
   ): Promise<Teacher> {
-    const { oldName, newName } = dto;
-    return await this.teachersService.change(oldName, newName, apiKey);
+    const { teacherId, newName } = dto;
+    return await this.teachersService.change(teacherId, newName, apiKey);
   }
 
   @Delete()
   async delete(
-    @Body('name') name: string,
+    @Body('teacher_id') teacherId: number,
     @Query('api-key') apiKey: string,
   ): Promise<Teacher> {
-    return await this.teachersService.delete(name, apiKey);
+    return await this.teachersService.delete(teacherId, apiKey);
   }
 }

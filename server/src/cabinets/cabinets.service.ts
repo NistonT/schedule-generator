@@ -2,12 +2,11 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Schedule } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { UserService } from 'src/user/user.service';
-import { Cabinets } from './dto/cabinets.type';
 
 @Injectable()
 export class CabinetsService {
@@ -16,171 +15,134 @@ export class CabinetsService {
     private userService: UserService,
   ) {}
 
-  // Добавить кабинет
-  async addCabinet(name: string, apiKey: string): Promise<Schedule> {
-    if (!name) {
-      throw new BadRequestException('Вы не ввели название кабинета');
-    }
-
-    if (!apiKey) {
-      throw new UnauthorizedException('Вы не ввели ключ api');
+  private async validateUserAndSchedule(apiKey: string, scheduleId?: string) {
+    if (!apiKey?.trim()) {
+      throw new UnauthorizedException('API ключ обязателен');
     }
 
     const user = await this.userService.getByApiKey(apiKey);
-    const schedule = await this.prisma.schedule.findUnique({
-      where: {
-        user_id: user.id,
-      },
-    });
-
     if (!user) {
-      throw new BadRequestException('Пользователь не найден');
+      throw new NotFoundException('Пользователь не найден');
     }
+
+    const schedule = scheduleId
+      ? await this.prisma.schedule.findFirst({
+          where: { id: scheduleId, user_id: user.id },
+        })
+      : await this.prisma.schedule.findFirst({
+          where: { user_id: user.id },
+          orderBy: { CreatedAt: 'desc' },
+        });
 
     if (!schedule) {
-      throw new BadRequestException('api ключ неверный');
+      throw new NotFoundException('Расписание не найдено');
     }
 
-    const filterCabinets = schedule.cabinets.filter(
-      (cabinet) => cabinet === name,
-    );
+    return { user, schedule };
+  }
 
-    if (filterCabinets.length > 0) {
-      throw new ConflictException('Кабинет уже создан!');
+  async addCabinet(
+    name: string,
+    apiKey: string,
+    scheduleId?: string,
+  ): Promise<string[]> {
+    if (!name?.trim()) {
+      throw new BadRequestException('Название кабинета обязательно');
     }
 
-    return await this.prisma.schedule.update({
-      where: {
-        user_id: user.id,
-      },
+    const { schedule } = await this.validateUserAndSchedule(apiKey, scheduleId);
+
+    if (schedule.cabinets.includes(name)) {
+      throw new ConflictException(`Кабинет "${name}" уже существует`);
+    }
+
+    const updatedSchedule = await this.prisma.schedule.update({
+      where: { id: schedule.id },
       data: {
         cabinets: {
           push: name,
         },
       },
     });
+
+    return updatedSchedule.cabinets;
   }
 
-  // Вывести кабинеты
-  async getCabinets(apiKey: string): Promise<Cabinets[]> {
-    if (!apiKey) {
-      throw new UnauthorizedException('Вы не ввели ключ api');
-    }
+  async getCabinets(apiKey: string, scheduleId?: string): Promise<string[]> {
+    const { schedule } = await this.validateUserAndSchedule(apiKey, scheduleId);
+    return schedule.cabinets;
+  }
 
-    const user = await this.userService.getByApiKey(apiKey);
-
-    if (!user) {
-      throw new BadRequestException('Пользователь не найден');
-    }
-
-    return await this.prisma.schedule.findMany({
-      where: {
-        user_id: user.id,
-      },
-      select: {
-        cabinets: true,
-      },
+  async getAllCabinets(
+    apiKey: string,
+  ): Promise<{ id: string; cabinets: string[] }[]> {
+    const user = await this.validateUserAndSchedule(apiKey);
+    const schedules = await this.prisma.schedule.findMany({
+      where: { user_id: user.user.id },
+      select: { id: true, cabinets: true },
     });
+    return schedules;
   }
 
-  // Изменить кабинет
   async changeCabinet(
     oldName: string,
     newName: string,
     apiKey: string,
-  ): Promise<Schedule> {
-    if (!oldName) {
-      throw new BadRequestException('Вы не ввели существующего кабинета');
+    scheduleId?: string,
+  ): Promise<string[]> {
+    if (!oldName?.trim()) {
+      throw new BadRequestException('Текущее название кабинета обязательно');
+    }
+    if (!newName?.trim()) {
+      throw new BadRequestException('Новое название кабинета обязательно');
     }
 
-    if (!newName) {
-      throw new BadRequestException('Вы не введи новое название кабинета');
-    }
-
-    if (!apiKey) {
-      throw new BadRequestException('Вы не введи api ключ');
-    }
-
-    const user = await this.userService.getByApiKey(apiKey);
-
-    if (!user) {
-      throw new BadRequestException('Пользователь не найден');
-    }
-
-    const schedule = await this.prisma.schedule.findUnique({
-      where: {
-        user_id: user.id,
-      },
-    });
-
-    if (!schedule) {
-      throw new BadRequestException('Расписание не найдено');
-    }
+    const { schedule } = await this.validateUserAndSchedule(apiKey, scheduleId);
 
     const cabinetIndex = schedule.cabinets.indexOf(oldName);
-
     if (cabinetIndex === -1) {
-      throw new BadRequestException(`Кабинет ${oldName} не найден`);
+      throw new NotFoundException(`Кабинет "${oldName}" не найден`);
     }
 
-    const cabinetUpdate = [...schedule.cabinets];
-    cabinetUpdate[cabinetIndex] = newName;
-
-    const filterCabinets = schedule.cabinets.filter(
-      (cabinet) => cabinet === newName,
-    );
-
-    if (filterCabinets.length > 0) {
-      throw new BadRequestException('Имя кабинета уже занято');
+    if (schedule.cabinets.includes(newName)) {
+      throw new ConflictException(`Кабинет "${newName}" уже существует`);
     }
 
-    return await this.prisma.schedule.update({
-      where: {
-        user_id: user.id,
-      },
-      data: {
-        cabinets: cabinetUpdate,
-      },
+    const updatedCabinets = [...schedule.cabinets];
+    updatedCabinets[cabinetIndex] = newName;
+
+    const updatedSchedule = await this.prisma.schedule.update({
+      where: { id: schedule.id },
+      data: { cabinets: updatedCabinets },
     });
+
+    return updatedSchedule.cabinets;
   }
 
-  // Удалить кабинет
-  async deleteCabinet(name: string, apiKey: string): Promise<Schedule> {
-    if (!name) {
-      throw new BadRequestException('Вы не ввели название кабинета');
+  async deleteCabinet(
+    name: string,
+    apiKey: string,
+    scheduleId?: string,
+  ): Promise<string[]> {
+    if (!name?.trim()) {
+      throw new BadRequestException('Название кабинета обязательно');
     }
 
-    if (!apiKey) {
-      throw new BadRequestException('Вы не введи ключ api');
+    const { schedule } = await this.validateUserAndSchedule(apiKey, scheduleId);
+
+    if (!schedule.cabinets.includes(name)) {
+      throw new NotFoundException(`Кабинет "${name}" не найден`);
     }
 
-    const user = await this.userService.getByApiKey(apiKey);
-
-    if (!user) {
-      throw new BadRequestException('Пользователь не найден');
-    }
-
-    const schedule = await this.prisma.schedule.findUnique({
-      where: {
-        user_id: user.id,
-      },
-    });
-
-    if (!schedule) {
-      throw new BadRequestException('Расписание не найден');
-    }
-
-    const deleteCabinets = schedule.cabinets.filter(
+    const updatedCabinets = schedule.cabinets.filter(
       (cabinet) => cabinet !== name,
     );
 
-    return await this.prisma.schedule.update({
-      where: {
-        user_id: user.id,
-      },
-      data: {
-        cabinets: deleteCabinets,
-      },
+    const updatedSchedule = await this.prisma.schedule.update({
+      where: { id: schedule.id },
+      data: { cabinets: updatedCabinets },
     });
+
+    return updatedSchedule.cabinets;
   }
 }
