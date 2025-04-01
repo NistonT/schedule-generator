@@ -1,12 +1,14 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
-  HttpException,
+  HttpCode,
   HttpStatus,
   Post,
   Query,
 } from '@nestjs/common';
+import { ScheduleDefaultService } from './schedule.default.service';
 import { ScheduleService } from './schedule.service';
 import { ScheduleAiService } from './scheduleAi.service';
 
@@ -15,6 +17,7 @@ export class ScheduleController {
   constructor(
     private readonly scheduleService: ScheduleService,
     private readonly scheduleAiService: ScheduleAiService,
+    private readonly scheduleDefaultService: ScheduleDefaultService,
   ) {}
 
   // Генерирование расписание по url:
@@ -63,26 +66,58 @@ export class ScheduleController {
   }
   */
   @Post('generate')
-  async generate(@Body() data: any, @Query('api-key') api_key: string) {
-    if (!api_key || api_key.trim() === '') {
-      throw new HttpException(
+  @HttpCode(HttpStatus.OK)
+  async generate(
+    @Body() data: any,
+    @Query('api-key') api_key: string,
+    @Query('schedule_id') scheduleId: string,
+  ) {
+    if (!api_key?.trim()) {
+      throw new BadRequestException(
         'Требуется API-ключ, который не должен быть пустым',
-        HttpStatus.BAD_REQUEST,
       );
     }
 
-    return await this.scheduleService.generatedSchedulePrisma(api_key, data);
+    return await this.scheduleService.generatedSchedulePrisma(
+      api_key,
+      scheduleId,
+      data,
+    );
   }
 
   @Post('generateAi')
+  @HttpCode(HttpStatus.CREATED)
   async generateAi(@Body() data: any) {
     return await this.scheduleAiService.generateSchedule(data);
   }
 
-  // Получение расписание через api-key по url:
-  // GET localhost:5555/api/schedule/generate
-  @Get('generate')
-  async getByGenerate(@Query('api-key') api_key) {
-    return await this.scheduleService.getBySchedule(api_key);
+  @Post('create')
+  @HttpCode(HttpStatus.CREATED)
+  async createSchedule(@Body() data: any, @Query('api-key') api_key: string) {
+    if (!api_key?.trim()) {
+      throw new BadRequestException('API ключ обязателен');
+    }
+    return await this.scheduleService.addGeneratedSchedulePrisma(api_key, data);
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async getUserSchedules(@Query('api-key') api_key: string) {
+    if (!api_key?.trim()) {
+      throw new BadRequestException('API ключ обязателен');
+    }
+    return await this.scheduleService.getAllUserSchedules(api_key);
+  }
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  async getScheduleById(
+    @Query('schedule_id') scheduleId: string,
+    @Query('api-key') api_key: string,
+  ) {
+    if (!api_key?.trim()) {
+      throw new BadRequestException('API ключ обязателен');
+    }
+    return await this.scheduleService.getScheduleById(api_key, scheduleId);
   }
 }

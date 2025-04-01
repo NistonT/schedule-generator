@@ -8,28 +8,58 @@ datasource db {
 }
 
 model User {
-  id          String    @id @default(cuid())
-  username    String    @unique
-  email       String    @unique
-  password    String
-  schedule    Schedule? @relation("UserToSchedule")
-  schedule_id String?   @unique
-  api_key     String    @default(cuid())
-  CreatedAt   DateTime  @default(now()) @map("created_at")
-  UpdatedAt   DateTime  @updatedAt @map("updated_at")
+  id       String @id @default(cuid())
+  username String @unique
+  email    String @unique
+  password String
+
+  telegram_id String?
+
+  schedule Schedule[]
+  feedback Feedback[]
+  api_key  String     @default(cuid())
+
+  role String @default("USER")
+
+  CreatedAt DateTime @default(now()) @map("created_at")
+  UpdatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([api_key])
   @@map("user")
 }
 
+model Feedback {
+  id      String @id @default(cuid())
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String
+
+  title          String
+  text           String
+  feedback_admin String
+  admin          String
+
+  isCheck Boolean @default(false)
+
+  CreatedAt DateTime @default(now()) @map("created_at")
+  UpdatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("feedback")
+}
+
 model Schedule {
   id      String @id @default(cuid())
-  user    User   @relation("UserToSchedule", fields: [user_id], references: [id])
-  user_id String @unique
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String
 
-  cabinets String[]
-  groups   String[]
-  teachers Teacher[]
+  cabinets      String[]
+  groups        String[]
+  teachers      Teacher[]
+  mapSubject    MapSubject[]
+  mapTeacher    MapTeacher[]
+  amountLimits  AmountLimits[]
+  limitCabinets LimitCabinets[]
+
+  isShow Boolean? @default(true)
 
   schedule  Json     @map("schedule_json")
   CreatedAt DateTime @default(now()) @map("created_at")
@@ -42,4 +72,73 @@ model Teacher {
   tid      Int        @id @default(autoincrement())
   name     String
   schedule Schedule[]
+}
+
+model MapSubject {
+  id         Int       @id @default(autoincrement())
+  name_group String
+  subjects   Subject[]
+
+  Schedule    Schedule? @relation(fields: [schedule_id], references: [id])
+  schedule_id String?
+}
+
+model Subject {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  mapSubject    MapSubject @relation(fields: [mapSubject_id], references: [id])
+  mapSubject_id Int
+}
+
+model MapTeacher {
+  id               Int                @id @default(autoincrement())
+  mapTeacherOption MapTeacherOption[]
+  Schedule         Schedule?          @relation(fields: [scheduleId], references: [id])
+  scheduleId       String?
+}
+
+model MapTeacherOption {
+  id            Int        @id @default(autoincrement())
+  mapTeacher    MapTeacher @relation(fields: [mapTeacher_id], references: [id])
+  mapTeacher_id Int
+
+  tid     Int
+  subject String
+  group   String
+}
+
+model AmountLimits {
+  id                   Int                   @id @default(autoincrement())
+  amountLimitsSubjects AmountLimitsSubject[]
+  Schedule             Schedule?             @relation(fields: [scheduleId], references: [id])
+  scheduleId           String?
+}
+
+model AmountLimitsSubject {
+  id              Int          @id @default(autoincrement())
+  amountLimits    AmountLimits @relation(fields: [amountLimits_id], references: [id])
+  amountLimits_id Int
+
+  group        String
+  subject      String
+  count        Int
+  type_subject String
+}
+
+model LimitCabinets {
+  id                    Int                    @id @default(autoincrement())
+  limitCabinetsTeachers LimitCabinetsTeacher[]
+  Schedule              Schedule?              @relation(fields: [scheduleId], references: [id])
+  scheduleId            String?
+}
+
+model LimitCabinetsTeacher {
+  id Int @id @default(autoincrement())
+
+  limitCabinets   LimitCabinets @relation(fields: [limitCabinet_id], references: [id])
+  limitCabinet_id Int
+
+  tid      Int
+  cabinets String[]
 }

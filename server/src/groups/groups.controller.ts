@@ -10,7 +10,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Schedule } from '@prisma/client';
-import { ChangeGroupsDto, Groups } from './dto/groups.types';
+import { ChangeGroupsDto } from './dto/groups.types';
 import { GroupsService } from './groups.service';
 
 @Controller('groups')
@@ -21,13 +21,24 @@ export class GroupsController {
   async add(
     @Body('name') name: string,
     @Query('api-key') apiKey: string,
+    @Query('schedule_id') scheduleId: string,
   ): Promise<Schedule> {
-    return await this.groupsService.add(name, apiKey);
+    return await this.groupsService.add(name, apiKey, scheduleId);
   }
 
   @Get()
-  async get(@Query('api-key') apiKey: string): Promise<Groups[]> {
-    return await this.groupsService.get(apiKey);
+  async get(
+    @Query('api-key') apiKey: string,
+    @Query('schedule_id') scheduleId: string,
+  ): Promise<string[]> {
+    return await this.groupsService.get(apiKey, scheduleId);
+  }
+
+  @Get('/all')
+  async getAll(
+    @Query('api-key') apiKey: string,
+  ): Promise<{ id: string; groups: string[] }[]> {
+    return await this.groupsService.getAll(apiKey);
   }
 
   @UsePipes(new ValidationPipe())
@@ -35,16 +46,23 @@ export class GroupsController {
   async change(
     @Body() dto: ChangeGroupsDto,
     @Query('api-key') apiKey: string,
+    @Query('schedule_id') scheduleId: string,
   ): Promise<Schedule> {
     const { oldName, newName } = dto;
-    return await this.groupsService.change(oldName, newName, apiKey);
+    return await this.groupsService.change(
+      oldName,
+      newName,
+      apiKey,
+      scheduleId,
+    );
   }
 
   @Delete()
   async delete(
     @Body('name') name: string,
     @Query('api-key') apiKey: string,
+    @Query('schedule_id') scheduleId: string,
   ): Promise<Schedule> {
-    return await this.groupsService.delete(name, apiKey);
+    return await this.groupsService.delete(name, apiKey, scheduleId);
   }
 }
