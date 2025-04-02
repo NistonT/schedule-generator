@@ -13,19 +13,26 @@ import {
 	cabinetLimitsAtom,
 	cabinetsAtom,
 	daysAtom,
+	generationCurrentScheduleFormAtom,
 	groupsAtom,
 	maxLoadAtom,
 	subjectsMapAtom,
 	teachersAtom,
 	teachersMapAtom,
 } from "@/jotai/schedule";
-import { scheduleService } from "@/services/schedule.service";
 import { TypeScheduleForm } from "@/types/schedule.types";
-import { useMutation } from "@tanstack/react-query";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
+import { useEffect } from "react";
 import { toast } from "sonner";
+import { AllSchedule } from "./AllSchedule";
+import { CreateSchedule } from "./CreateSchedule";
+import { GenerationSchedule } from "./GenerationSchedule";
 
 export const Modal = () => {
+	const setGenerationCurrentScheduleForm = useSetAtom(
+		generationCurrentScheduleFormAtom
+	);
+
 	const [cabinets, setCabinets] = useAtom(cabinetsAtom);
 	const [groups, setGroups] = useAtom(groupsAtom);
 	const [teachers, setTeachers] = useAtom(teachersAtom);
@@ -43,19 +50,7 @@ export const Modal = () => {
 
 	const { data } = useProfile();
 
-	const { mutate } = useMutation({
-		mutationKey: ["generation"],
-		mutationFn: ({ data, api }: { data: TypeScheduleForm; api: string }) =>
-			scheduleService.schedule(data, api),
-		onSuccess: () => {
-			toast("Расписание сгенерировано");
-		},
-		onError: error => {
-			console.log(error);
-		},
-	});
-
-	const handleQueryGeneration = () => {
+	useEffect(() => {
 		const schedule: TypeScheduleForm = {
 			cabinets,
 			groups,
@@ -78,11 +73,44 @@ export const Modal = () => {
 			return;
 		}
 
-		const { api_key } = data;
+		setGenerationCurrentScheduleForm(schedule);
+	}, [
+		cabinets,
+		groups,
+		teachers,
+		subjectsMap,
+		teachersMap,
+		amountLimits,
+		cabinetLimits,
+		days,
+		maxLoad,
+	]);
 
-		// Отправляем данные на сервер
-		mutate({ data: schedule, api: api_key });
-	};
+	// const handleQueryGeneration = () => {
+	// 	const schedule: TypeScheduleForm = {
+	// 		cabinets,
+	// 		groups,
+	// 		teachers: teachers.map(teacher => ({
+	// 			tid: teacher.tid,
+	// 			name: teacher.name,
+	// 		})),
+	// 		subjectsMap,
+	// 		teachersMap,
+	// 		amountLimits,
+	// 		cabinetLimits,
+	// 		days,
+	// 		maxLoad,
+	// 	};
+
+	// 	console.log("Отправляемые данные:", JSON.stringify(schedule, null, 2));
+
+	// 	if (!data) {
+	// 		toast.error("Данные пользователя отсутствуют!");
+	// 		return;
+	// 	}
+
+	// 	setGenerationCurrentScheduleForm(schedule);
+	// };
 
 	return (
 		<div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
@@ -105,7 +133,9 @@ export const Modal = () => {
 							<MultiSubject />
 						</div>
 					</div>
-					<div>{/* <ScheduleResult /> */}</div>
+					<div>
+						<AllSchedule />
+					</div>
 				</div>
 				<div className='flex justify-end gap-2 mt-4'>
 					<a
@@ -122,13 +152,8 @@ export const Modal = () => {
 					>
 						Закрыть
 					</button>
-					<button
-						onClick={handleQueryGeneration}
-						type='submit'
-						className='bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700'
-					>
-						Отправить
-					</button>
+					<GenerationSchedule />
+					<CreateSchedule />
 				</div>
 			</div>
 		</div>

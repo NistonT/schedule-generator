@@ -15,13 +15,31 @@ export interface GroupTimetables {
 }
 
 export interface ISchedule {
+	id?: string;
 	cabinets: string[];
 	groups: string[];
-	schedule: GroupTimetables;
+	schedule: {
+		groupTimetables: GroupTimetables[];
+		failedAllocations: any;
+	};
 	teachers: TypeTeachers[];
 	CreatedAt: string;
 	UpdatedAt: string;
 }
+
+export interface IScheduleGetList {
+	CreatedAt: string;
+	UpdatedAt: string;
+	cabinets: string[];
+	groups: string[];
+	id: string;
+	schedule: {
+		groupTimetables: GroupTimetables[];
+		failedAllocations: any;
+	};
+	teachers: TypeTeachers[];
+}
+
 export type SetAtom<Args extends any[], Result> = (...args: Args) => Result;
 
 export type CombinedRecord = {
