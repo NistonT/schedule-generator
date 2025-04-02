@@ -1,6 +1,8 @@
 import {
+	IScheduleGetList,
 	TypeAmountLimits,
 	TypeCabinetLimits,
+	TypeScheduleForm,
 	TypeTeachers,
 	TypeTeachersMap,
 } from "@/types/schedule.types";
@@ -17,3 +19,11 @@ export const daysAtom = atom<string[]>([]);
 export const maxLoadAtom = atom<number>(6);
 
 export const countTeacherAtom = atom<number>(1);
+
+export const currentScheduleAtom = atom<IScheduleGetList | null>(null);
+
+export const generationCurrentScheduleFormAtom = atom<TypeScheduleForm | null>(
+	null
+);
+
+export const scheduleListAtom = atom<IScheduleGetList[] | null>(null);

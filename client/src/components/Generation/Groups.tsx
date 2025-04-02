@@ -1,11 +1,8 @@
 "use client";
 import { messageGroups } from "@/constants/messageToast.constants";
 import { useHandleAddCommon } from "@/hook/useHandleAddCommon";
-import { dataProfileAtom } from "@/jotai/generation";
-import { groupsAtom } from "@/jotai/schedule";
-import { groupService } from "@/services/groups.service";
-import { IUser } from "@/types/auth.types";
-import { useQuery } from "@tanstack/react-query";
+import { currentScheduleAtom, groupsAtom } from "@/jotai/schedule";
+import { IScheduleGetList } from "@/types/schedule.types";
 import { useAtom, useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { ButtonGeneration } from "../ui/buttons/ButtonGeneration";
@@ -13,22 +10,18 @@ import { FieldGeneration } from "../ui/fields/FieldGeneration";
 
 export const Groups = () => {
 	const [groups, setGroups] = useAtom<string[]>(groupsAtom);
+	const currentSchedule = useAtomValue<IScheduleGetList | null>(
+		currentScheduleAtom
+	);
 
-	const dataProfile = useAtomValue<IUser | null>(dataProfileAtom);
 	const { handleAdd, handleRemove, inputValue, setInputValue } =
 		useHandleAddCommon(groups, setGroups, messageGroups);
 
-	const { data, isLoading } = useQuery({
-		queryKey: ["getGroups"],
-		queryFn: () => groupService.getGroups(dataProfile!.api_key),
-		select: data => data.data[0].groups,
-	});
-
 	useEffect(() => {
-		if (!isLoading && data) {
-			setGroups(data);
+		if (currentSchedule) {
+			setGroups(currentSchedule.groups);
 		}
-	}, [data, isLoading, setGroups]);
+	}, [currentSchedule]);
 
 	return (
 		<>

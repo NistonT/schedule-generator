@@ -4,7 +4,7 @@ import { IAddField, IDeleteField, IPutField } from "@/types/generation.types";
 class CabinetsService {
 	private BASE_URL = "/cabinets";
 	private API_QUERY = `?api-key=`;
-	private SCHEDULE_ID = `?schedule_id=`;
+	private SCHEDULE_ID = `&schedule_id=`;
 
 	async addCabinets(data: IAddField, api: string, scheduleId: string) {
 		const response = await axiosWithAuto.post(
@@ -17,7 +17,7 @@ class CabinetsService {
 
 	async getCabinets(api: string, scheduleId: string) {
 		const response = await axiosWithAuto.get(
-			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`
+			`${this.BASE_URL}/${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`
 		);
 
 		return response;

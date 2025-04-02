@@ -1,10 +1,14 @@
 import { axiosWithAuto } from "@/api/interceptors";
-import { ISchedule, TypeScheduleForm } from "@/types/schedule.types";
+import {
+	ISchedule,
+	IScheduleGetList,
+	TypeScheduleForm,
+} from "@/types/schedule.types";
 import { AxiosResponse } from "axios";
 class ScheduleService {
 	private BASE_URL = "/schedule";
 	private API_QUERY = `?api-key=`;
-	private SCHEDULE_ID = `?schedule_id=`;
+	private SCHEDULE_ID = `&schedule_id=`;
 
 	// Генерировать определенное расписание
 	async schedule(data: TypeScheduleForm, api: string, scheduleId: string) {
@@ -19,11 +23,10 @@ class ScheduleService {
 	// Создать расписание
 	async createSchedule(
 		api: string,
-		data: TypeScheduleForm,
-		scheduleId: string
+		data: TypeScheduleForm
 	): Promise<AxiosResponse<ISchedule | null>> {
 		const response = await axiosWithAuto.post(
-			`${this.BASE_URL}/create${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
+			`${this.BASE_URL}/create${this.API_QUERY}${api}`,
 			data
 		);
 
@@ -31,7 +34,9 @@ class ScheduleService {
 	}
 
 	// Показать все расписании
-	async getAllSchedule(api: string): Promise<AxiosResponse<ISchedule | null>> {
+	async getAllSchedule(
+		api: string
+	): Promise<AxiosResponse<IScheduleGetList[] | null>> {
 		const response = await axiosWithAuto.get(
 			`${this.BASE_URL}/all${this.API_QUERY}${api}`
 		);

@@ -68,7 +68,7 @@ export class CabinetsService {
     return updatedSchedule.cabinets;
   }
 
-  async getCabinets(apiKey: string, scheduleId?: string): Promise<string[]> {
+  async getCabinets(apiKey: string, scheduleId: string): Promise<string[]> {
     const { schedule } = await this.validateUserAndSchedule(apiKey, scheduleId);
     return schedule.cabinets;
   }
