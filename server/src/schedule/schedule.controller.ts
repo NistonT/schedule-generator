@@ -100,7 +100,7 @@ export class ScheduleController {
     return await this.scheduleService.addGeneratedSchedulePrisma(api_key, data);
   }
 
-  @Get()
+  @Get('/all')
   @HttpCode(HttpStatus.OK)
   async getUserSchedules(@Query('api-key') api_key: string) {
     if (!api_key?.trim()) {
@@ -109,7 +109,7 @@ export class ScheduleController {
     return await this.scheduleService.getAllUserSchedules(api_key);
   }
 
-  @Get(':id')
+  @Get()
   @HttpCode(HttpStatus.OK)
   async getScheduleById(
     @Query('schedule_id') scheduleId: string,
@@ -119,5 +119,25 @@ export class ScheduleController {
       throw new BadRequestException('API ключ обязателен');
     }
     return await this.scheduleService.getScheduleById(api_key, scheduleId);
+  }
+
+  // default Service
+
+  @Get('/users/all')
+  @HttpCode(HttpStatus.OK)
+  async getAllUserSchedules(@Query('api-key') api_key: string) {
+    if (!api_key?.trim()) {
+      throw new BadRequestException('API ключ обязателен');
+    }
+    return await this.scheduleDefaultService.getAllUserSchedules(api_key);
+  }
+
+  @Get('/latest')
+  @HttpCode(HttpStatus.OK)
+  async getLatestSchedule(@Query('api-key') api_key: string) {
+    if (!api_key?.trim()) {
+      throw new BadRequestException('API ключ обязателен');
+    }
+    return await this.scheduleDefaultService.getLatestSchedule(api_key);
   }
 }

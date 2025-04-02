@@ -10,3 +10,12 @@ export interface IPutField {
 export interface IDeleteField {
 	name: string;
 }
+
+export interface IPutFieldNumber {
+	teacherId: number;
+	newName: string;
+}
+
+export interface IDeleteFieldNumber {
+	teacherId: number;
+}
