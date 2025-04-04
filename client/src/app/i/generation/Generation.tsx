@@ -10,19 +10,17 @@ import {
 	dataProfileAtom,
 	dataScheduleAtom,
 } from "@/jotai/generation";
-import { scheduleService } from "@/services/schedule.service";
-import { useQuery } from "@tanstack/react-query";
 import { useSetAtom } from "jotai";
 import { useEffect } from "react";
 
 export const Generation = () => {
 	const { data } = useProfile();
 
-	const { data: dataQuery, isLoading } = useQuery({
-		queryKey: ["generation"],
-		queryFn: () => scheduleService.getSchedule(data!.api_key),
-		select: data => data.data,
-	});
+	// const { data: dataQuery, isLoading } = useQuery({
+	// 	queryKey: ["generation"],
+	// 	queryFn: () => scheduleService.getSchedule(data!.api_key),
+	// 	select: data => data.data,
+	// });
 
 	const setDataProfile = useSetAtom(dataProfileAtom);
 	const setDataSchedule = useSetAtom(dataScheduleAtom);
@@ -34,15 +32,15 @@ export const Generation = () => {
 		}
 	}, [data]);
 
-	useEffect(() => {
-		if (dataQuery) {
-			setDataSchedule(dataQuery);
-		}
-	}, [dataQuery]);
+	// useEffect(() => {
+	// 	if (dataQuery) {
+	// 		setDataSchedule(dataQuery);
+	// 	}
+	// }, [dataQuery]);
 
-	useEffect(() => {
-		setDataIsLoading(isLoading);
-	}, [isLoading]);
+	// useEffect(() => {
+	// 	setDataIsLoading(isLoading);
+	// }, [isLoading]);
 
 	return (
 		<>

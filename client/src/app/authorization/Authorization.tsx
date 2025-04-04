@@ -17,6 +17,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 export const Authorization = () => {
+	// хук для формы
 	const {
 		register,
 		reset,
@@ -26,8 +27,10 @@ export const Authorization = () => {
 		mode: "onChange",
 	});
 
+	// хук для редиректа
 	const { push } = useRouter();
 
+	// хук для запроса
 	const { mutate } = useMutation({
 		mutationKey: ["auth"],
 		mutationFn: (data: IAuthForm) => authService.loginMain(data),
@@ -42,6 +45,7 @@ export const Authorization = () => {
 		},
 	});
 
+	// функция для оправление запроса
 	const onSubmit: SubmitHandler<IAuthForm> = data => {
 		mutate(data);
 	};
@@ -49,6 +53,7 @@ export const Authorization = () => {
 	return (
 		<div className='min-h-screen flex items-center justify-center'>
 			<div className='w-full max-w-md p-8 space-y-3 bg-white backdrop-blur-lg'>
+				{/* Первый блок */}
 				<m.div
 					initial={{
 						opacity: 0,
@@ -70,7 +75,9 @@ export const Authorization = () => {
 						icon={<UserPlus />}
 					/>
 				</m.div>
+				{/* Форма */}
 				<form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+					{/* Поле - имя пользователя */}
 					<Field
 						label={"Имя пользователя"}
 						name={"username"}
@@ -84,6 +91,7 @@ export const Authorization = () => {
 						icon={<User />}
 					/>
 
+					{/* Поле - пароль */}
 					<PasswordForm
 						register={register}
 						errors={errors.password?.message}
@@ -92,6 +100,7 @@ export const Authorization = () => {
 						icon={<Lock />}
 					/>
 
+					{/* Кнопка отправление формы */}
 					<ButtonSubmit title={"Войти"} icon={<LogIn />} />
 				</form>
 				<m.div
@@ -108,6 +117,7 @@ export const Authorization = () => {
 					}}
 					className='flex flex-col space-y-4 items-center text-center max-w-md mx-auto'
 				>
+					{/* Ссылка на главную страницу */}
 					<div className='text-sm text-gray-600'>
 						<Link
 							href={DASHBOARD_PAGES.HOME}

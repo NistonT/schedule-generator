@@ -74,6 +74,9 @@ export const AllSchedule = () => {
 										UpdatedAt={schedule.UpdatedAt}
 									/>
 								</div>
+								<div className='flex justify-end'>
+									<button type='button'>Удалить</button>
+								</div>
 							</div>
 						)
 					)}

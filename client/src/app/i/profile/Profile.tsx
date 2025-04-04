@@ -1,6 +1,9 @@
 "use client";
 import { ButtonSubmit } from "@/components/ui/buttons/ButtonSubmit";
+import { FieldDate } from "@/components/ui/fields/FieldDate";
+import { monthGeneration } from "@/constants/month.generate.constants";
 import { useProfile } from "@/hook/useProfile";
+import { endDateAtom, startDateAtom } from "@/jotai/days";
 import { dataProfileAtom } from "@/jotai/generation";
 import { modalAtom } from "@/jotai/modal";
 import dayjs from "dayjs";
@@ -21,6 +24,9 @@ export const Profile = () => {
 	const { data } = useProfile();
 	const setDataProfile = useSetAtom(dataProfileAtom);
 
+	const [startDate, setStartDate] = useAtom<string>(startDateAtom);
+	const [endDate, setEndDate] = useAtom<string>(endDateAtom);
+
 	const handlerIsModal = () => {
 		setIsModal(!isModal);
 	};
@@ -40,15 +46,23 @@ export const Profile = () => {
 					<h1 className='text-3xl font-bold text-indigo-600 flex items-center gap-1'>
 						<Calendar width={30} height={30} /> <span>Генератор</span>
 					</h1>
-					<a
-						href={`http://localhost:5555/api/schedule/generate?api-key=${data?.api_key}`}
-						target='_blank'
-					>
-						Перейти к расписанию
-					</a>
+				</div>
+				<div className='flex gap-5'>
+					<FieldDate
+						label={"Начальная дата"}
+						name={"start_date"}
+						value={startDate}
+						onChange={setStartDate}
+					/>
+					<FieldDate
+						label={"Конечная дата"}
+						name={"end_date"}
+						value={endDate}
+						onChange={setEndDate}
+					/>
 				</div>
 				<Swiper spaceBetween={50} slidesPerView={1} initialSlide={0}>
-					{[0, 1, 2, 3, 4, 5].map(offset => (
+					{monthGeneration.map(offset => (
 						<SwiperSlide key={offset}>
 							{<Days date={currentDate.add(offset, "month")} />}
 						</SwiperSlide>

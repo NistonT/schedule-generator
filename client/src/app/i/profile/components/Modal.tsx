@@ -54,7 +54,7 @@ export const Modal = () => {
 		const schedule: TypeScheduleForm = {
 			cabinets,
 			groups,
-			teachers: teachers.map(teacher => ({
+			teachers: teachers?.map(teacher => ({
 				tid: teacher.tid,
 				name: teacher.name,
 			})),

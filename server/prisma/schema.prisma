@@ -51,6 +51,9 @@ model Schedule {
   user    User   @relation(fields: [user_id], references: [id])
   user_id String
 
+  title       String?
+  description String?
+
   cabinets      String[]
   groups        String[]
   teachers      Teacher[]

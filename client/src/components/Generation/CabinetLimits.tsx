@@ -21,7 +21,7 @@ export const CabinetLimits = () => {
 
 	// Функция для получения имени преподавателя по tid
 	const getTeacherName = (tid: number): string => {
-		const teacher = teachers.find(teacher => teacher.tid === tid);
+		const teacher = teachers?.find(teacher => teacher.tid === tid);
 		return teacher ? teacher.name : "Неизвестный преподаватель";
 	};
 
@@ -121,11 +121,11 @@ export const CabinetLimits = () => {
 						className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'
 					>
 						<option value=''>Выберите преподавателя</option>
-						{teachers.map(teacher => (
+						{teachers?.map(teacher => (
 							<option key={teacher.tid} value={teacher.tid}>
 								{teacher.name}
 							</option>
-						))}
+						)) ?? ""}
 					</select>
 				</div>
 				<div className='mb-4'>

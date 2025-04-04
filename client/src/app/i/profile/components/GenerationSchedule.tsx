@@ -5,6 +5,7 @@ import {
 	currentScheduleAtom,
 	generationCurrentScheduleFormAtom,
 } from "@/jotai/schedule";
+import { cabinetService } from "@/services/cabinets.service";
 import { scheduleService } from "@/services/schedule.service";
 import { IScheduleGetList, TypeScheduleForm } from "@/types/schedule.types";
 import { useMutation } from "@tanstack/react-query";
@@ -19,6 +20,19 @@ export const GenerationSchedule = () => {
 	);
 	const [currentSchedule, setCurrentSchedule] =
 		useAtom<IScheduleGetList | null>(currentScheduleAtom);
+
+	const { mutate: addCabinets } = useMutation({
+		mutationKey: ["add_cabinets"],
+		mutationFn: () =>
+			cabinetService.addCabinets(
+				[...generationCurrentScheduleForm!.cabinets],
+				profile!.api_key,
+				currentSchedule!.id
+			),
+		onError: error => {
+			console.log(error.message);
+		},
+	});
 
 	const { mutate } = useMutation({
 		mutationKey: ["generation_schedule"],
@@ -41,6 +55,7 @@ export const GenerationSchedule = () => {
 		if (generationCurrentScheduleForm) {
 			console.log(generationCurrentScheduleForm);
 			mutate();
+			addCabinets();
 		} else {
 			console.log(generationCurrentScheduleForm);
 			toast.error("Форма не заполнена");

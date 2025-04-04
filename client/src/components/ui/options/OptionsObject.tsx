@@ -9,7 +9,7 @@ export const OptionsObject = ({ label, array }: Props) => {
 	return (
 		<>
 			<option value=''>{label}</option>
-			{array.map(elem => (
+			{array?.map(elem => (
 				<option key={elem.tid} value={elem.tid}>
 					{elem.name}
 				</option>

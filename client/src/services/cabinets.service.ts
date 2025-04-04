@@ -1,15 +1,17 @@
 import { axiosWithAuto } from "@/api/interceptors";
-import { IAddField, IDeleteField, IPutField } from "@/types/generation.types";
+import { IDeleteField, IPutField } from "@/types/generation.types";
 
 class CabinetsService {
 	private BASE_URL = "/cabinets";
 	private API_QUERY = `?api-key=`;
 	private SCHEDULE_ID = `&schedule_id=`;
 
-	async addCabinets(data: IAddField, api: string, scheduleId: string) {
+	async addCabinets(name: string | string[], api: string, scheduleId: string) {
 		const response = await axiosWithAuto.post(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
-			data
+			{
+				name,
+			}
 		);
 
 		return response;

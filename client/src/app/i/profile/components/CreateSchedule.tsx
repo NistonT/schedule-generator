@@ -2,9 +2,11 @@
 
 import { useProfile } from "@/hook/useProfile";
 import {
+	currentScheduleAtom,
 	generationCurrentScheduleFormAtom,
 	scheduleListAtom,
 } from "@/jotai/schedule";
+import { cabinetService } from "@/services/cabinets.service";
 import { scheduleService } from "@/services/schedule.service";
 import { IScheduleGetList, TypeScheduleForm } from "@/types/schedule.types";
 import { useMutation } from "@tanstack/react-query";
@@ -19,6 +21,21 @@ export const CreateSchedule = () => {
 	const [scheduleListState, setScheduleListState] = useAtom<
 		IScheduleGetList[] | null
 	>(scheduleListAtom);
+	const [currentSchedule, setCurrentSchedule] =
+		useAtom<IScheduleGetList | null>(currentScheduleAtom);
+
+	const { mutate: addCabinets } = useMutation({
+		mutationKey: ["add_cabinets"],
+		mutationFn: () =>
+			cabinetService.addCabinets(
+				[...generationCurrentScheduleForm!.cabinets],
+				data!.api_key,
+				currentSchedule!.id
+			),
+		onError: error => {
+			console.log(error.message);
+		},
+	});
 
 	const { mutate } = useMutation({
 		mutationKey: ["create_schedule"],
@@ -27,7 +44,10 @@ export const CreateSchedule = () => {
 				data!.api_key,
 				generationCurrentScheduleForm!
 			),
-		onSuccess: () => {
+		onSuccess: (response: { data: IScheduleGetList }) => {
+			setScheduleListState(prev => [...(prev || []), response.data]);
+			setCurrentSchedule(response.data);
+			addCabinets();
 			toast.success("Расписание создано");
 		},
 		onError: error => {

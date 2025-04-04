@@ -37,7 +37,7 @@ export const Teachers = () => {
 	return (
 		<>
 			<div className='mb-4 p-4 border rounded-lg flex flex-wrap gap-2'>
-				{teachers.map(teacher => (
+				{teachers?.map(teacher => (
 					<div
 						key={teacher.tid}
 						onClick={() => handleRemove(teacher)}
@@ -45,7 +45,7 @@ export const Teachers = () => {
 					>
 						{teacher.name}
 					</div>
-				))}
+				)) ?? ""}
 			</div>
 			<form
 				onSubmit={e => {
