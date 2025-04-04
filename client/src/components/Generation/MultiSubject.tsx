@@ -35,7 +35,7 @@ export const MultiSubject = () => {
 	const [groups, setGroups] = useAtom<string[]>(groupsAtom);
 	const [teachers, setTeachers] = useAtom<TypeTeachers[]>(teachersAtom);
 
-	const formattedTeachers = teachers.map(teacher => ({
+	const formattedTeachers = teachers?.map(teacher => ({
 		tid: teacher.tid,
 		name: teacher.name,
 	}));
@@ -197,7 +197,7 @@ export const MultiSubject = () => {
 
 	// Функция для получения имени преподавателя по его tid
 	const getTeacherName = (tid: number) => {
-		const teacher = formattedTeachers.find(t => t.tid === tid);
+		const teacher = formattedTeachers?.find(t => t.tid === tid);
 		return teacher ? teacher.name : "Неизвестный преподаватель";
 	};
 

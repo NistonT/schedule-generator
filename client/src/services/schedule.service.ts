@@ -24,7 +24,7 @@ class ScheduleService {
 	async createSchedule(
 		api: string,
 		data: TypeScheduleForm
-	): Promise<AxiosResponse<ISchedule | null>> {
+	): Promise<AxiosResponse<IScheduleGetList>> {
 		const response = await axiosWithAuto.post(
 			`${this.BASE_URL}/create${this.API_QUERY}${api}`,
 			data

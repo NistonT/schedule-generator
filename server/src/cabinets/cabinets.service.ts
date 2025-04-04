@@ -42,25 +42,49 @@ export class CabinetsService {
   }
 
   async addCabinet(
-    name: string,
+    name: string | string[],
     apiKey: string,
     scheduleId?: string,
   ): Promise<string[]> {
-    if (!name?.trim()) {
-      throw new BadRequestException('Название кабинета обязательно');
+    // Проверяем входные данные
+    if (Array.isArray(name)) {
+      if (name.length === 0) {
+        throw new BadRequestException(
+          'Необходимо указать хотя бы один кабинет',
+        );
+      }
+
+      for (const cabinetName of name) {
+        if (!cabinetName?.trim()) {
+          throw new BadRequestException('Название кабинета обязательно');
+        }
+      }
+    } else {
+      if (!name?.trim()) {
+        throw new BadRequestException('Название кабинета обязательно');
+      }
+      name = [name];
     }
 
     const { schedule } = await this.validateUserAndSchedule(apiKey, scheduleId);
 
-    if (schedule.cabinets.includes(name)) {
-      throw new ConflictException(`Кабинет "${name}" уже существует`);
+    // Фильтруем кабинеты, оставляя только те, которых ещё нет в расписании
+    const uniqueNames = Array.isArray(name)
+      ? name.filter((cabinetName) => !schedule.cabinets.includes(cabinetName))
+      : !schedule.cabinets.includes(name)
+        ? [name]
+        : [];
+
+    if (uniqueNames.length === 0) {
+      return schedule.cabinets; // Возвращаем текущий список, если все кабинеты уже существуют
     }
 
+    // Обновляем расписание, добавляя только уникальные кабинеты
     const updatedSchedule = await this.prisma.schedule.update({
       where: { id: schedule.id },
       data: {
         cabinets: {
-          push: name,
+          push: uniqueNames,
         },
       },
     });

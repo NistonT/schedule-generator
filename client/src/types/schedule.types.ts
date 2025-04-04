@@ -6,25 +6,12 @@ export interface Lesson {
 	lessonType: string;
 }
 
-type DaySchedule = Lesson[][];
-interface GroupSchedule {
+export type DaySchedule = Lesson[][];
+export interface GroupSchedule {
 	[day: string]: DaySchedule;
 }
 export interface GroupTimetables {
 	[group: string]: GroupSchedule;
-}
-
-export interface ISchedule {
-	id?: string;
-	cabinets: string[];
-	groups: string[];
-	schedule: {
-		groupTimetables: GroupTimetables[];
-		failedAllocations: any;
-	};
-	teachers: TypeTeachers[];
-	CreatedAt: string;
-	UpdatedAt: string;
 }
 
 export interface IScheduleGetList {
@@ -38,6 +25,19 @@ export interface IScheduleGetList {
 		failedAllocations: any;
 	};
 	teachers: TypeTeachers[];
+}
+
+export interface ISchedule {
+	id?: string;
+	cabinets: string[];
+	groups: string[];
+	schedule: {
+		groupTimetables: GroupTimetables[];
+		failedAllocations: any;
+	};
+	teachers: TypeTeachers[];
+	CreatedAt: string;
+	UpdatedAt: string;
 }
 
 export type SetAtom<Args extends any[], Result> = (...args: Args) => Result;

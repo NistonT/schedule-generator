@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -29,11 +30,20 @@ export class CabinetsController {
   */
   @Post()
   async add(
-    @Body('name') name: string,
+    @Body() body: { name: string | string[] }, // Изменено на получение всего body
     @Query('api-key') api_key: string,
     @Query('schedule_id') scheduleId: string,
   ): Promise<string[]> {
-    return await this.cabinetsService.addCabinet(name, api_key, scheduleId);
+    // Проверяем наличие name в теле запроса
+    if (!body.hasOwnProperty('name')) {
+      throw new BadRequestException('Поле "name" обязательно');
+    }
+
+    return await this.cabinetsService.addCabinet(
+      body.name,
+      api_key,
+      scheduleId,
+    );
   }
 
   @Get()
