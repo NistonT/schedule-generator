@@ -23,5 +23,6 @@ import { ScheduleAiService } from './scheduleAi.service';
     ScheduleAiService,
     ScheduleDefaultService,
   ],
+  exports: [ScheduleDefaultService, ScheduleService],
 })
 export class ScheduleModule {}
