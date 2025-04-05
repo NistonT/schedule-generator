@@ -51,8 +51,8 @@ model Schedule {
   user    User   @relation(fields: [user_id], references: [id])
   user_id String
 
-  title       String?
-  description String?
+  title       String @default("Расписание")
+  description String @default("Описание")
 
   cabinets      String[]
   groups        String[]
