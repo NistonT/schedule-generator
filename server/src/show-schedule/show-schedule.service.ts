@@ -9,7 +9,8 @@ export class ShowScheduleService {
     private scheduleDefaultService: ScheduleDefaultService,
   ) {}
 
-  async switch(state: boolean, apiKey: string, scheduleId: string) {
+  // Переключение состояния расписания
+  async switch(apiKey: string, scheduleId: string) {
     if (!apiKey) {
       throw new BadRequestException('Ключ api не обнаружен');
     }
@@ -23,27 +24,15 @@ export class ShowScheduleService {
       scheduleId,
     );
 
-    switch (state) {
-      case true:
-        return await this.prisma.schedule.update({
-          where: {
-            id: schedule.id,
-          },
-          data: {
-            isShow: false,
-          },
-        });
-      case false:
-        return await this.prisma.schedule.update({
-          where: {
-            id: schedule.id,
-          },
-          data: {
-            isShow: true,
-          },
-        });
-      default:
-        throw new BadRequestException('Ошибка состояния расписания');
-    }
+    const showSchedule = await this.prisma.schedule.update({
+      where: {
+        id: schedule.id,
+      },
+      data: {
+        isShow: !schedule.isShow,
+      },
+    });
+
+    return showSchedule;
   }
 }

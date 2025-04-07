@@ -89,6 +89,9 @@ export class ScheduleService {
       },
       select: {
         id: true,
+        title: true,
+        description: true,
+        isShow: true,
         schedule: true,
         cabinets: true,
         teachers: true,
@@ -112,6 +115,9 @@ export class ScheduleService {
       },
       select: {
         id: true,
+        title: true,
+        description: true,
+        isShow: true,
         schedule: true,
         cabinets: true,
         teachers: true,
