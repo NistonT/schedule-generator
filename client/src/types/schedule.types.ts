@@ -6,7 +6,7 @@ export interface Lesson {
 	lessonType: string;
 }
 
-export type DaySchedule = Lesson[][];
+export type DaySchedule = Lesson[];
 export interface GroupSchedule {
 	[day: string]: DaySchedule;
 }
@@ -20,6 +20,11 @@ export interface IScheduleGetList {
 	cabinets: string[];
 	groups: string[];
 	id: string;
+
+	title?: string;
+	description?: string;
+	isShow: boolean;
+
 	schedule: {
 		groupTimetables: GroupTimetables[];
 		failedAllocations: any;
@@ -29,6 +34,11 @@ export interface IScheduleGetList {
 
 export interface ISchedule {
 	id?: string;
+
+	title?: string;
+	description?: string;
+	isShow: boolean;
+
 	cabinets: string[];
 	groups: string[];
 	schedule: {

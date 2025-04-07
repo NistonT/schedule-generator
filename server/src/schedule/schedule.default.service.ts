@@ -22,13 +22,15 @@ export class ScheduleDefaultService {
       },
       select: {
         id: true,
+        title: true,
+        description: true,
+        isShow: true,
         schedule: true,
         cabinets: true,
         groups: true,
         teachers: true,
         CreatedAt: true,
         UpdatedAt: true,
-        isShow: true,
       },
       orderBy: {
         CreatedAt: 'desc', // Сортировка по дате создания (новые сначала)
@@ -56,6 +58,8 @@ export class ScheduleDefaultService {
         teachers: true,
         CreatedAt: true,
         UpdatedAt: true,
+        title: true,
+        description: true,
         isShow: true,
       },
     });
@@ -79,6 +83,9 @@ export class ScheduleDefaultService {
         cabinets: true,
         groups: true,
         teachers: true,
+        title: true,
+        description: true,
+        isShow: true,
       },
       orderBy: {
         CreatedAt: 'desc', // Берем самое новое

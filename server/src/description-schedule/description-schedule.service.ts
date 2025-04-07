@@ -37,7 +37,7 @@ export class DescriptionScheduleService {
       },
     });
 
-    return descriptionSchedule.description;
+    return descriptionSchedule;
   }
 
   // Изменить описание
@@ -68,7 +68,7 @@ export class DescriptionScheduleService {
       },
     });
 
-    return descriptionSchedule.description;
+    return descriptionSchedule;
   }
 
   // Удалить описание
@@ -91,7 +91,7 @@ export class DescriptionScheduleService {
         id: schedule.id,
       },
       data: {
-        description: '',
+        description: 'Описание',
       },
     });
 

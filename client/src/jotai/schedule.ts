@@ -27,3 +27,7 @@ export const generationCurrentScheduleFormAtom = atom<TypeScheduleForm | null>(
 );
 
 export const scheduleListAtom = atom<IScheduleGetList[] | null>(null);
+
+export const isPendingAtom = atom<boolean>(false);
+
+export const scheduleIdAtom = atom<IScheduleGetList[] | null>(null);

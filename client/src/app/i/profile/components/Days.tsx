@@ -1,10 +1,8 @@
 "use client";
 
-import { endDateAtom, startDateAtom } from "@/jotai/days";
 import { daysAtom } from "@/jotai/schedule";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
-import { useEffect } from "react";
 
 type Props = {
 	date: dayjs.Dayjs;
@@ -12,32 +10,10 @@ type Props = {
 
 export const Days = ({ date }: Props) => {
 	const [arrayDays, setArrayDays] = useAtom(daysAtom);
-	const [startDate, setStartDate] = useAtom(startDateAtom);
-	const [endDate, setEndDate] = useAtom(endDateAtom);
 
 	const daysInMonth = date.daysInMonth();
 	const firstDayOfMonth = date.startOf("month").day();
 	const adjustedFirstDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
-
-	// Автоматически выбираем рабочие дни при изменении startDate или endDate
-	useEffect(() => {
-		if (startDate && endDate) {
-			const start = dayjs(startDate);
-			const end = dayjs(endDate);
-			const days: string[] = [];
-
-			let current = start;
-			while (current.isBefore(end) || current.isSame(end, "day")) {
-				// Пропускаем выходные (0 - воскресенье, 6 - суббота)
-				if (current.day() !== 0 && current.day() !== 6) {
-					days.push(current.format("YYYY-MM-DD"));
-				}
-				current = current.add(1, "day");
-			}
-
-			setArrayDays(days);
-		}
-	}, [startDate, endDate, setArrayDays]);
 
 	const handleDayClick = (day: number) => {
 		const formattedDate = date.date(day).format("YYYY-MM-DD");

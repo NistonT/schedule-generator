@@ -95,7 +95,7 @@ export class TitleScheduleService {
         id: schedule.id,
       },
       data: {
-        title: '',
+        title: 'Расписание',
       },
     });
 
