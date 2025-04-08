@@ -12,6 +12,7 @@ class DASHBOARD {
 	SCHEDULE_ID = `${this.root}/schedule/`;
 	SETTING = `${this.root}/setting`;
 	ABOUT = `${this.root}/about`;
+	FEEDBACK = `${this.root}/feedback`;
 }
 
 export const DASHBOARD_PAGES = new DASHBOARD();

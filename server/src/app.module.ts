@@ -14,6 +14,7 @@ import { SubjectModule } from './subject/subject.module';
 import { TeachersModule } from './teachers/teachers.module';
 import { TitleScheduleModule } from './title-schedule/title-schedule.module';
 import { UserModule } from './user/user.module';
+import { FeedbackModule } from './feedback/feedback.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { UserModule } from './user/user.module';
     TitleScheduleModule,
     DescriptionScheduleModule,
     ShowScheduleModule,
+    FeedbackModule,
   ],
 })
 export class AppModule {}

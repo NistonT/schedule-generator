@@ -35,8 +35,8 @@ model Feedback {
 
   title          String
   text           String
-  feedback_admin String
-  admin          String
+  feedback_admin String?
+  admin          String?
 
   isCheck Boolean @default(false)
 
