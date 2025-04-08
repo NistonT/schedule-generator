@@ -3,7 +3,7 @@ import { axiosWithAuto } from "@/api/interceptors";
 class TitleScheduleService {
 	private BASE_URL = "/title-schedule";
 	private API_QUERY = `?api-key=`;
-	private SCHEDULE_ID = `?schedule_id=`;
+	private SCHEDULE_ID = `&schedule_id=`;
 
 	async addTitle(title: string, api: string, scheduleId: string) {
 		const response = await axiosWithAuto.post(

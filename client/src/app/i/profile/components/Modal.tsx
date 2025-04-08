@@ -86,32 +86,6 @@ export const Modal = () => {
 		maxLoad,
 	]);
 
-	// const handleQueryGeneration = () => {
-	// 	const schedule: TypeScheduleForm = {
-	// 		cabinets,
-	// 		groups,
-	// 		teachers: teachers.map(teacher => ({
-	// 			tid: teacher.tid,
-	// 			name: teacher.name,
-	// 		})),
-	// 		subjectsMap,
-	// 		teachersMap,
-	// 		amountLimits,
-	// 		cabinetLimits,
-	// 		days,
-	// 		maxLoad,
-	// 	};
-
-	// 	console.log("Отправляемые данные:", JSON.stringify(schedule, null, 2));
-
-	// 	if (!data) {
-	// 		toast.error("Данные пользователя отсутствуют!");
-	// 		return;
-	// 	}
-
-	// 	setGenerationCurrentScheduleForm(schedule);
-	// };
-
 	return (
 		<div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
 			<div className='bg-white p-6 rounded-lg shadow-lg w-full h-[90vh] max-w-[95vw] flex flex-col overflow-hidden'>

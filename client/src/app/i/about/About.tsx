@@ -5,6 +5,7 @@ import { userService } from "@/services/user.service";
 import { GitHubUser } from "@/types/git.types";
 import { useQuery } from "@tanstack/react-query";
 import { BookText, Code, Info, LinkIcon, MapPin } from "lucide-react";
+import { m } from "motion/react";
 import Image from "next/image";
 
 export const About = () => {
@@ -22,54 +23,110 @@ export const About = () => {
 			{isLoading ? (
 				<Loading />
 			) : (
-				<div>
-					<div>
-						<div>
+				<m.div className='min-h-screen relative overflow-hidden'>
+					{/* Анимация частиц */}
+					<div className='absolute inset-0 z-0'>
+						{[...Array(30)].map((_, index) => (
+							<m.div
+								key={index}
+								variants={{
+									initial: {
+										scale: 1,
+										opacity: 1,
+										x: 0,
+										y: 0,
+									},
+									exit: {
+										scale: 0,
+										opacity: 0,
+										x: Math.random() * 200 - 100, // Случайное смещение по X
+										y: Math.random() * 200 - 100, // Случайное смещение по Y
+										transition: {
+											duration: 1.5,
+											ease: "easeInOut",
+										},
+									},
+								}}
+								initial='initial'
+								animate='exit'
+								transition={{
+									repeat: Infinity,
+									repeatType: "reverse",
+									duration: 1.5,
+									delay: Math.random() * 2, // Разная задержка для каждой частицы
+								}}
+								className='absolute w-4 h-4 rounded-full bg-indigo-500 shadow-md'
+								style={{
+									top: `${Math.random() * 100}%`,
+									left: `${Math.random() * 100}%`,
+								}}
+							/>
+						))}
+					</div>
+
+					{/* Полупрозрачный фон */}
+					<div className='absolute inset-0 z-10 bg-gray-50 bg-opacity-80' />
+
+					<div className='relative z-20 p-6'>
+						{/* Заголовок "О сайте" */}
+						<m.div
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.5, delay: 0.2 }}
+							className='mb-8'
+						>
 							<h1 className='text-3xl font-bold text-indigo-600 flex items-center gap-2'>
-								<Info /> <span>О сайте</span>
+								<Info size={24} /> <span>О сайте</span>
 							</h1>
-						</div>
+						</m.div>
 
-						<div className='p-6'>
-							<h2 className='text-3xl font-bold text-indigo-600 flex items-center gap-2 px-4 py-8'>
-								<BookText />
-								<span>Описание</span>
+						{/* Описание */}
+						<m.div
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.5, delay: 0.4 }}
+							className='bg-white rounded-lg shadow-lg p-6 mb-8'
+						>
+							<h2 className='text-3xl font-bold text-indigo-600 flex items-center gap-2 mb-4'>
+								<BookText size={24} /> <span>Описание</span>
 							</h2>
-							<div>
-								<p className='text-gray-700 text-lg leading-relaxed'>
-									Сайт представляет собой удобный инструмент для генерации
-									учебного расписания. Перед использованием необходимо
-									зарегистрироваться и войти в свой аккаунт. После авторизации в
-									профиле пользователя становится доступна форма для генерации
-									расписания. Генерация расписания происходит автоматически на
-									основе введенных параметров (например, количество предметов,
-									преподавателей, временные интервалы). После создания
-									расписания пользователь может вносить изменения, чтобы
-									адаптировать его под свои потребности. Все расписания доступны
-									через API, и для получения конкретного расписания необходимо
-									ввести уникальный ключ.
-								</p>
-								<p className='mt-4 text-red-600 font-semibold uppercase'>
-									ВАЖНО: САЙТ ТОЛЬКО ГЕНЕРИРУЕТ РАСПИСАНИЕ. ИЗМЕНЕНИЯ ВНОСЯТСЯ
-									ОТДЕЛЬНО ОТ ЭТОГО САЙТА.
-								</p>
-							</div>
-						</div>
+							<p className='text-gray-700 text-lg leading-relaxed'>
+								Сайт представляет собой удобный инструмент для генерации
+								учебного расписания. Перед использованием необходимо
+								зарегистрироваться и войти в свой аккаунт. После авторизации в
+								профиле пользователя становится доступна форма для генерации
+								расписания. Генерация расписания происходит автоматически на
+								основе введенных параметров (например, количество предметов,
+								преподавателей, временные интервалы). После создания расписания
+								пользователь может вносить изменения, чтобы адаптировать его под
+								свои потребности. Все расписания доступны через API, и для
+								получения конкретного расписания необходимо ввести уникальный
+								ключ.
+							</p>
+							<p className='mt-4 text-red-600 font-semibold uppercase'>
+								ВАЖНО: САЙТ ТОЛЬКО ГЕНЕРИРУЕТ РАСПИСАНИЕ. ИЗМЕНЕНИЯ ВНОСЯТСЯ
+								ОТДЕЛЬНО ОТ ЭТОГО САЙТА.
+							</p>
+						</m.div>
 
-						<div className='p-6'>
-							<h2 className='text-3xl font-bold text-indigo-600 flex items-center gap-2 px-4 py-8'>
-								<Code />
-								<span>Разработчик</span>
+						{/* Разработчик */}
+						<m.div
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.5, delay: 0.6 }}
+							className='bg-white rounded-lg shadow-lg p-6 space-y-6'
+						>
+							<h2 className='text-3xl font-bold text-indigo-600 flex items-center gap-2'>
+								<Code size={24} /> <span>Разработчик</span>
 							</h2>
 							<div className='flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-6'>
 								<Image
 									src={data.avatar_url}
 									alt={data.login}
-									className='rounded-full border-4 border-gray-200'
+									className='rounded-full border-4 border-gray-200 shadow-md'
 									width={160}
 									height={160}
 								/>
-
 								<div className='flex-1'>
 									<h2 className='text-2xl font-bold text-gray-900'>
 										{data.name}
@@ -80,18 +137,18 @@ export const About = () => {
 									<div className='mt-4 space-y-2'>
 										{data.location && (
 											<div className='flex items-center text-gray-600'>
-												<MapPin className='w-5 h-5 mr-2' />
+												<MapPin size={20} className='mr-2' />
 												<span>{data.location}</span>
 											</div>
 										)}
 										{data.blog && (
 											<div className='flex items-center text-gray-600'>
-												<LinkIcon className='w-5 h-5 mr-2' />
+												<LinkIcon size={20} className='mr-2' />
 												<a
 													href={data.blog}
 													target='_blank'
 													rel='noopener noreferrer'
-													className='hover:text-indigo-600'
+													className='hover:text-indigo-600 transition-colors'
 												>
 													{data.blog}
 												</a>
@@ -119,9 +176,9 @@ export const About = () => {
 									Данные пользователя получены через GitHub API.
 								</p>
 							</div>
-						</div>
+						</m.div>
 					</div>
-				</div>
+				</m.div>
 			)}
 		</>
 	);

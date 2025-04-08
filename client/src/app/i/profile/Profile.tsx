@@ -2,7 +2,6 @@
 import { ButtonSubmit } from "@/components/ui/buttons/ButtonSubmit";
 import { monthGeneration } from "@/constants/month.generate.constants";
 import { useProfile } from "@/hook/useProfile";
-import { endDateAtom, startDateAtom } from "@/jotai/days";
 import { dataProfileAtom } from "@/jotai/generation";
 import { modalAtom } from "@/jotai/modal";
 import dayjs from "dayjs";
@@ -22,9 +21,6 @@ export const Profile = () => {
 	const [isModal, setIsModal] = useAtom<boolean>(modalAtom);
 	const { data } = useProfile();
 	const setDataProfile = useSetAtom(dataProfileAtom);
-
-	const [startDate, setStartDate] = useAtom<string>(startDateAtom);
-	const [endDate, setEndDate] = useAtom<string>(endDateAtom);
 
 	const handlerIsModal = () => {
 		setIsModal(!isModal);

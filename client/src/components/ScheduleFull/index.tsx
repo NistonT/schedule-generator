@@ -1,4 +1,5 @@
 import { IScheduleGetList } from "@/types/schedule.types";
+import { m } from "motion/react";
 import { CabinetSchedule } from "./components/CabinetSchedule";
 import { GroupSchedule } from "./components/GroupSchedule";
 import { HeaderSchedule } from "./components/HeaderSchedule";
@@ -16,8 +17,14 @@ export const ScheduleFull = ({ schedules, isShow }: Props) => {
 			{schedules && (
 				<div className='space-y-8'>
 					{schedules.map(schedule => (
-						<div
+						<m.div
 							key={schedule.id}
+							variants={{
+								hidden: { opacity: 0, y: 20 },
+								visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+							}}
+							initial='hidden'
+							animate='visible'
 							className='bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg'
 						>
 							{/* Заголовок расписания */}
@@ -37,10 +44,15 @@ export const ScheduleFull = ({ schedules, isShow }: Props) => {
 							</div>
 
 							{/* Расписание по дням */}
-							<div className='p-6'>
+							<m.div
+								className='p-6 overflow-hidden'
+								initial={{ height: 0 }}
+								animate={{ height: isShow ? "auto" : 0 }}
+								transition={{ duration: 0.3 }}
+							>
 								{isShow && <ScheduleDays schedule={schedule} />}
-							</div>
-						</div>
+							</m.div>
+						</m.div>
 					))}
 				</div>
 			)}
