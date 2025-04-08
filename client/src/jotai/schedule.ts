@@ -1,4 +1,5 @@
 import {
+	ISchedule,
 	IScheduleGetList,
 	TypeAmountLimits,
 	TypeCabinetLimits,
@@ -31,3 +32,5 @@ export const scheduleListAtom = atom<IScheduleGetList[] | null>(null);
 export const isPendingAtom = atom<boolean>(false);
 
 export const scheduleIdAtom = atom<IScheduleGetList[] | null>(null);
+
+export const scheduleAtom = atom<ISchedule | null | undefined>(null);

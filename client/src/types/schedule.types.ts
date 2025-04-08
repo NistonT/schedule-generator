@@ -33,7 +33,7 @@ export interface IScheduleGetList {
 }
 
 export interface ISchedule {
-	id?: string;
+	id: string;
 
 	title?: string;
 	description?: string;

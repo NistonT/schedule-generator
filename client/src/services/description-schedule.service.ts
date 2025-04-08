@@ -3,7 +3,7 @@ import { axiosWithAuto } from "@/api/interceptors";
 class DescriptionScheduleService {
 	private BASE_URL = "/description-schedule";
 	private API_QUERY = `?api-key=`;
-	private SCHEDULE_ID = `?schedule_id=`;
+	private SCHEDULE_ID = `&schedule_id=`;
 
 	async addDescription(text: string, api: string, scheduleId: string) {
 		const response = await axiosWithAuto.post(
@@ -20,7 +20,7 @@ class DescriptionScheduleService {
 		const response = await axiosWithAuto.put(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			{
-				description: text,
+				text: text,
 			}
 		);
 
