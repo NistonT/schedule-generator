@@ -35,6 +35,7 @@ model Feedback {
   id      String @id @default(cuid())
   user    User   @relation(fields: [user_id], references: [id])
   user_id String
+  name    String @default("Анонимно")
 
   title          String
   text           String

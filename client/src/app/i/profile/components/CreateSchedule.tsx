@@ -2,9 +2,16 @@
 
 import { useProfile } from "@/hook/useProfile";
 import {
+	amountLimitsAtom,
+	cabinetLimitsAtom,
+	cabinetsAtom,
 	currentScheduleAtom,
 	generationCurrentScheduleFormAtom,
+	groupsAtom,
 	scheduleListAtom,
+	subjectsMapAtom,
+	teachersAtom,
+	teachersMapAtom,
 } from "@/jotai/schedule";
 import { scheduleService } from "@/services/schedule.service";
 import { IScheduleGetList, TypeScheduleForm } from "@/types/schedule.types";
@@ -13,6 +20,14 @@ import { useAtom, useAtomValue } from "jotai";
 import { toast } from "sonner";
 
 export const CreateSchedule = () => {
+	const [cabinets, setCabinets] = useAtom(cabinetsAtom);
+	const [groups, setGroups] = useAtom(groupsAtom);
+	const [teachers, setTeachers] = useAtom(teachersAtom);
+	const [subjectsMap, setSubjectsMap] = useAtom(subjectsMapAtom);
+	const [teachersMap, setTeachersMap] = useAtom(teachersMapAtom);
+	const [amountLimits, setAmountLimits] = useAtom(amountLimitsAtom);
+	const [cabinetLimits, setCabinetLimits] = useAtom(cabinetLimitsAtom);
+
 	const { data } = useProfile();
 	const generationCurrentScheduleForm = useAtomValue<TypeScheduleForm | null>(
 		generationCurrentScheduleFormAtom
@@ -22,19 +37,6 @@ export const CreateSchedule = () => {
 	>(scheduleListAtom);
 	const [currentSchedule, setCurrentSchedule] =
 		useAtom<IScheduleGetList | null>(currentScheduleAtom);
-
-	// const { mutate: addCabinets } = useMutation({
-	// 	mutationKey: ["add_cabinets"],
-	// 	mutationFn: () =>
-	// 		cabinetService.addCabinets(
-	// 			[...generationCurrentScheduleForm!.cabinets],
-	// 			data!.api_key,
-	// 			currentSchedule!.id
-	// 		),
-	// 	onError: error => {
-	// 		console.log(error.message);
-	// 	},
-	// });
 
 	const { mutate } = useMutation({
 		mutationKey: ["create_schedule"],
@@ -48,6 +50,13 @@ export const CreateSchedule = () => {
 			setCurrentSchedule(response.data);
 			// addCabinets();
 			toast.success("Расписание создано");
+			setCabinets([]);
+			setGroups([]);
+			setTeachers([]);
+			setSubjectsMap({});
+			setTeachersMap([]);
+			setAmountLimits([]);
+			setCabinetLimits([]);
 		},
 		onError: error => {
 			console.log(error);

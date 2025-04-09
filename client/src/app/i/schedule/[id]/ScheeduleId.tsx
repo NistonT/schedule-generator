@@ -5,13 +5,14 @@ import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { useProfile } from "@/hook/useProfile";
 import { scheduleAtom } from "@/jotai/schedule";
 import { scheduleService } from "@/services/schedule.service";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { ArrowLeft, CalendarCheck, Users } from "lucide-react";
 import { m } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import { Description } from "./components/Description";
 import { Title } from "./components/Title";
 
@@ -25,6 +26,19 @@ export const ScheduleId = ({ id }: Props) => {
 	const { data: profile } = useProfile();
 	const { push } = useRouter();
 
+	const { mutate } = useMutation({
+		mutationKey: ["delete_schedule"],
+		mutationFn: () =>
+			scheduleService.deleteSchedule(profile!.api_key, String(id)),
+		onSuccess: () => {
+			toast.success("Расписание удалена");
+			push(DASHBOARD_PAGES.SCHEDULE);
+		},
+		onError: error => {
+			toast.error(error.message);
+		},
+	});
+
 	const { data: schedule_id } = useQuery({
 		queryKey: ["schedule_get"],
 		queryFn: () => scheduleService.getSchedule(profile!.api_key, String(id)),
@@ -32,13 +46,14 @@ export const ScheduleId = ({ id }: Props) => {
 	});
 
 	useEffect(() => {
-		if (!schedule_id) {
-			push(DASHBOARD_PAGES.SCHEDULE);
-		}
 		if (schedule_id) {
 			setScheduleId(schedule_id);
 		}
 	}, [schedule_id]);
+
+	const handlerDeleteSchedule = () => {
+		mutate();
+	};
 
 	return (
 		<div className='space-y-8'>
@@ -54,11 +69,20 @@ export const ScheduleId = ({ id }: Props) => {
 					animate='visible'
 					className='space-y-4'
 				>
-					<a
-						href={`http://localhost:5555/api/schedule?api-key=${profile?.api_key}&schedule_id=${scheduleId?.id}`}
-					>
-						Открыть в формате JSON
-					</a>
+					<div className='flex justify-between'>
+						<a
+							href={`http://localhost:5555/api/schedule?api-key=${profile?.api_key}&schedule_id=${scheduleId?.id}`}
+						>
+							Открыть в формате JSON
+						</a>
+						<button
+							type='button'
+							className='text-red-500'
+							onClick={handlerDeleteSchedule}
+						>
+							Удалить расписание
+						</button>
+					</div>
 
 					{/* Заголовок */}
 					<Title schedule={scheduleId!} profile={profile!} />

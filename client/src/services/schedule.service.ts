@@ -76,6 +76,16 @@ class ScheduleService {
 
 		return response;
 	}
+
+	// Удаление расписания
+
+	async deleteSchedule(api: string, scheduleId: string) {
+		const response = await axiosWithAuto.delete(
+			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`
+		);
+
+		return response;
+	}
 }
 
 export const scheduleService = new ScheduleService();

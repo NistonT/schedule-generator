@@ -36,6 +36,11 @@ export class FeedbackController {
     return await this.feedbackService.feedback_admin(dto, feedback_id);
   }
 
+  @Get('/id')
+  async getId(@Query('feedback_id') feedback_id: string) {
+    return await this.feedbackService.getId(feedback_id);
+  }
+
   // Вывести все обращение пользователя
   @Get()
   async get(@Query('user_id') user_id: string) {
