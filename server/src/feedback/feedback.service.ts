@@ -33,6 +33,7 @@ export class FeedbackService {
         user_id: user.id,
         title,
         text,
+        name: user.username,
       },
     });
 
@@ -55,6 +56,21 @@ export class FeedbackService {
         admin,
         feedback_admin,
         isCheck,
+      },
+    });
+
+    return feedback;
+  }
+
+  // Вывод одной записи
+  async getId(feedback_id: string) {
+    if (!feedback_id) {
+      throw new BadRequestException('Запись не найдена');
+    }
+
+    const feedback = await this.prisma.feedback.findFirst({
+      where: {
+        id: feedback_id,
       },
     });
 

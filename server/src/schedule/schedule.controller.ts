@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -139,5 +140,16 @@ export class ScheduleController {
       throw new BadRequestException('API ключ обязателен');
     }
     return await this.scheduleDefaultService.getLatestSchedule(api_key);
+  }
+
+  @Delete()
+  async deleteSchedule(
+    @Query('schedule_id') scheduleId: string,
+    @Query('api-key') api_key: string,
+  ) {
+    return await this.scheduleDefaultService.deleteSchedule(
+      api_key,
+      scheduleId,
+    );
   }
 }

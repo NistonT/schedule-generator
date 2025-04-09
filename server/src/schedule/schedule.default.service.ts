@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { UserService } from 'src/user/user.service';
 
@@ -91,5 +95,22 @@ export class ScheduleDefaultService {
         CreatedAt: 'desc', // Берем самое новое
       },
     });
+  }
+
+  // Удаление расписания
+  async deleteSchedule(apiKey: string, scheduleId: string) {
+    const schedule = await this.getScheduleById(apiKey, scheduleId);
+
+    if (!schedule) {
+      throw new BadRequestException('Расписание не найдена');
+    }
+
+    const deleteSchedule = await this.prisma.schedule.delete({
+      where: {
+        id: schedule.id,
+      },
+    });
+
+    return deleteSchedule;
   }
 }

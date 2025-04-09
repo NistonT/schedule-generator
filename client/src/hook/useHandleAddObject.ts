@@ -7,7 +7,7 @@ import { SetStateAction, useState } from "react";
 import { toast } from "sonner";
 
 export const useHandleAddObject = (
-	namesState: TypeTeachers[],
+	namesState: TypeTeachers[] | undefined, // Make namesState potentially undefined
 	setState: SetAtom<[SetStateAction<TypeTeachers[]>], void>,
 	count: number,
 	setCount: SetAtom<[SetStateAction<number>], void>,
@@ -20,9 +20,10 @@ export const useHandleAddObject = (
 		setCount(count + 1);
 
 		if (trimmedValue) {
-			const isDuplicate = namesState.some(
-				teacher => teacher.name === trimmedValue
-			);
+			// Add null check for namesState
+			const isDuplicate =
+				namesState?.some(teacher => teacher.name === trimmedValue) ?? false; // Default to false if namesState is undefined
+
 			if (isDuplicate) {
 				toast.error(messageToast.messageAlready);
 			} else {
@@ -30,8 +31,7 @@ export const useHandleAddObject = (
 					tid: count,
 					name: trimmedValue,
 				};
-				console.log(newTeacher);
-				setState(prev => [...prev, newTeacher]);
+				setState(prev => [...(prev || []), newTeacher]); // Handle undefined prev state
 				setInputValue("");
 				toast.success(messageToast.messageAdd);
 			}
@@ -39,7 +39,7 @@ export const useHandleAddObject = (
 	};
 
 	const handleRemove = (teacher: TypeTeachers) => {
-		setState(prev => prev.filter(t => t.tid !== teacher.tid));
+		setState(prev => (prev || []).filter(t => t.tid !== teacher.tid));
 		toast.success(messageToast.messageRemove + ` (${teacher.name})`);
 	};
 

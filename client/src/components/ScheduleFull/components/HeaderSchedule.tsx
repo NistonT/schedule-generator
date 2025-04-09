@@ -5,10 +5,11 @@ import Link from "next/link";
 
 type Props = {
 	id: string;
+	index: number;
 	title: string | undefined;
 };
 
-export const HeaderSchedule = ({ id, title }: Props) => {
+export const HeaderSchedule = ({ id, title, index }: Props) => {
 	return (
 		<>
 			<m.div
@@ -22,7 +23,15 @@ export const HeaderSchedule = ({ id, title }: Props) => {
 			>
 				{/* Заголовок */}
 				<div className='flex flex-col space-y-1'>
-					<h1 className='text-2xl font-bold text-gray-900'>{title}</h1>
+					<h1 className='text-2xl font-bold text-gray-900'>
+						{title === "Расписание" ? (
+							<>
+								{title} - {index + 1}
+							</>
+						) : (
+							title
+						)}
+					</h1>
 					<h2 className='text-base text-gray-600'>ID: {id}</h2>
 				</div>
 

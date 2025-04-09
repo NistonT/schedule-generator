@@ -16,7 +16,7 @@ export const ScheduleFull = ({ schedules, isShow }: Props) => {
 		<>
 			{schedules && (
 				<div className='space-y-8'>
-					{schedules.map(schedule => (
+					{schedules.map((schedule, index) => (
 						<m.div
 							key={schedule.id}
 							variants={{
@@ -29,7 +29,11 @@ export const ScheduleFull = ({ schedules, isShow }: Props) => {
 						>
 							{/* Заголовок расписания */}
 							<div className='p-6 border-b border-gray-200'>
-								<HeaderSchedule title={schedule.title} id={schedule.id} />
+								<HeaderSchedule
+									title={schedule.title}
+									id={schedule.id}
+									index={index}
+								/>
 
 								<div className='flex flex-wrap gap-4 mt-4'>
 									{/* Группы */}

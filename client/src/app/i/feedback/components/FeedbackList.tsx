@@ -1,11 +1,9 @@
 "use client";
 
-import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { feedbackService } from "@/services/feedback.service";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 
-export const FeedbackList = () => {
+export const Feedback_list = () => {
 	const { data: feedback_list } = useQuery({
 		queryKey: ["feedback_list"],
 		queryFn: () => feedbackService.getAllUserFeedback(),
@@ -64,9 +62,6 @@ export const FeedbackList = () => {
 									</span>
 								)}
 							</div>
-							<Link href={`${DASHBOARD_PAGES.ADMIN_PANEL}/${feedback.id}`}>
-								Перейти
-							</Link>
 						</div>
 					))}
 				</div>
