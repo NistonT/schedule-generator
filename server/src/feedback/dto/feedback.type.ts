@@ -1,4 +1,4 @@
-import { IsEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsEmpty, IsString } from 'class-validator';
 
 export class AddFeedbackDto {
   @IsString({
@@ -10,6 +10,17 @@ export class AddFeedbackDto {
     message: 'Введите текс',
   })
   text: string;
+}
+
+export class AdminFeedbackDto {
+  @IsString()
+  feedback_admin: string;
+
+  @IsBoolean()
+  isCheck: boolean;
+
+  @IsString()
+  admin: string;
 }
 
 export class ChangeFeedbackDto {

@@ -35,6 +35,8 @@ export interface IUser {
 	email: string;
 	password: string;
 	schedule_id: null;
+	role: string;
+	feedback: null;
 	api_key: string;
 	CreatedAt: string;
 	UpdatedAt: string;

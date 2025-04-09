@@ -55,7 +55,7 @@ export const ScheduleId = ({ id }: Props) => {
 					className='space-y-4'
 				>
 					<a
-						href={`http://localhost:5555/api/schedule?api-key=${profile?.api_key}&schedule_id=${scheduleId}`}
+						href={`http://localhost:5555/api/schedule?api-key=${profile?.api_key}&schedule_id=${scheduleId?.id}`}
 					>
 						Открыть в формате JSON
 					</a>

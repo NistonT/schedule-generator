@@ -19,6 +19,9 @@ model User {
   feedback Feedback[]
   api_key  String     @default(cuid())
 
+  visits         Int @default(0)
+  feedback_count Int @default(0)
+
   role String @default("USER")
 
   CreatedAt DateTime @default(now()) @map("created_at")
@@ -62,7 +65,8 @@ model Schedule {
   amountLimits  AmountLimits[]
   limitCabinets LimitCabinets[]
 
-  isShow Boolean? @default(true)
+  isShow         Boolean? @default(true)
+  schedule_count Int      @default(0)
 
   schedule  Json     @map("schedule_json")
   CreatedAt DateTime @default(now()) @map("created_at")

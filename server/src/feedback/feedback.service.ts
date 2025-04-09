@@ -1,7 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { UserService } from 'src/user/user.service';
-import { AddFeedbackDto, ChangeFeedbackDto } from './dto/feedback.type';
+import {
+  AddFeedbackDto,
+  AdminFeedbackDto,
+  ChangeFeedbackDto,
+} from './dto/feedback.type';
 
 @Injectable()
 export class FeedbackService {
@@ -36,7 +40,7 @@ export class FeedbackService {
   }
 
   // Ответить на запись
-  async feedback_admin(dto: ChangeFeedbackDto, feedback_id: string) {
+  async feedback_admin(dto: AdminFeedbackDto, feedback_id: string) {
     const { feedback_admin, isCheck, admin } = dto;
 
     if (!feedback_id) {
@@ -58,7 +62,23 @@ export class FeedbackService {
   }
 
   async get(user_id: string) {
+    if (!user_id) {
+      throw new BadRequestException('Идентификатор пользователя не найден');
+    }
+
     const user = await this.userService.getById(user_id);
+
+    if (!user) {
+      throw new BadRequestException('Пользователь не найден');
+    }
+
+    const feedback = await this.prisma.feedback.findMany({
+      where: {
+        user_id: user.id,
+      },
+    });
+
+    return feedback;
   }
 
   // Вывод всех обращений
@@ -69,8 +89,35 @@ export class FeedbackService {
   }
 
   // Изменить запись
-  async put(dto: ChangeFeedbackDto, user_id: string, feedback_id: string) {}
+  async put(dto: ChangeFeedbackDto, feedback_id: string) {
+    if (!feedback_id) {
+      throw new BadRequestException('Идентификатор обратной связи не найден');
+    }
+
+    const feedback = await this.prisma.feedback.update({
+      where: {
+        id: feedback_id,
+      },
+      data: {
+        title: dto.title,
+        text: dto.text,
+        admin: dto.admin,
+        feedback_admin: dto.feedback_admin,
+        isCheck: dto.isCheck,
+      },
+    });
+
+    return feedback;
+  }
 
   // Удалить запись
-  async delete(user_id: string, feedback_id: string) {}
+  async delete(feedback_id: string) {
+    const delete_feedback = await this.prisma.feedback.delete({
+      where: {
+        id: feedback_id,
+      },
+    });
+
+    return delete_feedback;
+  }
 }
