@@ -2,6 +2,8 @@ import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { EnumTokens } from "@/services/auth.service";
 import { NextRequest, NextResponse } from "next/server";
 
+const JWT_SECRET = "your-secret-key";
+
 export async function middleware(request: NextRequest, response: NextResponse) {
 	const { url, cookies } = request;
 
@@ -18,10 +20,6 @@ export async function middleware(request: NextRequest, response: NextResponse) {
 
 	// Страница Регистрации
 	const isRegister = url.includes("/register");
-
-	if (isAuthPage && refreshToken) {
-		return NextResponse.redirect(new URL(DASHBOARD_PAGES.PROFILE, url));
-	}
 
 	// register
 	if (isRegister && refreshToken) {

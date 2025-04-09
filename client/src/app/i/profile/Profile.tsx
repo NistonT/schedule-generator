@@ -7,6 +7,7 @@ import { modalAtom } from "@/jotai/modal";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
 import { useAtom, useSetAtom } from "jotai";
+import Cookies from "js-cookie";
 import { Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
 import "swiper/css";
@@ -28,6 +29,7 @@ export const Profile = () => {
 
 	useEffect(() => {
 		if (!data) {
+			Cookies.remove("refreshToken");
 			return;
 		}
 
