@@ -7,7 +7,7 @@ import { Mail } from "lucide-react";
 import { m } from "motion/react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { Feedback_list } from "./components/FeedbackList";
+import { FeedbackList } from "./components/FeedbackList";
 
 export const Feedback = () => {
 	const { register, handleSubmit, reset } = useForm<IAddFeedback>();
@@ -19,6 +19,7 @@ export const Feedback = () => {
 			feedbackService.addFeedback(data, profile!.id),
 		onSuccess: () => {
 			toast.success("Запись отправленна!");
+			reset();
 		},
 		onError: error => {
 			toast.error(error.message);
@@ -68,6 +69,7 @@ export const Feedback = () => {
 						onSubmit={handleSubmit(onSubmit)}
 					>
 						<div className='flex flex-wrap -m-2'>
+							{/* Поле "Название" */}
 							<div className='p-2 w-full'>
 								<label
 									htmlFor='title'
@@ -76,14 +78,13 @@ export const Feedback = () => {
 									Название
 								</label>
 								<input
-									{...register("title", {
-										required: true,
-									})}
+									{...register("title", { required: true })}
 									id='title'
 									type='text'
 									className='w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out'
 								/>
 							</div>
+
 							{/* Поле "Сообщение" */}
 							<div className='p-2 w-full'>
 								<label
@@ -111,9 +112,9 @@ export const Feedback = () => {
 						</div>
 					</m.form>
 				</div>
-			</m.section>
 
-			<Feedback_list />
+				<FeedbackList profile={profile} />
+			</m.section>
 		</>
 	);
 };

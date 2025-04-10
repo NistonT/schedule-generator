@@ -72,6 +72,7 @@ export const ScheduleId = ({ id }: Props) => {
 					<div className='flex justify-between'>
 						<a
 							href={`http://localhost:5555/api/schedule?api-key=${profile?.api_key}&schedule_id=${scheduleId?.id}`}
+							target='_blank'
 						>
 							Открыть в формате JSON
 						</a>

@@ -42,7 +42,7 @@ class FeedbackService {
 	}
 
 	// Получение всех записей пользователей
-	async getUserFeedback(user_id: string) {
+	async getUserFeedback(user_id: string): Promise<AxiosResponse<IFeedback[]>> {
 		const response = await axiosWithAuto.get(
 			`${this.BASE_URL}${this.USER_QUERY}${user_id}`
 		);
