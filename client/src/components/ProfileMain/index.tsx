@@ -11,7 +11,7 @@ import { isAdminAtom, isAuthAtom } from "@/jotai/auth";
 import { authService } from "@/services/auth.service";
 import { useMutation } from "@tanstack/react-query";
 import { useAtom } from "jotai";
-import { LogOut, Mail, User } from "lucide-react";
+import { LogOut, Mail, ShieldCheck, User } from "lucide-react";
 import { LayoutGroup, m } from "motion/react";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect } from "react";
@@ -75,7 +75,23 @@ export const ProfileMain = ({ children }: Props) => {
 						}}
 						className='flex mx-auto w-full justify-end items-center gap-4 p-4 bg-transparent relative z-30'
 					>
-						{isAdmin && <div>ADMIN ROLE</div>}
+						{isAdmin && (
+							<m.div
+								variants={{
+									hidden: { opacity: 0, y: -20 },
+									visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+								}}
+								initial='hidden'
+								animate='visible'
+								className='flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-md shadow-lg max-w-fit select-none'
+							>
+								{/* Иконка */}
+								<ShieldCheck size={20} className='text-white' />
+
+								{/* Текст */}
+								<span className='font-medium'>ADMIN ROLE</span>
+							</m.div>
+						)}
 						<m.div className='text-gray-700 flex items-center gap-1'>
 							<User className='w-5 h-5' /> {data?.username}
 						</m.div>
