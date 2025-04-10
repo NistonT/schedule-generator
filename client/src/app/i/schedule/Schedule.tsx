@@ -7,13 +7,14 @@ import { IScheduleGetList } from "@/types/schedule.types";
 import { useQuery } from "@tanstack/react-query";
 import { motion as m } from "framer-motion";
 import { useSetAtom } from "jotai";
-import { CalendarDays } from "lucide-react";
+import { ArrowDown, ArrowUp, CalendarDays } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Schedule = () => {
 	const { data: profile } = useProfile();
 	const [schedules, setSchedule] = useState<IScheduleGetList[] | null>(null);
 	const [searchQuery, setSearchQuery] = useState<string>(""); // Состояние для поискового запроса
+	const [sortByNewest, setSortByNewest] = useState<boolean>(true); // Состояние для сортировки (true = новые, false = старые)
 
 	const setScheduleId = useSetAtom(scheduleIdAtom);
 
@@ -35,6 +36,14 @@ export const Schedule = () => {
 		schedule.title?.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
+	// Сортировка расписаний по новизне/старизне
+	const sortedSchedules = filteredSchedules?.sort((a, b) => {
+		const dateA = new Date(a.CreatedAt).getTime();
+		const dateB = new Date(b.CreatedAt).getTime();
+
+		return sortByNewest ? dateB - dateA : dateA - dateB;
+	});
+
 	return (
 		<>
 			<div className='p-6 min-h-screen bg-gray-100'>
@@ -54,8 +63,9 @@ export const Schedule = () => {
 					</h1>
 				</m.div>
 
-				{/* Поле поиска */}
-				<div className='mb-8 w-full max-w-md mx-auto'>
+				{/* Панель управления: поиск и сортировка */}
+				<div className='mb-8 w-full max-w-md mx-auto flex flex-col md:flex-row items-center gap-4'>
+					{/* Поле поиска */}
 					<input
 						type='text'
 						value={searchQuery}
@@ -63,6 +73,22 @@ export const Schedule = () => {
 						placeholder='Поиск по названию расписания...'
 						className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-gray-400'
 					/>
+
+					{/* Кнопка переключения сортировки */}
+					<button
+						onClick={() => setSortByNewest(prev => !prev)}
+						className='px-4 py-2 text-sm font-medium rounded bg-gray-200 hover:bg-gray-300 transition-colors flex items-center gap-1'
+					>
+						{sortByNewest ? (
+							<>
+								<ArrowDown size={16} /> От новых к старым
+							</>
+						) : (
+							<>
+								<ArrowUp size={16} /> От старых к новым
+							</>
+						)}
+					</button>
 				</div>
 
 				{/* Контент расписания */}
@@ -77,8 +103,8 @@ export const Schedule = () => {
 				>
 					{isPending ? (
 						<p className='text-center text-gray-600'>Загрузка...</p>
-					) : filteredSchedules && filteredSchedules.length > 0 ? (
-						<ScheduleFull schedules={filteredSchedules} isShow={false} />
+					) : sortedSchedules && sortedSchedules.length > 0 ? (
+						<ScheduleFull schedules={sortedSchedules} isShow={false} />
 					) : (
 						<p className='text-center text-gray-600'>Расписания не найдены</p>
 					)}
