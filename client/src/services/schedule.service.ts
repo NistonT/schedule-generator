@@ -59,7 +59,7 @@ class ScheduleService {
 	// Получить все расписание
 	async getAllUsersSchedule(
 		api: string
-	): Promise<AxiosResponse<ISchedule | null>> {
+	): Promise<AxiosResponse<ISchedule[] | null>> {
 		const response = await axiosWithAuto.get(
 			`${this.BASE_URL}/users/all${this.API_QUERY}${api}`
 		);
