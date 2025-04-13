@@ -4,5 +4,5 @@ export interface IAddCabinetScheduleId {
 }
 
 export interface IAddCabinet {
-	name: string | string[];
+	name: string[] | string;
 }
