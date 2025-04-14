@@ -48,9 +48,11 @@ export const PasswordSettingForm = ({ data }: Props) => {
 		mutationKey: ["updatePassword"],
 		mutationFn: (password: IPassword) => userService.check(password),
 		onSuccess: response => {
+			console.log(response);
 			setIsPasswordValid(true);
 		},
 		onError: error => {
+			console.log(error);
 			setIsPasswordValid(false);
 		},
 	});
@@ -65,12 +67,9 @@ export const PasswordSettingForm = ({ data }: Props) => {
 			api_key: data!.api_key,
 			CreatedAt: data!.CreatedAt,
 			UpdatedAt: data!.UpdatedAt,
+			role: data!.role || "USER",
+			feedback: data!.feedback,
 		};
-		// if (isCheck) {
-		// 	return;
-		// }
-
-		// setIsPasswordValid(checkPassword({ password: formData.password }));
 
 		checkPassword({ password: formData.passwordOld });
 
