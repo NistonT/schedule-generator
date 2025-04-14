@@ -11,21 +11,25 @@ import { toast } from "sonner";
 type Props = {
 	profile: IUser;
 	schedule: ISchedule;
+	onCabinetAdded: (newCabinets: string[]) => void;
 };
 
-export const CabinetForm = ({ profile, schedule }: Props) => {
+export const CabinetForm = ({ profile, schedule, onCabinetAdded }: Props) => {
 	const [cabinets, setCabinets] = useAtom(cabinetsAtom);
 
 	const { register, handleSubmit, reset } = useForm<IAddCabinet>();
 
 	const { mutate } = useMutation({
-		mutationKey: ["get_cabinets"],
+		mutationKey: ["add_cabinets"],
 		mutationFn: (name: string[] | string) =>
-			cabinetService.addCabinets(name, profile!.api_key, schedule.id),
+			cabinetService.addCabinets(name, profile.api_key, schedule.id),
 		onSuccess: response => {
-			toast.success("Добавлено");
-			setCabinets(prev => [...(prev || []), response.data]);
-			reset();
+			toast.success("Кабинет добавлен");
+			const newCabinets = Array.isArray(response.data)
+				? response.data
+				: [response.data];
+			onCabinetAdded(newCabinets); // Передаем новые кабинеты в родительский компонент
+			reset(); // Очищаем форму
 		},
 	});
 
@@ -35,11 +39,17 @@ export const CabinetForm = ({ profile, schedule }: Props) => {
 		let array: string[];
 
 		if (typeof name === "string") {
-			array = name.split(" ");
+			// Разбиваем строку на массив и удаляем дубликаты
+			array = Array.from(new Set(name.split(" ")));
 		} else {
-			array = name;
+			// Удаляем дубликаты из массива
+			array = Array.from(new Set(name));
 		}
 
+		// Дополнительная проверка: удаляем пустые строки или пробелы
+		array = array.filter(cabinet => cabinet.trim() !== "");
+
+		// Вызываем мутацию с уникальными кабинетами
 		mutate(array);
 	};
 

@@ -8,9 +8,10 @@ import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { navigateProfile } from "@/constants/profile.constants";
 import { useProfile } from "@/hook/useProfile";
 import { isAdminAtom, isAuthAtom } from "@/jotai/auth";
+import { profileDataAtom } from "@/jotai/profile";
 import { authService } from "@/services/auth.service";
 import { useMutation } from "@tanstack/react-query";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { LogOut, Mail, ShieldCheck, User } from "lucide-react";
 import { LayoutGroup, m } from "motion/react";
 import { useRouter } from "next/navigation";
@@ -25,6 +26,8 @@ type Props = {
 
 export const ProfileMain = ({ children }: Props) => {
 	const { data, isLoading } = useProfile();
+	const setProfile = useSetAtom(profileDataAtom);
+
 	const { push } = useRouter();
 	const [isAuth, setIsAuth] = useAtom(isAuthAtom);
 	const [isAdmin, setIsAdmin] = useAtom(isAdminAtom);
@@ -34,6 +37,7 @@ export const ProfileMain = ({ children }: Props) => {
 		mutationFn: () => authService.logout(),
 		onSuccess: () => {
 			toast("Вы вышли из профиля!");
+			setProfile(null);
 			setIsAuth(false);
 			setIsAdmin(false);
 			push(DASHBOARD_PAGES.HOME);
@@ -49,7 +53,9 @@ export const ProfileMain = ({ children }: Props) => {
 		if (data?.role === "ADMIN") {
 			setIsAdmin(true);
 		}
-		console.log(data);
+		if (data) {
+			setProfile(data);
+		}
 	}, [data]);
 
 	if (isLoading) {

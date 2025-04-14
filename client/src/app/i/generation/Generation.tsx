@@ -2,14 +2,17 @@
 
 import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { useProfile } from "@/hook/useProfile";
+import { cabinetsAtom } from "@/jotai/schedule";
 import { scheduleService } from "@/services/schedule.service";
 import { useQuery } from "@tanstack/react-query";
+import { useAtom } from "jotai";
 import { CalendarDays, ExternalLink } from "lucide-react";
 import { m } from "motion/react";
 import Link from "next/link";
 
 export const Generation = () => {
 	const { data: profile } = useProfile();
+	const [cabinets, setCabinets] = useAtom(cabinetsAtom);
 
 	const { data: schedules } = useQuery({
 		queryKey: ["schedules_query"],

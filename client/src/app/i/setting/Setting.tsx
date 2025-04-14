@@ -5,7 +5,7 @@ import { MainForm } from "./components/MainForm";
 import { PasswordSettingForm } from "./components/PasswordForm";
 import { Title } from "./components/Title";
 export const Setting = () => {
-	const { data } = useProfile();
+	const { data, isLoading } = useProfile();
 
 	return (
 		<div>
