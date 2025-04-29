@@ -41,7 +41,7 @@ export class CabinetsService {
     return { user, schedule };
   }
 
-  async addCabinet(
+  public async addCabinet(
     name: string | string[],
     apiKey: string,
     scheduleId?: string,
@@ -92,12 +92,15 @@ export class CabinetsService {
     return updatedSchedule.cabinets;
   }
 
-  async getCabinets(apiKey: string, scheduleId: string): Promise<string[]> {
+  public async getCabinets(
+    apiKey: string,
+    scheduleId: string,
+  ): Promise<string[]> {
     const { schedule } = await this.validateUserAndSchedule(apiKey, scheduleId);
     return schedule.cabinets;
   }
 
-  async getAllCabinets(
+  public async getAllCabinets(
     apiKey: string,
   ): Promise<{ id: string; cabinets: string[] }[]> {
     const user = await this.validateUserAndSchedule(apiKey);
@@ -108,7 +111,7 @@ export class CabinetsService {
     return schedules;
   }
 
-  async changeCabinet(
+  public async changeCabinet(
     oldName: string,
     newName: string,
     apiKey: string,
@@ -143,7 +146,7 @@ export class CabinetsService {
     return updatedSchedule.cabinets;
   }
 
-  async deleteCabinet(
+  public async deleteCabinet(
     name: string,
     apiKey: string,
     scheduleId?: string,

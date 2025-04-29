@@ -11,7 +11,7 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   // Создайние пользователя
-  async create(dto: RegisterAuth): Promise<User> {
+  public async create(dto: RegisterAuth): Promise<User> {
     return await this.prisma.user.create({
       data: {
         username: dto.username,
@@ -30,12 +30,12 @@ export class UserService {
   }
 
   // Получение всех пользователей
-  async getByAll(): Promise<User[]> {
+  public async getByAll(): Promise<User[]> {
     return await this.prisma.user.findMany();
   }
 
   // Получение пользователя по id
-  async getById(id: string): Promise<User> {
+  public async getById(id: string): Promise<User> {
     return await this.prisma.user.findUnique({
       where: {
         id,
@@ -47,7 +47,7 @@ export class UserService {
   }
 
   // Получение пользователя по api-key
-  async getByApiKey(api_key: string): Promise<User> {
+  public async getByApiKey(api_key: string): Promise<User> {
     return await this.prisma.user.findUnique({
       where: {
         api_key,
@@ -56,7 +56,7 @@ export class UserService {
   }
 
   // Получение пользователя по имени
-  async getByUsername(username): Promise<User> {
+  public async getByUsername(username): Promise<User> {
     return await this.prisma.user.findUnique({
       where: {
         username: username,
@@ -68,7 +68,7 @@ export class UserService {
   }
 
   // Обновленние пользователя по id
-  async updateUser(id: string, dto: UpdateUserDto): Promise<User> {
+  public async updateUser(id: string, dto: UpdateUserDto): Promise<User> {
     let data = dto;
 
     if (dto.password) {
@@ -84,7 +84,7 @@ export class UserService {
   }
 
   // Проверка пароля
-  async checkPassword(id: string, password: string) {
+  public async checkPassword(id: string, password: string) {
     const user = await this.getById(id);
 
     console.log(user.password);
@@ -111,7 +111,7 @@ export class UserService {
   }
 
   // Удаление пользователя по id
-  async deleteUser(id: string): Promise<User> {
+  public async deleteUser(id: string): Promise<User> {
     return await this.prisma.user.delete({
       where: {
         id,
@@ -120,7 +120,7 @@ export class UserService {
   }
 
   // Обновленние api key
-  async updateApiKey(id: string) {
+  public async updateApiKey(id: string) {
     let isUnique = false;
     let newApiKey: string;
 

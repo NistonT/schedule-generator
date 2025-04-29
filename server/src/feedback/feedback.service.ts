@@ -15,7 +15,7 @@ export class FeedbackService {
   ) {}
 
   // Добавить запись
-  async add(dto: AddFeedbackDto, user_id: string) {
+  public async add(dto: AddFeedbackDto, user_id: string) {
     const { text, title } = dto;
 
     if (!user_id) {
@@ -41,7 +41,7 @@ export class FeedbackService {
   }
 
   // Ответить на запись
-  async feedback_admin(dto: AdminFeedbackDto, feedback_id: string) {
+  public async feedback_admin(dto: AdminFeedbackDto, feedback_id: string) {
     const { feedback_admin, isCheck, admin } = dto;
 
     if (!feedback_id) {
@@ -63,7 +63,7 @@ export class FeedbackService {
   }
 
   // Вывод одной записи
-  async getId(feedback_id: string) {
+  public async getId(feedback_id: string) {
     if (!feedback_id) {
       throw new BadRequestException('Запись не найдена');
     }
@@ -77,7 +77,7 @@ export class FeedbackService {
     return feedback;
   }
 
-  async get(user_id: string) {
+  public async get(user_id: string) {
     if (!user_id) {
       throw new BadRequestException('Идентификатор пользователя не найден');
     }
@@ -98,14 +98,14 @@ export class FeedbackService {
   }
 
   // Вывод всех обращений
-  async getAll() {
+  public async getAll() {
     const feedback = await this.prisma.feedback.findMany();
 
     return feedback;
   }
 
   // Изменить запись
-  async put(dto: ChangeFeedbackDto, feedback_id: string) {
+  public async put(dto: ChangeFeedbackDto, feedback_id: string) {
     if (!feedback_id) {
       throw new BadRequestException('Идентификатор обратной связи не найден');
     }
@@ -127,7 +127,7 @@ export class FeedbackService {
   }
 
   // Удалить запись
-  async delete(feedback_id: string) {
+  public async delete(feedback_id: string) {
     const delete_feedback = await this.prisma.feedback.delete({
       where: {
         id: feedback_id,

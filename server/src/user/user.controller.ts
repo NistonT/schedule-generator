@@ -23,7 +23,7 @@ export class UserController {
   // GET localhost:5555/api/user/users
   @Get('/users')
   @Auth()
-  async getByUsers(): Promise<User[]> {
+  public async getByUsers(): Promise<User[]> {
     return await this.userService.getByAll();
   }
 
@@ -31,7 +31,7 @@ export class UserController {
   // GET localhost:5555/api/user/user_id
   @Get('/user_id')
   @Auth()
-  async getById(@CurrentUser('id') id: string): Promise<User> {
+  public async getById(@CurrentUser('id') id: string): Promise<User> {
     return await this.userService.getById(id);
   }
 
@@ -46,7 +46,7 @@ export class UserController {
   @HttpCode(202)
   @Put('/update')
   @Auth()
-  async updateUser(
+  public async updateUser(
     @CurrentUser('id') id: string,
     @Body() dto: UpdateUserDto,
   ): Promise<User> {
@@ -57,7 +57,7 @@ export class UserController {
   // Delete localhost:5555/api/user
   @Delete()
   @Auth()
-  async deleteUser(@CurrentUser('id') id: string): Promise<User> {
+  public async deleteUser(@CurrentUser('id') id: string): Promise<User> {
     return await this.userService.deleteUser(id);
   }
 
@@ -66,7 +66,7 @@ export class UserController {
   @Put('/api_key')
   @HttpCode(202)
   @Auth()
-  async updateApiKey(@CurrentUser('id') id: string) {
+  public async updateApiKey(@CurrentUser('id') id: string) {
     return await this.userService.updateApiKey(id);
   }
 
@@ -75,7 +75,7 @@ export class UserController {
   @Post('/check')
   @HttpCode(202)
   @Auth()
-  async checkPasswords(
+  public async checkPasswords(
     @CurrentUser('id') id: string,
     @Body('password') password: string,
   ) {

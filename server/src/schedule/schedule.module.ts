@@ -6,6 +6,7 @@ import { ScheduleController } from './schedule.controller';
 import { ScheduleDefaultService } from './schedule.default.service';
 import { ScheduleService } from './schedule.service';
 import { ScheduleAiService } from './scheduleAi.service';
+import { ScheduleTwoWeekService } from './scheduleTwoWeek.service';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ScheduleAiService } from './scheduleAi.service';
     UserService,
     ScheduleAiService,
     ScheduleDefaultService,
+    ScheduleTwoWeekService,
   ],
   exports: [ScheduleDefaultService, ScheduleService],
 })

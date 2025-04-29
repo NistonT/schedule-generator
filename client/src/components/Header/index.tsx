@@ -57,36 +57,41 @@ export const Header = () => {
 				y: { type: "spring", stiffness: 100, damping: 20 },
 				opacity: { duration: 0.2 },
 			}}
-			className='absolute w-full z-30'
+			className='fixed w-full z-30 '
 		>
-			<div className='mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center relative'>
-				<m.div
-					initial={{ opacity: 0 }}
-					whileInView={{ opacity: 1 }}
-					className='flex items-center top-5'
-				>
-					<m.div className='relative xl:text-3xl lg:text-2xl md:text-xl px-6 py-4 text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-md transition-all cursor-default flex items-center gap-3 overflow-hidden'>
-						<Link className='flex items-center gap-3 relative z-10' href={"/"}>
-							<Bot className='xl:w-10 xl:h-10 lg:w-8 lg:h-8 md:w-6 md:h-6 sm:block hidden' />
-							ГЕНЕРАТОР API
-						</Link>
+			<div className='container mx-auto px-4 sm:px-6 lg:px-8'>
+				<div className='flex flex-col md:flex-row items-center justify-between py-3 md:py-4'>
+					<m.div
+						initial={{ opacity: 0 }}
+						whileInView={{ opacity: 1 }}
+						className='flex items-center'
+					>
+						<m.div className='relative text-sm sm:text-base lg:text-lg px-3 py-2 text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-md transition-all cursor-default flex items-center gap-2 sm:gap-3 overflow-hidden'>
+							<Link
+								className='flex items-center gap-2 sm:gap-3 relative z-10'
+								href={"/"}
+							>
+								<Bot className='w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7' />
+								<span>ГЕНЕРАТОР API</span>
+							</Link>
 
-						<m.div
-							className='absolute inset-0 bg-[length:200%_200%] bg-gradient-to-r from-transparent via-white/15 to-transparent transform rotate-0'
-							animate={{
-								backgroundPosition: ["100% 100%", "-100% -100%"],
-							}}
-							transition={{
-								duration: 4,
-								repeat: Infinity,
-								ease: "linear",
-							}}
-						/>
+							<m.div
+								className='absolute inset-0 bg-[length:200%_200%] bg-gradient-to-r from-transparent via-white/15 to-transparent transform rotate-0'
+								animate={{
+									backgroundPosition: ["100% 100%", "-100% -100%"],
+								}}
+								transition={{
+									duration: 4,
+									repeat: Infinity,
+									ease: "linear",
+								}}
+							/>
+						</m.div>
+						<span className='text-gray-600 text-sm sm:text-base ml-2 sm:ml-4 py-1 sm:py-2'>
+							| {headerText}
+						</span>
 					</m.div>
-					<span className='text-gray-600 text-xl py-4 px-8 transition-all'>
-						| {headerText}
-					</span>
-				</m.div>
+				</div>
 			</div>
 		</m.header>
 	);

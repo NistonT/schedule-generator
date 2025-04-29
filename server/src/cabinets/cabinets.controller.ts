@@ -29,7 +29,7 @@ export class CabinetsController {
     }
   */
   @Post()
-  async add(
+  public async add(
     @Body() body: { name: string | string[] }, // Изменено на получение всего body
     @Query('api-key') api_key: string,
     @Query('schedule_id') scheduleId: string,
@@ -47,7 +47,7 @@ export class CabinetsController {
   }
 
   @Get()
-  async get(
+  public async get(
     @Query('api-key') api_key: string,
     @Query('schedule_id') scheduleId: string,
   ): Promise<string[]> {
@@ -55,7 +55,7 @@ export class CabinetsController {
   }
 
   @Get('/all')
-  async getAll(
+  public async getAll(
     @Query('api-key') api_key: string,
   ): Promise<{ id: string; cabinets: string[] }[]> {
     return await this.cabinetsService.getAllCabinets(api_key);
@@ -69,7 +69,7 @@ export class CabinetsController {
   */
   @UsePipes(new ValidationPipe())
   @Put()
-  async change(
+  public async change(
     @Body() dto: ChangeCabinetDto,
     @Query('api-key') api_key: string,
     @Query('schedule_id') scheduleId: string,
@@ -90,7 +90,7 @@ export class CabinetsController {
     }
   */
   @Delete()
-  async delete(
+  public async delete(
     @Body('name') name: string,
     @Query('api-key') api_key: string,
     @Query('schedule_id') scheduleId: string,
