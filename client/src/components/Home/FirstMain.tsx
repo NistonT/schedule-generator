@@ -1,8 +1,8 @@
 "use client";
+import { navigationMainPage } from "@/constants/navigation.constants";
 import { m, Variants } from "motion/react";
 import { useMemo } from "react";
-import { Nav } from "./Nav";
-import { Title } from "./Title";
+import { ButtonMotionLink } from "../ui/buttons/ButtonMotionLink";
 
 export const FirstMain = () => {
 	const points = useMemo(
@@ -45,52 +45,87 @@ export const FirstMain = () => {
 
 	return (
 		<>
-			<m.div
-				className='relative w-full h-[60vh] flex items-center justify-center bg-white mt-16'
-				initial='hidden'
-				animate='visible'
-			>
+			<div className='absolute right-0 top-16 w-screen h-screen pointer-events-none md:top-0 md:right-0 md:h-screen md:w-2/5 overflow-hidden'>
 				<m.div
-					className='w-96 h-96 bg-indigo-500/20 rounded-full absolute border-2 border-indigo-400/30'
-					variants={circleVariants}
-				/>
+					className='relative w-full h-full flex items-center justify-center bg-white'
+					initial='hidden'
+					animate='visible'
+				>
+					{/* Внешний круг */}
+					<m.div
+						className='w-[90vw] h-[90vw] max-w-[80vh] max-h-[80vh] bg-indigo-500/20 rounded-full absolute border-2 border-indigo-400/30 scale-100 md:scale-125 lg:scale-150 transition-transform duration-300'
+						variants={circleVariants}
+					/>
 
-				{points.map((point, i) => {
-					const angleInRad = (point.angle * Math.PI) / 180;
-					const radius = 180;
+					{/* Точки */}
+					{points.map((point, i) => {
+						const angleInRad = (point.angle * Math.PI) / 180;
+						const radius = 180; // Относительно масштабируемого круга
 
-					return (
-						<m.div
-							key={point.id}
-							className='absolute w-2 h-2 bg-indigo-400 rounded-full'
-							style={{
-								x: radius * Math.cos(angleInRad),
-								y: radius * Math.sin(angleInRad),
-							}}
-							variants={dotVariants}
-							custom={i}
+						return (
+							<m.div
+								key={point.id}
+								className='absolute w-2 h-2 bg-indigo-400 rounded-full'
+								style={{
+									x: radius * Math.cos(angleInRad),
+									y: radius * Math.sin(angleInRad),
+								}}
+								variants={dotVariants}
+								custom={i}
+							/>
+						);
+					})}
+
+					{/* Центральный пульсирующий круг */}
+					<m.div
+						className='absolute w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 bg-indigo-500 rounded-full shadow-lg shadow-indigo-500/30'
+						animate={{
+							scale: [1, 1.2, 1],
+							opacity: [0.8, 1, 0.8],
+						}}
+						transition={{
+							duration: 2,
+							repeat: Infinity,
+							repeatType: "mirror" as const,
+							ease: "easeInOut",
+						}}
+					/>
+				</m.div>
+			</div>
+
+			<m.div className='mt-4 flex-1 absolute left-8'>
+				<m.main
+					initial={{ y: -40, opacity: 0 }}
+					whileInView={{ y: 0, opacity: 1 }}
+					viewport={{ once: false }}
+					transition={{ duration: 1 }}
+					className='text-left md:text-left'
+				>
+					<m.h1
+						className='text-3xl sm:text-4xl md:text-5xl text-gray-800 mb-4 font-[--font-montserrat] leading-tight'
+						style={{ fontWeight: 700 }}
+					>
+						Генератор учебного расписания
+					</m.h1>
+					<m.p
+						className='text-base sm:text-lg md:text-xl text-gray-600 mb-8 font-[--font-montserrat]'
+						style={{ fontWeight: 500 }}
+					>
+						Генерируй своё учебное расписание за 5 минут — быстро и удобно.
+					</m.p>
+				</m.main>
+
+				<nav className='flex flex-wrap gap-4 justify-start'>
+					{navigationMainPage.map((link, index) => (
+						<ButtonMotionLink
+							key={index}
+							icon={link.icon}
+							href={link.href}
+							title={link.title}
+							indexButton={index}
 						/>
-					);
-				})}
-
-				<m.div
-					className='absolute w-48 h-48 bg-indigo-500 rounded-full shadow-lg shadow-indigo-500/30'
-					animate={{
-						scale: [1, 1.2, 1],
-						opacity: [0.8, 1, 0.8],
-					}}
-					transition={{
-						duration: 2,
-						repeat: Infinity,
-						repeatType: "mirror" as const,
-						ease: "easeInOut",
-					}}
-				/>
-			</m.div>
-
-			<m.div className='mt-4 flex-1'>
-				<Title />
-				<Nav />
+					))}
+				</nav>
 			</m.div>
 		</>
 	);
