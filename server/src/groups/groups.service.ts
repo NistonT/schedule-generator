@@ -39,7 +39,7 @@ export class GroupsService {
     return { user, schedule };
   }
 
-  async add(name: string, apiKey: string, scheduleId?: string) {
+  public async add(name: string, apiKey: string, scheduleId?: string) {
     if (!name?.trim()) {
       throw new BadRequestException('Название группы обязательно');
     }
@@ -61,12 +61,14 @@ export class GroupsService {
     });
   }
 
-  async get(apiKey: string, scheduleId?: string): Promise<string[]> {
+  public async get(apiKey: string, scheduleId?: string): Promise<string[]> {
     const { schedule } = await this.validateUserAndSchedule(apiKey, scheduleId);
     return schedule.groups;
   }
 
-  async getAll(apiKey: string): Promise<{ id: string; groups: string[] }[]> {
+  public async getAll(
+    apiKey: string,
+  ): Promise<{ id: string; groups: string[] }[]> {
     const user = await this.validateUserAndSchedule(apiKey);
     const schedules = await this.prisma.schedule.findMany({
       where: { user_id: user.user.id },
@@ -75,7 +77,7 @@ export class GroupsService {
     return schedules;
   }
 
-  async change(
+  public async change(
     oldName: string,
     newName: string,
     apiKey: string,
@@ -111,7 +113,7 @@ export class GroupsService {
     });
   }
 
-  async delete(name: string, apiKey: string, scheduleId?: string) {
+  public async delete(name: string, apiKey: string, scheduleId?: string) {
     if (!name?.trim()) {
       throw new BadRequestException('Название группы обязательно');
     }

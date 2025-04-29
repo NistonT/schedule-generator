@@ -7,7 +7,7 @@ export class TitleScheduleController {
 
   // Добавляет название к расписанию
   @Post()
-  async add(
+  public async add(
     @Body('title') title: string,
     @Query('api-key') apiKey: string,
     @Query('schedule_id') scheduleId: string,
@@ -17,7 +17,7 @@ export class TitleScheduleController {
 
   // Изменить название в расписания
   @Put()
-  async put(
+  public async put(
     @Body('title') title: string,
     @Query('api-key') apiKey: string,
     @Query('schedule_id') scheduleId: string,
@@ -27,7 +27,7 @@ export class TitleScheduleController {
 
   // Удалить название в расписание
   @Delete()
-  async delete(
+  public async delete(
     @Query('api-key') apiKey: string,
     @Query('schedule_id') scheduleId: string,
   ) {

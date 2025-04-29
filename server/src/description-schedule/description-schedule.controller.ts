@@ -12,7 +12,7 @@ export class DescriptionScheduleController {
 
   // Добавляет описание
   @Post()
-  async add(
+  public async add(
     @Body('text') text: string,
     @Query('api-key') apiKey: string,
     @Query('schedule_id') scheduleId: string,
@@ -22,7 +22,7 @@ export class DescriptionScheduleController {
 
   // Изменяет описание
   @Put()
-  async put(
+  public async put(
     @Body('text') text: string,
     @Query('api-key') apiKey: string,
     @Query('schedule_id') scheduleId: string,
@@ -32,7 +32,7 @@ export class DescriptionScheduleController {
 
   // Удаляет описание
   @Delete()
-  async delete(
+  public async delete(
     @Query('api-key') apiKey: string,
     @Query('schedule_id') scheduleId: string,
   ) {

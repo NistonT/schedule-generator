@@ -14,7 +14,7 @@ export class TitleScheduleService {
 	*/
 
   // Добавление название
-  async add(title: string, apiKey: string, scheduleId: string) {
+  public async add(title: string, apiKey: string, scheduleId: string) {
     if (!title) {
       throw new BadRequestException('Введите название расписание');
     }
@@ -47,7 +47,7 @@ export class TitleScheduleService {
   }
 
   // Изменение название
-  async put(title: string, apiKey: string, scheduleId: string) {
+  public async put(title: string, apiKey: string, scheduleId: string) {
     if (!title) {
       throw new BadRequestException('Вы не ввели новое название');
     }
@@ -76,7 +76,7 @@ export class TitleScheduleService {
   }
 
   // Удаление название
-  async delete(apiKey: string, scheduleId: string) {
+  public async delete(apiKey: string, scheduleId: string) {
     if (!apiKey) {
       throw new BadRequestException('Вы не ввели api ключ');
     }

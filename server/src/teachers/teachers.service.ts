@@ -26,7 +26,7 @@ export class TeachersService {
     return user;
   }
 
-  async add(
+  public async add(
     name: string,
     apiKey: string,
     scheduleId?: string,
@@ -74,7 +74,7 @@ export class TeachersService {
     });
   }
 
-  async get(apiKey: string, scheduleId?: string): Promise<Teacher[]> {
+  public async get(apiKey: string, scheduleId?: string): Promise<Teacher[]> {
     const user = await this.validateUser(apiKey);
 
     const where = scheduleId
@@ -100,7 +100,7 @@ export class TeachersService {
     });
   }
 
-  async getAllTeachers(apiKey: string): Promise<Teacher[]> {
+  public async getAllTeachers(apiKey: string): Promise<Teacher[]> {
     // Валидация пользователя
     const user = await this.validateUser(apiKey);
 
@@ -130,7 +130,7 @@ export class TeachersService {
     return uniqueTeachers;
   }
 
-  async change(
+  public async change(
     teacherId: number,
     newName: string,
     apiKey: string,
@@ -172,7 +172,7 @@ export class TeachersService {
     });
   }
 
-  async delete(teacherId: number, apiKey: string): Promise<Teacher> {
+  public async delete(teacherId: number, apiKey: string): Promise<Teacher> {
     // Валидация пользователя
     const user = await this.validateUser(apiKey);
 

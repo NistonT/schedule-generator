@@ -1,136 +1,55 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
-import { UserService } from 'src/user/user.service';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class ScheduleService {
-  constructor(
-    private prisma: PrismaService,
-    private userService: UserService,
-  ) {}
+export class ScheduleTwoWeekService {
+  constructor() {}
 
-  async addGeneratedSchedulePrisma(api_key: string, data: any): Promise<any> {
-    if (!api_key || api_key.trim() === '') {
-      throw new Error('API key is required and must not be empty');
-    }
-
-    const user = await this.userService.getByApiKey(api_key);
-    if (!user) {
-      throw new Error('Пользователь не найден');
-    }
-
-    const schedule_json = await this.generateSchedule(data);
-
-    return await this.prisma.schedule.create({
-      data: {
-        schedule: schedule_json,
-        user_id: user.id,
-        cabinets: [],
-        groups: [],
-        teachers: { create: [] },
-        amountLimits: { create: [] },
-        limitCabinets: { create: [] },
-        isShow: true,
-      },
-    });
-  }
-
-  // Метод для сохранения/обновления расписания в базе данных
-  async generatedSchedulePrisma(
-    api_key: string,
-    scheduleId: string,
+  async generateMainTwoWeekSchedule(
     data: any,
+    upperStartDate: string,
   ): Promise<any> {
-    // Проверка API ключа
-    if (!api_key || api_key.trim() === '') {
-      throw new BadRequestException(
-        'API key is required and must not be empty',
-      );
-    }
+    const lowerStartDate = this.addDaysToDate(upperStartDate, 7);
 
-    // Поиск пользователя
-    const user = await this.userService.getByApiKey(api_key);
-    if (!user) {
-      throw new NotFoundException('Пользователь не найден');
-    }
+    const upperData = JSON.parse(JSON.stringify(data));
+    const lowerData = JSON.parse(JSON.stringify(data));
 
-    // Генерация расписания
-    const schedule_json = await this.generateSchedule(data);
+    const upperResult = await this.generateOneWeekSchedule(
+      upperData,
+      'upper',
+      upperStartDate,
+    );
+    lowerData.amountLimits = this.deepCopy(upperResult.remainingAmountLimits);
+    const lowerResult = await this.generateOneWeekSchedule(
+      lowerData,
+      'lower',
+      lowerStartDate,
+    );
 
-    // Обновление конкретного расписания
-    return await this.prisma.schedule.update({
-      where: {
-        id: scheduleId,
-        user_id: user.id, // Дополнительная проверка, что расписание принадлежит пользователю
-      },
-      data: {
-        schedule: schedule_json,
-      },
-    });
+    const mainSchedule = this.interleaveSchedulesWithWeekType(
+      upperResult.schedule,
+      lowerResult.schedule,
+    );
+
+    return {
+      schedule: data.originalSchedule ?? upperResult.schedule,
+      failedAllocations: [
+        ...upperResult.failedAllocations,
+        ...lowerResult.failedAllocations,
+      ],
+      mainSchedule,
+    };
   }
 
-  // Метод для получения конкретного расписания по ID расписания и API ключу пользователя
-  async getScheduleById(api_key: string, scheduleId: string) {
-    const user = await this.userService.getByApiKey(api_key);
-    if (!user) {
-      throw new NotFoundException('Пользователь не найден');
-    }
-
-    return await this.prisma.schedule.findFirst({
-      where: {
-        id: scheduleId,
-        user_id: user.id, // Проверяем, что расписание принадлежит пользователю
-      },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        isShow: true,
-        schedule: true,
-        cabinets: true,
-        teachers: true,
-        groups: true,
-        CreatedAt: true,
-        UpdatedAt: true,
-      },
-    });
-  }
-
-  // Метод для получения всех расписаний пользователя
-  async getAllUserSchedules(api_key: string) {
-    const user = await this.userService.getByApiKey(api_key);
-    if (!user) {
-      throw new NotFoundException('Пользователь не найден');
-    }
-
-    return await this.prisma.schedule.findMany({
-      where: {
-        user_id: user.id,
-      },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        isShow: true,
-        schedule: true,
-        cabinets: true,
-        teachers: true,
-        groups: true,
-        CreatedAt: true,
-        UpdatedAt: true,
-      },
-      orderBy: {
-        CreatedAt: 'desc', // Сортировка по дате создания (новые сначала)
-      },
-    });
-  }
-
-  // Метод для генерации расписания
-  async generateSchedule(data: any): Promise<any> {
+  // Генерация одной недели по начальной дате
+  private async generateOneWeekSchedule(
+    data: any,
+    weekType: 'upper' | 'lower',
+    startDateStr: string,
+  ): Promise<{
+    schedule: any[];
+    remainingAmountLimits: any[];
+    failedAllocations: any[];
+  }> {
     const {
       cabinets,
       groups,
@@ -143,15 +62,10 @@ export class ScheduleService {
       maxLoad,
     } = data;
 
-    if (!Array.isArray(amountLimits) || amountLimits.length === 0) {
-      throw new Error('Необходимо указать лимиты на количество занятий');
-    }
+    if (!Array.isArray(amountLimits)) throw new Error('Invalid amountLimits');
+    if (!Array.isArray(teachersMap)) throw new Error('Invalid teachersMap');
 
-    if (!Array.isArray(teachersMap) || teachersMap.length === 0) {
-      throw new Error(
-        'Необходимо указать соответствие преподавателей и предметов',
-      );
-    }
+    const dateMapping = this.generateDates(startDateStr, days);
 
     const groupTimetables: Record<string, Record<string, any[]>> = {};
     const failedAllocations: {
@@ -160,26 +74,22 @@ export class ScheduleService {
       reason: string;
     }[] = [];
 
-    // Создаем пустое расписание для каждой группы
     for (const group of groups) {
       groupTimetables[group] = {};
       for (const day of days) {
         groupTimetables[group][day] = [];
       }
 
-      // Проверяем, есть ли предметы для группы
       const subjects = subjectsMap[group] || [];
       if (!Array.isArray(subjects)) {
         throw new Error(`Invalid subjects data for group ${group}`);
       }
 
-      // Создаем очередь предметов
       const subjectQueue = this.createSubjectQueue(
         subjects,
         amountLimits.filter((limit) => limit.group === group),
       );
 
-      // Инициализация карты доступности преподавателей и кабинетов
       const teacherAvailability: Record<string, boolean[]> = {};
       const cabinetAvailability: Record<string, boolean[]> = {};
 
@@ -191,25 +101,20 @@ export class ScheduleService {
       let dayIndex = 0;
       for (const subjectInfo of subjectQueue) {
         let attempts = 0;
-        const maxAttempts = 1000; // Ограничение на количество попыток
+        const maxAttempts = 1000;
 
         while (subjectInfo.remaining > 0) {
           if (attempts >= maxAttempts) {
-            // Логируем проблему, но продолжаем генерацию
             failedAllocations.push({
               group,
               subject: subjectInfo.subject,
               reason: `Не удалось распределить занятие после ${maxAttempts} попыток`,
             });
-            console.warn(
-              `Пропущено занятие: ${subjectInfo.subject} для группы ${group}`,
-            );
             break;
           }
 
           const currentDay = days[dayIndex % days.length];
 
-          // Проверяем доступность преподавателя
           const teacherInfo = this.findAvailableTeacherForSubject(
             subjectInfo.subject,
             teachersMap,
@@ -223,7 +128,6 @@ export class ScheduleService {
             continue;
           }
 
-          // Проверяем доступность кабинета
           const cabinet = this.findAvailableCabinetForTeacher(
             teacherInfo.tid,
             cabinetLimits,
@@ -243,7 +147,6 @@ export class ScheduleService {
             continue;
           }
 
-          // Добавляем занятие в расписание группы
           if (groupTimetables[group][currentDay].length < maxLoad) {
             groupTimetables[group][currentDay].push([
               {
@@ -265,24 +168,22 @@ export class ScheduleService {
 
           subjectInfo.remaining--;
           this.decrementAmountLimit(amountLimits, group, subjectInfo.subject);
-
           dayIndex = (dayIndex + 1) % days.length;
-          attempts = 0; // Сбрасываем счетчик попыток при успешном распределении
+          attempts = 0;
         }
       }
     }
 
-    // Формируем плоский список всех занятий
     const flatSchedule = Object.entries(groupTimetables).flatMap(
       ([group, timetable]) =>
-        Object.entries(timetable).flatMap(([date, lessonsPerDay]) =>
+        Object.entries(timetable).flatMap(([dayName, lessonsPerDay]) =>
           lessonsPerDay.map((lessonBlock, index) => {
             const lessons = Array.isArray(lessonBlock)
               ? lessonBlock
               : [lessonBlock];
             return lessons.map((lesson) => ({
               group,
-              date,
+              date: dateMapping[dayName],
               cabinet: lesson.cabinet,
               subject: lesson.subject,
               teacher: lesson.teacher,
@@ -295,15 +196,14 @@ export class ScheduleService {
 
     return {
       schedule: flatSchedule,
+      remainingAmountLimits: amountLimits,
       failedAllocations,
     };
   }
 
   // Метод для создания очереди предметов с учетом лимитов
   private createSubjectQueue(subjects: string[], amountLimits: any[]): any[] {
-    if (!Array.isArray(subjects)) {
-      throw new Error('Subjects must be an array');
-    }
+    if (!Array.isArray(subjects)) throw new Error('Subjects must be an array');
 
     const queue: any[] = [];
     for (const subject of subjects) {
@@ -319,7 +219,7 @@ export class ScheduleService {
     return queue.filter((item) => item.remaining > 0);
   }
 
-  // Метод для поиска доступного преподавателя
+  // Поиск преподавателя
   private findAvailableTeacherForSubject(
     subject: string,
     teachersMap: any[],
@@ -339,7 +239,7 @@ export class ScheduleService {
     return null;
   }
 
-  // Метод для поиска доступного кабинета
+  // Поиск кабинета
   private findAvailableCabinetForTeacher(
     tid: number,
     cabinetLimits: any[],
@@ -350,28 +250,25 @@ export class ScheduleService {
     effectiveLoad: number,
     maxLoad: number,
   ): string | null {
-    // Получаем разрешенные кабинеты для преподавателя
     const allowedCabinets =
       cabinetLimits.find((limit) => limit.tid === tid)?.cabinets || [];
 
-    // Если для преподавателя не указаны кабинеты, используем общий список кабинетов
     const candidateCabinets =
       allowedCabinets.length > 0 ? allowedCabinets : cabinets;
 
-    // Проверяем каждый кандидатский кабинет на доступность
     for (const cabinet of candidateCabinets) {
       if (
         availability[effectiveLoad - 1] &&
         !this.isCabinetBusy(timetable, day, effectiveLoad, cabinet)
       ) {
-        return cabinet; // Возвращаем первый доступный кабинет
+        return cabinet;
       }
     }
 
-    return null; // Если ни один кабинет не доступен, возвращаем null
+    return null;
   }
 
-  // Метод для проверки занятости кабинета
+  // Проверка занятости кабинета
   private isCabinetBusy(
     timetable: Record<string, any[]>,
     day: string,
@@ -380,17 +277,16 @@ export class ScheduleService {
   ): boolean {
     const lessons = timetable[day] || [];
     return lessons.some((lesson) => {
-      if (Array.isArray(lesson)) {
-        return lesson.some(
-          (sublesson) =>
-            sublesson.cabinet === cabinet && sublesson.hour === effectiveLoad,
-        );
-      }
-      return lesson.cabinet === cabinet && lesson.hour === effectiveLoad;
+      return Array.isArray(lesson)
+        ? lesson.some(
+            (sublesson) =>
+              sublesson.cabinet === cabinet && sublesson.hour === effectiveLoad,
+          )
+        : lesson.cabinet === cabinet && lesson.hour === effectiveLoad;
     });
   }
 
-  // Метод для отметки преподавателя и кабинета как занятых
+  // Отмечаем занятость
   private markTeacherAndCabinetAsBusy(
     tid: number,
     cabinet: string,
@@ -402,7 +298,7 @@ export class ScheduleService {
     cabinetAvailability[hour] = false;
   }
 
-  // Метод для уменьшения лимита
+  // Уменьшение лимита
   private decrementAmountLimit(
     amountLimits: any[],
     group: string,
@@ -418,5 +314,63 @@ export class ScheduleService {
         `Лимит для группы ${group} и предмета ${subject} уже достиг нуля.`,
       );
     }
+  }
+
+  // Чередование занятий из двух недель
+  private interleaveSchedulesWithWeekType(upper: any[], lower: any[]): any[] {
+    const result = [];
+    const maxLength = Math.max(upper.length, lower.length);
+
+    for (let i = 0; i < maxLength; i++) {
+      if (upper[i]) result.push({ ...upper[i], weekType: 'upper' });
+      if (lower[i]) result.push({ ...lower[i], weekType: 'lower' });
+    }
+
+    return result;
+  }
+
+  // Генерация дат по дням недели
+  private generateDates(
+    startDateStr: string,
+    days: string[],
+  ): Record<string, string> {
+    const dayMap: Record<string, number> = {
+      Пн: 1,
+      Вт: 2,
+      Ср: 3,
+      Чт: 4,
+      Пт: 5,
+      Сб: 6,
+      Вс: 0,
+    };
+
+    const startDate = new Date(startDateStr);
+    const result: Record<string, string> = {};
+
+    for (const dayName of days) {
+      let targetDate = new Date(startDate);
+      let currentDay = targetDate.getDay();
+
+      let addDays = (dayMap[dayName] - currentDay + 7) % 7;
+      if (addDays === 0 && days.indexOf(dayName) !== 0) addDays += 7;
+
+      targetDate.setDate(targetDate.getDate() + addDays);
+
+      result[dayName] = targetDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    }
+
+    return result;
+  }
+
+  // Добавление дней к дате
+  private addDaysToDate(dateStr: string, daysToAdd: number): string {
+    const date = new Date(dateStr);
+    date.setDate(date.getDate() + daysToAdd);
+    return date.toISOString().split('T')[0];
+  }
+
+  // Глубокое копирование объекта
+  private deepCopy(obj: any): any {
+    return JSON.parse(JSON.stringify(obj));
   }
 }

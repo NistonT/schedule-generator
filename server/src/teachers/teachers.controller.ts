@@ -18,7 +18,7 @@ export class TeachersController {
   constructor(private readonly teachersService: TeachersService) {}
 
   @Post()
-  async add(
+  public async add(
     @Body('name') name: string,
     @Query('api-key') apiKey: string,
     @Query('schedule_id') scheduleId: string,
@@ -27,7 +27,7 @@ export class TeachersController {
   }
 
   @Get()
-  async get(
+  public async get(
     @Query('api-key') apiKey: string,
     @Query('schedule_id') scheduleId: string,
   ): Promise<Teacher[]> {
@@ -35,13 +35,13 @@ export class TeachersController {
   }
 
   @Get('/all')
-  async getAll(@Query('api-key') apiKey: string): Promise<Teacher[]> {
+  public async getAll(@Query('api-key') apiKey: string): Promise<Teacher[]> {
     return await this.teachersService.getAllTeachers(apiKey);
   }
 
   @UsePipes(new ValidationPipe())
   @Put()
-  async change(
+  public async change(
     @Body() dto: ChangeTeachersDto,
     @Query('api-key') apiKey: string,
   ): Promise<Teacher> {
@@ -50,7 +50,7 @@ export class TeachersController {
   }
 
   @Delete()
-  async delete(
+  public async delete(
     @Body('teacher_id') teacherId: number,
     @Query('api-key') apiKey: string,
   ): Promise<Teacher> {

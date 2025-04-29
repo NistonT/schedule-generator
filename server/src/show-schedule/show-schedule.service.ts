@@ -10,7 +10,7 @@ export class ShowScheduleService {
   ) {}
 
   // Переключение состояния расписания
-  async switch(apiKey: string, scheduleId: string) {
+  public async switch(apiKey: string, scheduleId: string) {
     if (!apiKey) {
       throw new BadRequestException('Ключ api не обнаружен');
     }

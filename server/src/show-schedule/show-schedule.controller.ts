@@ -7,7 +7,7 @@ export class ShowScheduleController {
 
   // Переключение состояния расписания
   @Post()
-  async switch(
+  public async switch(
     @Query('api-key') apiKey: string,
     @Query('schedule_id') scheduleId: string,
   ) {

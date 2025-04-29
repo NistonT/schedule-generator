@@ -10,7 +10,7 @@ export class DescriptionScheduleService {
   ) {}
 
   // Добавить описание
-  async add(text: string, apiKey: string, scheduleId: string) {
+  public async add(text: string, apiKey: string, scheduleId: string) {
     if (!text) {
       throw new BadRequestException('Вы не ввели описание');
     }
@@ -41,7 +41,7 @@ export class DescriptionScheduleService {
   }
 
   // Изменить описание
-  async put(text: string, apiKey: string, scheduleId: string) {
+  public async put(text: string, apiKey: string, scheduleId: string) {
     if (!text) {
       throw new BadRequestException('Вы не ввели описание');
     }
@@ -72,7 +72,7 @@ export class DescriptionScheduleService {
   }
 
   // Удалить описание
-  async delete(apiKey: string, scheduleId: string) {
+  public async delete(apiKey: string, scheduleId: string) {
     if (!apiKey) {
       throw new BadRequestException('Вы не ввели ключ api');
     }

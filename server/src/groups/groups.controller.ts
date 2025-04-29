@@ -18,7 +18,7 @@ export class GroupsController {
   constructor(private readonly groupsService: GroupsService) {}
 
   @Post()
-  async add(
+  public async add(
     @Body('name') name: string,
     @Query('api-key') apiKey: string,
     @Query('schedule_id') scheduleId: string,
@@ -27,7 +27,7 @@ export class GroupsController {
   }
 
   @Get()
-  async get(
+  public async get(
     @Query('api-key') apiKey: string,
     @Query('schedule_id') scheduleId: string,
   ): Promise<string[]> {
@@ -35,7 +35,7 @@ export class GroupsController {
   }
 
   @Get('/all')
-  async getAll(
+  public async getAll(
     @Query('api-key') apiKey: string,
   ): Promise<{ id: string; groups: string[] }[]> {
     return await this.groupsService.getAll(apiKey);
@@ -43,7 +43,7 @@ export class GroupsController {
 
   @UsePipes(new ValidationPipe())
   @Put()
-  async change(
+  public async change(
     @Body() dto: ChangeGroupsDto,
     @Query('api-key') apiKey: string,
     @Query('schedule_id') scheduleId: string,
@@ -58,7 +58,7 @@ export class GroupsController {
   }
 
   @Delete()
-  async delete(
+  public async delete(
     @Body('name') name: string,
     @Query('api-key') apiKey: string,
     @Query('schedule_id') scheduleId: string,
