@@ -24,9 +24,8 @@ model User {
 
   role String @default("USER")
 
-  CreatedAt DateTime  @default(now()) @map("created_at")
-  UpdatedAt DateTime  @updatedAt @map("updated_at")
-  Teacher   Teacher[]
+  CreatedAt DateTime @default(now()) @map("created_at")
+  UpdatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([api_key])
   @@map("user")
@@ -59,13 +58,9 @@ model Schedule {
   title       String @default("Расписание")
   description String @default("Описание")
 
-  cabinets      String[]
-  groups        String[]
-  teachers      Teacher[]
-  mapSubject    MapSubject[]
-  mapTeacher    MapTeacher[]
-  amountLimits  AmountLimits[]
-  limitCabinets LimitCabinets[]
+  cabinets String[]
+  groups   String[]
+  teachers Teacher[]
 
   isShow         Boolean? @default(true)
   schedule_count Int      @default(0)
@@ -74,6 +69,11 @@ model Schedule {
   CreatedAt DateTime @default(now()) @map("created_at")
   UpdatedAt DateTime @updatedAt @map("updated_at")
 
+  mapSubjects   MapSubject[]
+  mapTeachers   MapTeacher[]
+  amountLimits  AmountLimits[]
+  limitCabinets LimitCabinets[]
+
   @@map("schedule")
 }
 
@@ -81,75 +81,46 @@ model Teacher {
   tid      Int        @id @default(autoincrement())
   name     String
   schedule Schedule[]
-  User     User?      @relation(fields: [userId], references: [id])
-  userId   String?
 }
 
 model MapSubject {
   id         Int       @id @default(autoincrement())
   name_group String
   subjects   Subject[]
-
-  Schedule    Schedule? @relation(fields: [schedule_id], references: [id])
-  schedule_id String?
+  scheduleId String?
+  Schedule   Schedule? @relation(fields: [scheduleId], references: [id])
 }
 
 model Subject {
-  id   Int    @id @default(autoincrement())
-  name String
-
+  id            Int        @id @default(autoincrement())
+  name          String
   mapSubject    MapSubject @relation(fields: [mapSubject_id], references: [id])
   mapSubject_id Int
 }
 
 model MapTeacher {
-  id               Int                @id @default(autoincrement())
-  mapTeacherOption MapTeacherOption[]
-  Schedule         Schedule?          @relation(fields: [scheduleId], references: [id])
-  scheduleId       String?
-}
-
-model MapTeacherOption {
-  id            Int        @id @default(autoincrement())
-  mapTeacher    MapTeacher @relation(fields: [mapTeacher_id], references: [id])
-  mapTeacher_id Int
-
-  tid     Int
-  subject String
-  group   String
+  id         Int       @id @default(autoincrement())
+  tid        Int
+  subject    String
+  group      String
+  scheduleId String?
+  Schedule   Schedule? @relation(fields: [scheduleId], references: [id])
 }
 
 model AmountLimits {
-  id                   Int                   @id @default(autoincrement())
-  amountLimitsSubjects AmountLimitsSubject[]
-  Schedule             Schedule?             @relation(fields: [scheduleId], references: [id])
-  scheduleId           String?
-}
-
-model AmountLimitsSubject {
-  id              Int          @id @default(autoincrement())
-  amountLimits    AmountLimits @relation(fields: [amountLimits_id], references: [id])
-  amountLimits_id Int
-
+  id           Int       @id @default(autoincrement())
   group        String
   subject      String
   count        Int
   type_subject String
+  scheduleId   String?
+  Schedule     Schedule? @relation(fields: [scheduleId], references: [id])
 }
 
 model LimitCabinets {
-  id                    Int                    @id @default(autoincrement())
-  limitCabinetsTeachers LimitCabinetsTeacher[]
-  Schedule              Schedule?              @relation(fields: [scheduleId], references: [id])
-  scheduleId            String?
-}
-
-model LimitCabinetsTeacher {
-  id Int @id @default(autoincrement())
-
-  limitCabinets   LimitCabinets @relation(fields: [limitCabinet_id], references: [id])
-  limitCabinet_id Int
-
-  tid      Int
-  cabinets String[]
+  id         Int       @id @default(autoincrement())
+  tid        Int
+  cabinets   String[]
+  scheduleId String?
+  Schedule   Schedule? @relation(fields: [scheduleId], references: [id])
 }

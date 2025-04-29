@@ -32,8 +32,6 @@ export class ScheduleService {
         cabinets: [],
         groups: [],
         teachers: { create: [] },
-        mapSubject: { create: [] },
-        mapTeacher: { create: [] },
         amountLimits: { create: [] },
         limitCabinets: { create: [] },
         isShow: true,
