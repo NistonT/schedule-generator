@@ -59,7 +59,7 @@ export const Header = () => {
 			}}
 			className='fixed w-full z-30 '
 		>
-			<div className='container mx-auto px-4 sm:px-6 lg:px-8'>
+			<div className='mx-auto px-4 sm:px-6 lg:px-8'>
 				<div className='flex flex-col md:flex-row items-center justify-between py-3 md:py-4'>
 					<m.div
 						initial={{ opacity: 0 }}

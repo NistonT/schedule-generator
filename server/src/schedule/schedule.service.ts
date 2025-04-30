@@ -13,7 +13,10 @@ export class ScheduleService {
     private userService: UserService,
   ) {}
 
-  async addGeneratedSchedulePrisma(api_key: string, data: any): Promise<any> {
+  public async addGeneratedSchedulePrisma(
+    api_key: string,
+    data: any,
+  ): Promise<any> {
     if (!api_key || api_key.trim() === '') {
       throw new Error('API key is required and must not be empty');
     }

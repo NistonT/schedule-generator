@@ -18,13 +18,13 @@ export const navigationMainPage: INavigationMainPage[] = [
 		icon: <LogIn />,
 	},
 	{
-		href: DASHBOARD_PAGES.DOCUMENTATION,
-		title: "Документация",
-		icon: <Book />,
-	},
-	{
 		href: DASHBOARD_PAGES.REGISTRATION,
 		title: "Регистрация",
 		icon: <UserPlus />,
+	},
+	{
+		href: DASHBOARD_PAGES.DOCUMENTATION,
+		title: "Документация",
+		icon: <Book />,
 	},
 ];
