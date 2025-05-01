@@ -13,6 +13,8 @@ import { FeedbackModule } from './feedback/feedback.module';
 import { TeachersModule } from './teachers/teachers.module';
 import { TitleScheduleModule } from './title-schedule/title-schedule.module';
 import { UserModule } from './user/user.module';
+import { MapSubjectModule } from './map-subject/map-subject.module';
+import { SubjectModule } from './subject/subject.module';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { UserModule } from './user/user.module';
     DescriptionScheduleModule,
     ShowScheduleModule,
     FeedbackModule,
+    MapSubjectModule,
+    SubjectModule,
   ],
 })
 export class AppModule {}
