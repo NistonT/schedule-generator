@@ -34,6 +34,7 @@ export class ScheduleService {
         user_id: user.id,
         cabinets: [],
         groups: [],
+        mapSubjects: { create: [] },
         teachers: { create: [] },
         amountLimits: { create: [] },
         limitCabinets: { create: [] },

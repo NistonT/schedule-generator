@@ -1,8 +1,19 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
+import { ScheduleDefaultService } from './schedule.default.service';
 
 @Injectable()
 export class ScheduleTwoWeekService {
-  constructor() {}
+  constructor(
+    private prisma: PrismaService,
+    private scheduleService: ScheduleDefaultService,
+  ) {}
+
+  public async create() {}
+
+  public async updated() {}
+
+  public async delete() {}
 
   async generateMainTwoWeekSchedule(
     data: any,

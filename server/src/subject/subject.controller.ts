@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -17,7 +18,8 @@ export class SubjectController {
 
   @UsePipes(new ValidationPipe())
   @Post()
-  public async add(dto: AddSubjectDto): Promise<Subject> {
+  public async add(@Body() dto: AddSubjectDto): Promise<Subject> {
+    console.log(dto);
     return await this.subjectService.add(dto);
   }
 
@@ -26,9 +28,11 @@ export class SubjectController {
     return await this.subjectService.getId(id);
   }
 
-  @Get()
-  public async getAll(): Promise<Subject[]> {
-    return await this.subjectService.getAll();
+  @Get('all')
+  public async getAll(
+    @Query('mapSubject_id') mapSubjectId: number,
+  ): Promise<Subject[]> {
+    return await this.subjectService.getAll(mapSubjectId);
   }
 
   @Delete()
