@@ -12,6 +12,7 @@ import {
 import { ScheduleDefaultService } from './schedule.default.service';
 import { ScheduleService } from './schedule.service';
 import { ScheduleAiService } from './scheduleAi.service';
+import { ScheduleTwoWeekService } from './scheduleTwoWeek.service';
 
 @Controller('schedule')
 export class ScheduleController {
@@ -19,6 +20,7 @@ export class ScheduleController {
     private readonly scheduleService: ScheduleService,
     private readonly scheduleAiService: ScheduleAiService,
     private readonly scheduleDefaultService: ScheduleDefaultService,
+    private readonly scheduleTwoWeekService: ScheduleTwoWeekService,
   ) {}
 
   // Генерирование расписание по url:

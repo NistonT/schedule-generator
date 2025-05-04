@@ -31,10 +31,11 @@ export class ScheduleService {
     return await this.prisma.schedule.create({
       data: {
         schedule: schedule_json,
+        scheduleMain: { create: [] },
+        failed: { create: [] },
         user_id: user.id,
         cabinets: [],
         groups: [],
-        mapSubjects: { create: [] },
         teachers: { create: [] },
         amountLimits: { create: [] },
         limitCabinets: { create: [] },
