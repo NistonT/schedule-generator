@@ -27,9 +27,11 @@ export class MapSubjectController {
     return await this.mapSubjectService.getId(id);
   }
 
-  @Get()
-  public async getAll(): Promise<MapSubject[]> {
-    return await this.mapSubjectService.getAll();
+  @Get('all')
+  public async getAll(
+    @Query('schedule_id') scheduleId: string,
+  ): Promise<MapSubject[]> {
+    return await this.mapSubjectService.getAll(scheduleId);
   }
 
   @Delete()

@@ -26,15 +26,17 @@ export class MapSubjectService {
 
     const getIdMapSubject = await this.prisma.mapSubject.findUnique({
       where: {
-        id,
+        id: Number(id),
       },
     });
 
     return getIdMapSubject;
   }
 
-  public async getAll(): Promise<MapSubject[]> {
-    const getAllMapSubject = await this.prisma.mapSubject.findMany();
+  public async getAll(scheduleId: string): Promise<MapSubject[]> {
+    const getAllMapSubject = await this.prisma.mapSubject.findMany({
+      where: { scheduleId: scheduleId },
+    });
 
     return getAllMapSubject;
   }
@@ -42,7 +44,7 @@ export class MapSubjectService {
   public async delete(id: number): Promise<MapSubject> {
     const deleteMapSubject = await this.prisma.mapSubject.delete({
       where: {
-        id,
+        id: Number(id),
       },
     });
 

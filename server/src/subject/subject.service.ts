@@ -8,6 +8,8 @@ export class SubjectService {
   constructor(readonly prisma: PrismaService) {}
 
   public async add(dto: AddSubjectDto): Promise<Subject> {
+    console.log(dto);
+
     const addSubject = await this.prisma.subject.create({
       data: {
         name: dto.name,
@@ -21,15 +23,19 @@ export class SubjectService {
   public async getId(id: number): Promise<Subject> {
     const getIdSubject = await this.prisma.subject.findUnique({
       where: {
-        id,
+        id: Number(id),
       },
     });
 
     return getIdSubject;
   }
 
-  public async getAll(): Promise<Subject[]> {
-    const getAllSubject = await this.prisma.subject.findMany();
+  public async getAll(mapSubjectId: number): Promise<Subject[]> {
+    const getAllSubject = await this.prisma.subject.findMany({
+      where: {
+        mapSubject_id: Number(mapSubjectId),
+      },
+    });
 
     return getAllSubject;
   }
@@ -37,7 +43,7 @@ export class SubjectService {
   public async delete(id: number): Promise<Subject> {
     const deleteSubject = await this.prisma.subject.delete({
       where: {
-        id,
+        id: Number(id),
       },
     });
 

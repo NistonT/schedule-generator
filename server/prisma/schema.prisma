@@ -65,7 +65,10 @@ model Schedule {
   isShow         Boolean? @default(true)
   schedule_count Int      @default(0)
 
-  schedule  Json     @map("schedule_json")
+  schedule     Json? @map("schedule_json")
+  scheduleMain Json? @map("schedule_main")
+  failed       Json? @map("failed")
+
   CreatedAt DateTime @default(now()) @map("created_at")
   UpdatedAt DateTime @updatedAt @map("updated_at")
 

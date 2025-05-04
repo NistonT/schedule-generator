@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
+import { ScheduleDefaultService } from './schedule.default.service';
 
 @Injectable()
 export class ScheduleTwoWeekService {
-  constructor() {}
+  constructor(
+    private prisma: PrismaService,
+    private scheduleService: ScheduleDefaultService,
+  ) {}
 
-  async generateMainTwoWeekSchedule(
-    data: any,
-    upperStartDate: string,
-  ): Promise<any> {
+  // Основной метод генерации двухнедельного расписания
+  public async generateMainTwoWeekSchedule(data: any): Promise<any> {
+    const upperStartDate = this.getNextMonday(); // Автоматически определяем дату
     const lowerStartDate = this.addDaysToDate(upperStartDate, 7);
 
     const upperData = JSON.parse(JSON.stringify(data));
@@ -18,7 +22,9 @@ export class ScheduleTwoWeekService {
       'upper',
       upperStartDate,
     );
+
     lowerData.amountLimits = this.deepCopy(upperResult.remainingAmountLimits);
+
     const lowerResult = await this.generateOneWeekSchedule(
       lowerData,
       'lower',
@@ -40,7 +46,7 @@ export class ScheduleTwoWeekService {
     };
   }
 
-  // Генерация одной недели по начальной дате
+  // Метод генерации одной недели по начальной дате
   private async generateOneWeekSchedule(
     data: any,
     weekType: 'upper' | 'lower',
@@ -174,21 +180,24 @@ export class ScheduleTwoWeekService {
       }
     }
 
+    // Формируем плоский список всех занятий с общим уникальным ID
+    let globalLessonId = 1;
     const flatSchedule = Object.entries(groupTimetables).flatMap(
       ([group, timetable]) =>
         Object.entries(timetable).flatMap(([dayName, lessonsPerDay]) =>
-          lessonsPerDay.map((lessonBlock, index) => {
+          lessonsPerDay.map((lessonBlock, dayIndex) => {
             const lessons = Array.isArray(lessonBlock)
               ? lessonBlock
               : [lessonBlock];
             return lessons.map((lesson) => ({
+              id: globalLessonId++,
               group,
               date: dateMapping[dayName],
               cabinet: lesson.cabinet,
               subject: lesson.subject,
               teacher: lesson.teacher,
               lessonType: lesson.lessonType,
-              lesson: index + 1,
+              lesson: dayIndex + 1,
             }));
           }),
         ),
@@ -219,7 +228,7 @@ export class ScheduleTwoWeekService {
     return queue.filter((item) => item.remaining > 0);
   }
 
-  // Поиск преподавателя
+  // Поиск доступного преподавателя
   private findAvailableTeacherForSubject(
     subject: string,
     teachersMap: any[],
@@ -239,7 +248,7 @@ export class ScheduleTwoWeekService {
     return null;
   }
 
-  // Поиск кабинета
+  // Поиск доступного кабинета
   private findAvailableCabinetForTeacher(
     tid: number,
     cabinetLimits: any[],
@@ -252,7 +261,6 @@ export class ScheduleTwoWeekService {
   ): string | null {
     const allowedCabinets =
       cabinetLimits.find((limit) => limit.tid === tid)?.cabinets || [];
-
     const candidateCabinets =
       allowedCabinets.length > 0 ? allowedCabinets : cabinets;
 
@@ -264,7 +272,6 @@ export class ScheduleTwoWeekService {
         return cabinet;
       }
     }
-
     return null;
   }
 
@@ -286,7 +293,7 @@ export class ScheduleTwoWeekService {
     });
   }
 
-  // Отмечаем занятость
+  // Отмечаем преподавателя и кабинет как занятые
   private markTeacherAndCabinetAsBusy(
     tid: number,
     cabinet: string,
@@ -298,7 +305,7 @@ export class ScheduleTwoWeekService {
     cabinetAvailability[hour] = false;
   }
 
-  // Уменьшение лимита
+  // Уменьшаем лимит занятий
   private decrementAmountLimit(
     amountLimits: any[],
     group: string,
@@ -316,16 +323,14 @@ export class ScheduleTwoWeekService {
     }
   }
 
-  // Чередование занятий из двух недель
+  // Чередуем пары из двух недель
   private interleaveSchedulesWithWeekType(upper: any[], lower: any[]): any[] {
     const result = [];
     const maxLength = Math.max(upper.length, lower.length);
-
     for (let i = 0; i < maxLength; i++) {
       if (upper[i]) result.push({ ...upper[i], weekType: 'upper' });
       if (lower[i]) result.push({ ...lower[i], weekType: 'lower' });
     }
-
     return result;
   }
 
@@ -350,26 +355,42 @@ export class ScheduleTwoWeekService {
     for (const dayName of days) {
       let targetDate = new Date(startDate);
       let currentDay = targetDate.getDay();
-
       let addDays = (dayMap[dayName] - currentDay + 7) % 7;
       if (addDays === 0 && days.indexOf(dayName) !== 0) addDays += 7;
 
       targetDate.setDate(targetDate.getDate() + addDays);
-
       result[dayName] = targetDate.toISOString().split('T')[0]; // YYYY-MM-DD
     }
 
     return result;
   }
 
-  // Добавление дней к дате
+  // Получить следующий понедельник
+  private getNextMonday(): string {
+    const today = new Date();
+    const day = today.getDay();
+    const diff = (day === 0 ? -6 : 1) - day;
+    const nextMonday = new Date(today);
+    nextMonday.setDate(today.getDate() + diff);
+    return this.getFormattedDate(nextMonday);
+  }
+
+  // Форматировать дату как YYYY-MM-DD
+  private getFormattedDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // Прибавить дни к дате
   private addDaysToDate(dateStr: string, daysToAdd: number): string {
     const date = new Date(dateStr);
     date.setDate(date.getDate() + daysToAdd);
-    return date.toISOString().split('T')[0];
+    return this.getFormattedDate(date);
   }
 
-  // Глубокое копирование объекта
+  // Глубокое копирование
   private deepCopy(obj: any): any {
     return JSON.parse(JSON.stringify(obj));
   }
