@@ -1,5 +1,10 @@
 import { axiosClassic } from "@/api/interceptors";
-import { IAuthForm, IAuthResponse, IRegForm } from "@/types/auth.types";
+import { AxiosResponse } from "axios";
+import {
+	IAuthorizationForm,
+	IAuthorizationResponse,
+	IRegistrationRequest,
+} from "../types/auth.type";
 import { removeFromStorage, saveTokenStorage } from "./auth-token.service";
 
 export enum EnumTokens {
@@ -8,8 +13,10 @@ export enum EnumTokens {
 }
 
 export const authService = {
-	async loginMain(data: IAuthForm) {
-		const response = await axiosClassic.post<IAuthResponse>(
+	async loginMain(
+		data: IAuthorizationForm
+	): Promise<AxiosResponse<IAuthorizationResponse>> {
+		const response = await axiosClassic.post<IAuthorizationResponse>(
 			`/auth/login`,
 			data
 		);
@@ -19,8 +26,10 @@ export const authService = {
 		return response;
 	},
 
-	async registerMain(data: IRegForm) {
-		const response = await axiosClassic.post<IAuthResponse>(
+	async registerMain(
+		data: IRegistrationRequest
+	): Promise<AxiosResponse<IAuthorizationResponse>> {
+		const response = await axiosClassic.post<IAuthorizationResponse>(
 			`/auth/register`,
 			data
 		);
@@ -28,8 +37,8 @@ export const authService = {
 		return response;
 	},
 
-	async getNewTokens() {
-		const response = await axiosClassic.post<IAuthResponse>(
+	async getNewTokens(): Promise<AxiosResponse<IAuthorizationResponse>> {
+		const response = await axiosClassic.post<IAuthorizationResponse>(
 			`/auth/login/access-token`
 		);
 
@@ -38,7 +47,7 @@ export const authService = {
 		return response;
 	},
 
-	async logout() {
+	async logout(): Promise<AxiosResponse<boolean>> {
 		const response = await axiosClassic.post<boolean>("auth/logout");
 
 		if (response.data) removeFromStorage();

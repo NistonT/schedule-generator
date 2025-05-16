@@ -1,4 +1,4 @@
-import { IUser } from "@/types/auth.types";
+import { IUser } from "@/types/auth.type";
 import { IdCard, Settings } from "lucide-react";
 
 type Props = {

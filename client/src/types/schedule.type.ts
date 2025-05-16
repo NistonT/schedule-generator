@@ -1,51 +1,47 @@
-export interface Lesson {
+import { IAmountLimits } from "./amountLimits.type";
+import { ILimitCabinets } from "./IlimitCabinets.type";
+import { IMapSubject } from "./mapSubject.type";
+import { IMapTeacher } from "./mapTeacher.type";
+import { IUser } from "./user.type";
+
+export interface ILesson {
+	id: number;
+	date: string;
 	group: string;
+	lesson: number;
 	cabinet: string;
 	subject: string;
 	teacher: string;
 	lessonType: string;
 }
 
-export type DaySchedule = Lesson[];
-export interface GroupSchedule {
-	[day: string]: DaySchedule;
-}
-export interface GroupTimetables {
-	[group: string]: GroupSchedule;
-}
-
-export interface IScheduleGetList {
-	CreatedAt: string;
-	UpdatedAt: string;
-	cabinets: string[];
-	groups: string[];
-	id: string;
-
-	title?: string;
-	description?: string;
-	isShow: boolean;
-
-	schedule: {
-		groupTimetables: GroupTimetables[];
-		failedAllocations: any;
-	};
-	teachers: TypeTeachers[];
-}
-
 export interface ISchedule {
 	id: string;
+	user: IUser;
+	user_id: string;
 
-	title?: string;
-	description?: string;
-	isShow: boolean;
+	title: string;
+	description: string;
 
 	cabinets: string[];
 	groups: string[];
-	schedule: {
-		groupTimetables: GroupTimetables[];
-		failedAllocations: any;
-	};
 	teachers: TypeTeachers[];
+
+	isShow?: boolean;
+	schedule_count: number;
+
+	schedule: {
+		schedule: ILesson[];
+		failedAllocations: [];
+	} | null;
+	scheduleMain: {} | null;
+	failed: {} | null;
+
+	mapSubjects: IMapSubject[];
+	mapTeachers: IMapTeacher[];
+	amountLimits: IAmountLimits[];
+	limitCabinets: ILimitCabinets[];
+
 	CreatedAt: string;
 	UpdatedAt: string;
 }
@@ -69,6 +65,7 @@ export interface IMessageHandleAdd {
 export type TypeTeachers = {
 	tid: number;
 	name: string;
+	schedule: ISchedule;
 };
 
 export type TypeTeachersMap = {

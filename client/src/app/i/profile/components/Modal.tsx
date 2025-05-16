@@ -20,7 +20,7 @@ import {
 	teachersAtom,
 	teachersMapAtom,
 } from "@/jotai/schedule";
-import { TypeScheduleForm } from "@/types/schedule.types";
+import { TypeScheduleForm } from "@/types/schedule.type";
 import { useAtom, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { toast } from "sonner";

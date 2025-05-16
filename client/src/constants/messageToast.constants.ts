@@ -1,4 +1,4 @@
-import { IMessageHandleAdd } from "@/types/schedule.types";
+import { IMessageHandleAdd } from "@/types/schedule.type";
 
 export const messageCabinets: IMessageHandleAdd = {
 	messageAdd: "Кабинет добавлен",

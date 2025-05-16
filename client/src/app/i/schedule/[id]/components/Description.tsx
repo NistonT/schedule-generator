@@ -1,6 +1,6 @@
 import { descriptionScheduleService } from "@/services/description-schedule.service";
-import { IUser } from "@/types/auth.types";
-import { ISchedule } from "@/types/schedule.types";
+import { IUser } from "@/types/auth.type";
+import { ISchedule } from "@/types/schedule.type";
 import { useMutation } from "@tanstack/react-query";
 import { Check, Edit, X } from "lucide-react";
 import { m } from "motion/react";

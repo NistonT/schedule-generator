@@ -2,7 +2,7 @@
 import { messageGroups } from "@/constants/messageToast.constants";
 import { useHandleAddCommon } from "@/hook/useHandleAddCommon";
 import { currentScheduleAtom, groupsAtom } from "@/jotai/schedule";
-import { IScheduleGetList } from "@/types/schedule.types";
+import { IScheduleGetList } from "@/types/schedule.type";
 import { useAtom, useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { ButtonGeneration } from "../ui/buttons/ButtonGeneration";

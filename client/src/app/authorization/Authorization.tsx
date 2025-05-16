@@ -7,7 +7,7 @@ import { Field } from "@/components/ui/fields/Field";
 import { Title } from "@/components/ui/headers/Title";
 import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { authService } from "@/services/auth.service";
-import { IAuthForm } from "@/types/auth.types";
+import { IAuthForm } from "@/types/auth.type";
 import { useMutation } from "@tanstack/react-query";
 import { Lock, LogIn, User, UserPlus } from "lucide-react";
 import { m } from "motion/react";

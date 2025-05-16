@@ -1,4 +1,4 @@
-import { TypeTeachers } from "@/types/schedule.types";
+import { TypeTeachers } from "@/types/schedule.type";
 import { User } from "lucide-react";
 import { m } from "motion/react";
 

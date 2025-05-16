@@ -4,7 +4,7 @@ import {
 	cabinetsAtom,
 	teachersAtom,
 } from "@/jotai/schedule";
-import { TypeCabinetLimits, TypeTeachers } from "@/types/schedule.types";
+import { TypeCabinetLimits, TypeTeachers } from "@/types/schedule.type";
 import { useAtom } from "jotai";
 import { useState } from "react";
 import { toast } from "sonner";

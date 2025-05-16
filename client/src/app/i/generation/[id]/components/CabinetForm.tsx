@@ -1,8 +1,8 @@
 import { cabinetsAtom } from "@/jotai/schedule";
 import { cabinetService } from "@/services/cabinets.service";
-import { IUser } from "@/types/auth.types";
-import { IAddCabinet } from "@/types/cabinet.types";
-import { ISchedule } from "@/types/schedule.types";
+import { IUser } from "@/types/auth.type";
+import { IAddCabinet } from "@/types/cabinet.type";
+import { ISchedule } from "@/types/schedule.type";
 import { useMutation } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { SubmitHandler, useForm } from "react-hook-form";

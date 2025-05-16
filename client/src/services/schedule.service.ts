@@ -1,9 +1,5 @@
 import { axiosWithAuto } from "@/api/interceptors";
-import {
-	ISchedule,
-	IScheduleGetList,
-	TypeScheduleForm,
-} from "@/types/schedule.types";
+import { ISchedule, TypeScheduleForm } from "@/types/schedule.type";
 import { AxiosResponse } from "axios";
 class ScheduleService {
 	private BASE_URL = "/schedule";
@@ -11,8 +7,12 @@ class ScheduleService {
 	private SCHEDULE_ID = `&schedule_id=`;
 
 	// Генерировать определенное расписание
-	async schedule(data: TypeScheduleForm, api: string, scheduleId: string) {
-		const response = await axiosWithAuto.post(
+	async schedule(
+		data: TypeScheduleForm,
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.post<ISchedule>(
 			`${this.BASE_URL}/generate${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			data
 		);
@@ -24,8 +24,8 @@ class ScheduleService {
 	async createSchedule(
 		api: string,
 		data: TypeScheduleForm
-	): Promise<AxiosResponse<IScheduleGetList>> {
-		const response = await axiosWithAuto.post(
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.post<ISchedule>(
 			`${this.BASE_URL}/create${this.API_QUERY}${api}`,
 			data
 		);
@@ -34,10 +34,8 @@ class ScheduleService {
 	}
 
 	// Показать все расписании
-	async getAllSchedule(
-		api: string
-	): Promise<AxiosResponse<IScheduleGetList[] | null>> {
-		const response = await axiosWithAuto.get(
+	async getAllSchedule(api: string): Promise<AxiosResponse<ISchedule[]>> {
+		const response = await axiosWithAuto.get<ISchedule[]>(
 			`${this.BASE_URL}/all${this.API_QUERY}${api}`
 		);
 		return response;
@@ -47,8 +45,8 @@ class ScheduleService {
 	async getSchedule(
 		api: string,
 		scheduleId: string
-	): Promise<AxiosResponse<ISchedule | null>> {
-		const response = await axiosWithAuto.get(
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.get<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`
 		);
 		return response;
@@ -57,20 +55,16 @@ class ScheduleService {
 	// default service
 
 	// Получить все расписание
-	async getAllUsersSchedule(
-		api: string
-	): Promise<AxiosResponse<ISchedule[] | null>> {
-		const response = await axiosWithAuto.get(
+	async getAllUsersSchedule(api: string): Promise<AxiosResponse<ISchedule[]>> {
+		const response = await axiosWithAuto.get<ISchedule[]>(
 			`${this.BASE_URL}/users/all${this.API_QUERY}${api}`
 		);
 		return response;
 	}
 
 	// Получить последние расписание
-	async getLatestSchedule(
-		api: string
-	): Promise<AxiosResponse<ISchedule | null>> {
-		const response = await axiosWithAuto.get(
+	async getLatestSchedule(api: string): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.get<ISchedule>(
 			`${this.BASE_URL}/latest${this.API_QUERY}${api}`
 		);
 
@@ -79,8 +73,11 @@ class ScheduleService {
 
 	// Удаление расписания
 
-	async deleteSchedule(api: string, scheduleId: string) {
-		const response = await axiosWithAuto.delete(
+	async deleteSchedule(
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.delete<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`
 		);
 

@@ -1,4 +1,4 @@
-import { IRegisterForm } from "@/types/auth.types";
+import { IRegisterForm } from "@/types/auth.type";
 import { ReactNode, useState } from "react";
 import { UseFormRegister } from "react-hook-form";
 import { PasswordIsSee } from "./PasswordIsSee";

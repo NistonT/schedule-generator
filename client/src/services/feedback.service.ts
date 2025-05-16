@@ -2,9 +2,9 @@ import { axiosWithAuto } from "@/api/interceptors";
 import {
 	IAddFeedback,
 	IAdminFeedback,
-	IChangeFeedback,
 	IFeedback,
-} from "@/types/feedback.types";
+	IUpdateFeedback,
+} from "@/types/feedback.type";
 import { AxiosResponse } from "axios";
 
 class FeedbackService {
@@ -13,8 +13,11 @@ class FeedbackService {
 	private FEEDBACK_QUERY = "?feedback_id=";
 
 	// Добавление записи
-	async addFeedback(data: IAddFeedback, user_id: string) {
-		const response = await axiosWithAuto.post(
+	async addFeedback(
+		data: IAddFeedback,
+		user_id: string
+	): Promise<AxiosResponse<IFeedback>> {
+		const response = await axiosWithAuto.post<IFeedback>(
 			`${this.BASE_URL}${this.USER_QUERY}${user_id}`,
 			data
 		);
@@ -23,8 +26,11 @@ class FeedbackService {
 	}
 
 	// Ответ на запись
-	async adminFeedback(data: IAdminFeedback, feedback_id: string) {
-		const response = await axiosWithAuto.post(
+	async adminFeedback(
+		data: IAdminFeedback,
+		feedback_id: string
+	): Promise<AxiosResponse<IFeedback>> {
+		const response = await axiosWithAuto.post<IFeedback>(
 			`${this.BASE_URL}/admin${this.FEEDBACK_QUERY}${feedback_id}`,
 			data
 		);
@@ -34,7 +40,7 @@ class FeedbackService {
 
 	// Получение одной записи
 	async getIdFeedback(feedback_id: string): Promise<AxiosResponse<IFeedback>> {
-		const response = await axiosWithAuto.get(
+		const response = await axiosWithAuto.get<IFeedback>(
 			`${this.BASE_URL}/id${this.FEEDBACK_QUERY}${feedback_id}`
 		);
 
@@ -43,7 +49,7 @@ class FeedbackService {
 
 	// Получение всех записей пользователей
 	async getUserFeedback(user_id: string): Promise<AxiosResponse<IFeedback[]>> {
-		const response = await axiosWithAuto.get(
+		const response = await axiosWithAuto.get<IFeedback[]>(
 			`${this.BASE_URL}${this.USER_QUERY}${user_id}`
 		);
 
@@ -52,14 +58,19 @@ class FeedbackService {
 
 	// Получение все записей
 	async getAllUserFeedback(): Promise<AxiosResponse<IFeedback[]>> {
-		const response = await axiosWithAuto.get(`${this.BASE_URL}/all`);
+		const response = await axiosWithAuto.get<IFeedback[]>(
+			`${this.BASE_URL}/all`
+		);
 
 		return response;
 	}
 
 	// Изменить запись
-	async putFeedback(data: IChangeFeedback, feedback_id: string) {
-		const response = await axiosWithAuto.put(
+	async putFeedback(
+		data: IUpdateFeedback,
+		feedback_id: string
+	): Promise<AxiosResponse<IFeedback>> {
+		const response = await axiosWithAuto.put<IFeedback>(
 			`${this.BASE_URL}${this.FEEDBACK_QUERY}${feedback_id}`,
 			data
 		);
@@ -68,8 +79,8 @@ class FeedbackService {
 	}
 
 	// Удалить запись
-	async deleteFeedback(feedback_id: string) {
-		const response = await axiosWithAuto.delete(
+	async deleteFeedback(feedback_id: string): Promise<AxiosResponse<IFeedback>> {
+		const response = await axiosWithAuto.delete<IFeedback>(
 			`${this.BASE_URL}${this.FEEDBACK_QUERY}${feedback_id}`
 		);
 

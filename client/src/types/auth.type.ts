@@ -1,4 +1,6 @@
-export interface IAuthForm {
+import { IUser } from "./user.type";
+
+export interface IAuthorizationForm {
 	username: string;
 	password: string;
 }
@@ -15,13 +17,13 @@ export interface IPassword {
 	password: string;
 }
 
-export interface IRegForm {
+export interface IRegistrationRequest {
 	username: string;
 	email: string;
 	password: string;
 }
 
-export interface IRegisterForm {
+export interface IRegistrationForm {
 	username: string;
 	email: string;
 	password: string;
@@ -29,26 +31,7 @@ export interface IRegisterForm {
 	isConfirm: string;
 }
 
-export interface IUser {
-	id: string;
-	username: string;
-	email: string;
-	password: string;
-	schedule_id: null;
-	role: string;
-	feedback: null;
-	api_key: string;
-	CreatedAt: string;
-	UpdatedAt: string;
-}
-
-export interface IAuthResponse {
-	id: string;
-	username: string;
-	email: string;
-	schedule_id: null;
-	api_key: string;
-	CreatedAt: string;
-	UpdatedAt: string;
+export interface IAuthorizationResponse {
 	accessToken: string;
+	user: IUser;
 }

@@ -1,7 +1,7 @@
 "use client";
 import { useProfile } from "@/hook/useProfile";
 import { feedbackService } from "@/services/feedback.service";
-import { IAddFeedback } from "@/types/feedback.types";
+import { IAddFeedback } from "@/types/feedback.type";
 import { useMutation } from "@tanstack/react-query";
 import { Mail } from "lucide-react";
 import { m } from "motion/react";

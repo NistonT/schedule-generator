@@ -1,4 +1,4 @@
-import { DaySchedule } from "@/types/schedule.types";
+import { DaySchedule } from "@/types/schedule.type";
 import { BookOpen, Divide, MapPin, User, Users } from "lucide-react";
 import { m } from "motion/react";
 

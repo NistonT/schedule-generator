@@ -6,7 +6,7 @@ import {
 	TypeScheduleForm,
 	TypeTeachers,
 	TypeTeachersMap,
-} from "@/types/schedule.types";
+} from "@/types/schedule.type";
 import { atom } from "jotai";
 
 export const cabinetsAtom = atom<string[]>([]);

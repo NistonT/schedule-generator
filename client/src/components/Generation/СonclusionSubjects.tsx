@@ -1,4 +1,4 @@
-import { CombinedRecord } from "@/types/schedule.types";
+import { CombinedRecord } from "@/types/schedule.type";
 
 type Props = {
 	combinedRecords: CombinedRecord[];

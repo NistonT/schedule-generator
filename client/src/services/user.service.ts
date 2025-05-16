@@ -1,30 +1,34 @@
 import { axiosWithAuto } from "@/api/interceptors";
-import { IPassword, IUser, TypeUserForm } from "@/types/auth.types";
-import { GitHubUser } from "@/types/git.types";
-import axios from "axios";
+import { IPassword, TypeUserForm } from "@/types/auth.type";
+import { IGitHubUser } from "@/types/git.type";
+import { IUser } from "@/types/user.type";
+import axios, { AxiosResponse } from "axios";
 
 class UserService {
 	private BASE_URL = "/user";
 
-	async getUserId() {
+	async getUserId(): Promise<AxiosResponse<IUser>> {
 		const response = await axiosWithAuto.get<IUser>(`${this.BASE_URL}/user_id`);
 		return response;
 	}
 
 	// useProfile>useQuery
 
-	async update(data: TypeUserForm) {
-		const response = await axiosWithAuto.put(`${this.BASE_URL}/update`, data);
+	async update(data: TypeUserForm): Promise<AxiosResponse<IUser>> {
+		const response = await axiosWithAuto.put<IUser>(
+			`${this.BASE_URL}/update`,
+			data
+		);
 		return response;
 	}
 
-	async updateApi() {
-		const response = await axiosWithAuto.put(`${this.BASE_URL}/api_key`);
+	async updateApi(): Promise<AxiosResponse<IUser>> {
+		const response = await axiosWithAuto.put<IUser>(`${this.BASE_URL}/api_key`);
 		return response;
 	}
 
 	async check(password: IPassword): Promise<boolean> {
-		const response = await axiosWithAuto.post(
+		const response = await axiosWithAuto.post<boolean>(
 			`${this.BASE_URL}/check`,
 			password
 		);
@@ -33,17 +37,12 @@ class UserService {
 		return response.data;
 	}
 
-	async gitHub(): Promise<GitHubUser | null> {
-		try {
-			const response = await axios.get<GitHubUser>(
-				`https://api.github.com/users/NistonT`
-			);
+	async gitHub(): Promise<AxiosResponse<IGitHubUser>> {
+		const response = await axios.get<IGitHubUser>(
+			`https://api.github.com/users/NistonT`
+		);
 
-			return response.data;
-		} catch (error) {
-			console.log(error);
-			return null;
-		}
+		return response;
 	}
 }
 

@@ -1,4 +1,4 @@
-import { ISchedule } from "@/types/schedule.types";
+import { ISchedule } from "@/types/schedule.type";
 import { LessonSchedule } from "./components/LessonSchedule";
 
 type Props = {

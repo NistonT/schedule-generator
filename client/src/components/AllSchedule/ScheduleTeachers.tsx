@@ -1,4 +1,4 @@
-import { TypeTeachers } from "@/types/schedule.types";
+import { TypeTeachers } from "@/types/schedule.type";
 
 type Props = {
 	teachers: TypeTeachers[];

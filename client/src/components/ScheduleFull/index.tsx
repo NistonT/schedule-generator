@@ -1,4 +1,4 @@
-import { IScheduleGetList } from "@/types/schedule.types";
+import { IScheduleGetList } from "@/types/schedule.type";
 import { m } from "motion/react";
 import { CabinetSchedule } from "./components/CabinetSchedule";
 import { GroupSchedule } from "./components/GroupSchedule";

@@ -13,6 +13,7 @@ export class ScheduleService {
     private userService: UserService,
   ) {}
 
+  // Создание расписания
   public async addGeneratedSchedulePrisma(
     api_key: string,
     data: any,
@@ -92,13 +93,26 @@ export class ScheduleService {
       },
       select: {
         id: true,
+
         title: true,
         description: true,
         isShow: true,
+
         schedule: true,
+        scheduleMain: true,
+        failed: true,
+
+        schedule_count: true,
+
         cabinets: true,
         teachers: true,
         groups: true,
+
+        mapSubjects: true,
+        mapTeachers: true,
+        amountLimits: true,
+        limitCabinets: true,
+
         CreatedAt: true,
         UpdatedAt: true,
       },
@@ -118,13 +132,26 @@ export class ScheduleService {
       },
       select: {
         id: true,
+
         title: true,
         description: true,
         isShow: true,
+
         schedule: true,
+        scheduleMain: true,
+        failed: true,
+
+        schedule_count: true,
+
         cabinets: true,
         teachers: true,
         groups: true,
+
+        mapSubjects: true,
+        mapTeachers: true,
+        amountLimits: true,
+        limitCabinets: true,
+
         CreatedAt: true,
         UpdatedAt: true,
       },
@@ -277,7 +304,8 @@ export class ScheduleService {
       }
     }
 
-    // Формируем плоский список всех занятий
+    let globalId = 1; // Счетчик глобальных ID
+
     const flatSchedule = Object.entries(groupTimetables).flatMap(
       ([group, timetable]) =>
         Object.entries(timetable).flatMap(([date, lessonsPerDay]) =>
@@ -285,7 +313,9 @@ export class ScheduleService {
             const lessons = Array.isArray(lessonBlock)
               ? lessonBlock
               : [lessonBlock];
+
             return lessons.map((lesson) => ({
+              id: globalId++,
               group,
               date,
               cabinet: lesson.cabinet,

@@ -3,7 +3,7 @@ import { ScheduleFull } from "@/components/ScheduleFull";
 import { useProfile } from "@/hook/useProfile";
 import { scheduleIdAtom } from "@/jotai/schedule";
 import { scheduleService } from "@/services/schedule.service";
-import { IScheduleGetList } from "@/types/schedule.types";
+import { IScheduleGetList } from "@/types/schedule.type";
 import { useQuery } from "@tanstack/react-query";
 import { motion as m } from "framer-motion";
 import { useSetAtom } from "jotai";
