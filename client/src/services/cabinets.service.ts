@@ -1,13 +1,20 @@
 import { axiosWithAuto } from "@/api/interceptors";
-import { IDeleteField, IPutField } from "@/types/generation.types";
+import { IDeleteField, IPutField } from "@/types/generation.type";
+import { ISchedule } from "@/types/schedule.type";
+import { AxiosResponse } from "axios";
 
 class CabinetsService {
 	private BASE_URL = "/cabinets";
 	private API_QUERY = `?api-key=`;
 	private SCHEDULE_ID = `&schedule_id=`;
 
-	async addCabinets(name: string | string[], api: string, scheduleId: string) {
-		const response = await axiosWithAuto.post(
+	// Добавить кабинет
+	async addCabinets(
+		name: string | string[],
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.post<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			{
 				name,
@@ -17,24 +24,37 @@ class CabinetsService {
 		return response;
 	}
 
-	async getCabinets(api: string, scheduleId: string) {
-		const response = await axiosWithAuto.get(
+	// Вывод кабинета
+	async getCabinets(
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.get<ISchedule>(
 			`${this.BASE_URL}/${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`
 		);
 
 		return response;
 	}
 
-	async getAllCabinets(api: string, scheduleId: string) {
-		const response = await axiosWithAuto.get(
+	// Вывод всех кабинетов
+	async getAllCabinets(
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.get<ISchedule>(
 			`${this.BASE_URL}/all${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`
 		);
 
 		return response;
 	}
 
-	async putCabinets(data: IPutField, api: string, scheduleId: string) {
-		const response = await axiosWithAuto.put(
+	// Изменить кабинет
+	async putCabinets(
+		data: IPutField,
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.put<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			data
 		);
@@ -42,8 +62,13 @@ class CabinetsService {
 		return response;
 	}
 
-	async deleteCabinets(data: IDeleteField, api: string, scheduleId: string) {
-		const response = await axiosWithAuto.delete(
+	// Удалить кабинет
+	async deleteCabinets(
+		data: IDeleteField,
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.delete<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			{
 				data,

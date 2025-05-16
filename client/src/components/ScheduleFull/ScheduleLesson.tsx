@@ -1,4 +1,4 @@
-import { GroupTimetables } from "@/types/schedule.types";
+import { GroupTimetables } from "@/types/schedule.type";
 import { CalendarDays } from "lucide-react";
 import { LessonSchedule } from "./components/LessonSchedule";
 

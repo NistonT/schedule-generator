@@ -14,7 +14,7 @@ import {
 	teachersMapAtom,
 } from "@/jotai/schedule";
 import { scheduleService } from "@/services/schedule.service";
-import { IScheduleGetList, TypeScheduleForm } from "@/types/schedule.types";
+import { IScheduleGetList, TypeScheduleForm } from "@/types/schedule.type";
 import { useMutation } from "@tanstack/react-query";
 import { useAtom, useAtomValue } from "jotai";
 import { toast } from "sonner";

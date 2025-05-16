@@ -8,7 +8,7 @@ import {
 	IUpdatePassword,
 	IUser,
 	TypeUserForm,
-} from "@/types/auth.types";
+} from "@/types/auth.type";
 import { useMutation } from "@tanstack/react-query";
 import { KeyRound, KeySquare, Save, Shield } from "lucide-react";
 import { useState } from "react";

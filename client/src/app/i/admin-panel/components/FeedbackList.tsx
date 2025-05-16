@@ -2,7 +2,7 @@
 
 import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { feedbackService } from "@/services/feedback.service";
-import { IFeedback } from "@/types/feedback.types";
+import { IFeedback } from "@/types/feedback.type";
 import { useQuery } from "@tanstack/react-query";
 import {
 	CheckCircle,

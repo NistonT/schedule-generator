@@ -2,7 +2,7 @@
 
 import { useProfile } from "@/hook/useProfile";
 import { feedbackService } from "@/services/feedback.service";
-import { IAdminFeedback } from "@/types/feedback.types";
+import { IAdminFeedback } from "@/types/feedback.type";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
 	CheckCircle,

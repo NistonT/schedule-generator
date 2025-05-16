@@ -1,5 +1,3 @@
-"use client";
-
 import { isAuthAtom } from "@/jotai/auth";
 import { userService } from "@/services/user.service";
 import { useQuery } from "@tanstack/react-query";

@@ -1,7 +1,7 @@
 "use client";
 
 import { feedbackService } from "@/services/feedback.service";
-import { IUser } from "@/types/auth.types";
+import { IUser } from "@/types/auth.type";
 import { useQuery } from "@tanstack/react-query";
 import {
 	CheckCircle,

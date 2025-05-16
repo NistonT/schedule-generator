@@ -12,7 +12,7 @@ import {
 	TypeAmountLimits,
 	TypeTeachers,
 	TypeTeachersMap,
-} from "@/types/schedule.types";
+} from "@/types/schedule.type";
 import { useAtom } from "jotai";
 import { useState } from "react";
 import { toast } from "sonner";

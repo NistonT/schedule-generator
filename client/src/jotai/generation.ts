@@ -1,5 +1,5 @@
-import { IUser } from "@/types/auth.types";
-import { ISchedule } from "@/types/schedule.types";
+import { IUser } from "@/types/auth.type";
+import { ISchedule } from "@/types/schedule.type";
 import { atom } from "jotai";
 
 export const dataProfileAtom = atom<IUser | null>(null);

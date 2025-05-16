@@ -1,4 +1,4 @@
-import { IMessageHandleAdd, SetAtom } from "@/types/schedule.types";
+import { IMessageHandleAdd, SetAtom } from "@/types/schedule.type";
 import { SetStateAction, useState } from "react";
 import { toast } from "sonner";
 

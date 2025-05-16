@@ -8,7 +8,7 @@ import { ScheduleTeachers } from "@/components/AllSchedule/ScheduleTeachers";
 import { useProfile } from "@/hook/useProfile";
 import { currentScheduleAtom, scheduleListAtom } from "@/jotai/schedule";
 import { scheduleService } from "@/services/schedule.service";
-import { IScheduleGetList } from "@/types/schedule.types";
+import { IScheduleGetList } from "@/types/schedule.type";
 import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useEffect } from "react";

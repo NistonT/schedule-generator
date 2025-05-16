@@ -3,16 +3,21 @@ import {
 	IAddField,
 	IDeleteFieldNumber,
 	IPutFieldNumber,
-} from "@/types/generation.types";
-
+} from "@/types/generation.type";
+import { ITeacher } from "@/types/teacher.type";
+import { AxiosResponse } from "axios";
 class TeachersService {
 	private BASE_URL = "/teachers";
 	private API_QUERY = `?api-key=`;
 	private SCHEDULE_ID = `?schedule_id=`;
 
 	// Создать преподавателя
-	async addTeachers(data: IAddField, api: string, scheduleId: string) {
-		const response = await axiosWithAuto.post(
+	async addTeachers(
+		data: IAddField,
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ITeacher>> {
+		const response = await axiosWithAuto.post<ITeacher>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			data
 		);
@@ -21,8 +26,11 @@ class TeachersService {
 	}
 
 	// Получить всех преподавателей из одного расписание
-	async getTeachers(api: string, scheduleId: string) {
-		const response = await axiosWithAuto.get(
+	async getTeachers(
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ITeacher[]>> {
+		const response = await axiosWithAuto.get<ITeacher[]>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`
 		);
 
@@ -30,8 +38,8 @@ class TeachersService {
 	}
 
 	// Получить все преподавателей
-	async getAllTeachers(api: string) {
-		const response = await axiosWithAuto.get(
+	async getAllTeachers(api: string): Promise<AxiosResponse<ITeacher[]>> {
+		const response = await axiosWithAuto.get<ITeacher[]>(
 			`${this.BASE_URL}${this.API_QUERY}${api}`
 		);
 
@@ -39,8 +47,12 @@ class TeachersService {
 	}
 
 	// Изменить преподавателя
-	async changeTeachers(data: IPutFieldNumber, api: string, scheduleId: string) {
-		const response = await axiosWithAuto.put(
+	async changeTeachers(
+		data: IPutFieldNumber,
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ITeacher>> {
+		const response = await axiosWithAuto.put<ITeacher>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			data
 		);
@@ -53,8 +65,8 @@ class TeachersService {
 		data: IDeleteFieldNumber,
 		api: string,
 		scheduleId: string
-	) {
-		const response = await axiosWithAuto.delete(
+	): Promise<AxiosResponse<ITeacher>> {
+		const response = await axiosWithAuto.delete<ITeacher>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			{
 				data,

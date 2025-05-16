@@ -6,7 +6,7 @@ import {
 	currentScheduleAtom,
 	teachersAtom,
 } from "@/jotai/schedule";
-import { IScheduleGetList, TypeTeachers } from "@/types/schedule.types";
+import { IScheduleGetList, TypeTeachers } from "@/types/schedule.type";
 import { useAtom, useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { ButtonGeneration } from "../ui/buttons/ButtonGeneration";

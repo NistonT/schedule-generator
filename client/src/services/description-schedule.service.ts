@@ -1,12 +1,19 @@
 import { axiosWithAuto } from "@/api/interceptors";
+import { ISchedule } from "@/types/schedule.type";
+import { AxiosResponse } from "axios";
 
 class DescriptionScheduleService {
 	private BASE_URL = "/description-schedule";
 	private API_QUERY = `?api-key=`;
 	private SCHEDULE_ID = `&schedule_id=`;
 
-	async addDescription(text: string, api: string, scheduleId: string) {
-		const response = await axiosWithAuto.post(
+	// Добавить расписание
+	async addDescription(
+		text: string,
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.post<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			{
 				description: text,
@@ -16,8 +23,13 @@ class DescriptionScheduleService {
 		return response;
 	}
 
-	async putDescription(text: string, api: string, scheduleId: string) {
-		const response = await axiosWithAuto.put(
+	// Изменить расписание
+	async putDescription(
+		text: string,
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.put<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			{
 				text: text,
@@ -27,8 +39,12 @@ class DescriptionScheduleService {
 		return response;
 	}
 
-	async deleteDescription(api: string, scheduleId: string) {
-		const response = await axiosWithAuto.delete(
+	// Удалить расписание
+	async deleteDescription(
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.delete<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`
 		);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { dataIsLoadingAtom, dataScheduleAtom } from "@/jotai/generation";
-import { ISchedule } from "@/types/schedule.types";
+import { ISchedule } from "@/types/schedule.type";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { LoadingGeneration } from "../Loading/LoadingGeneration";

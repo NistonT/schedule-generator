@@ -9,6 +9,8 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { Auth } from 'src/auth/decorators/auth.decorators';
+import { CurrentUser } from 'src/auth/decorators/user.decorators';
 import {
   AddFeedbackDto,
   AdminFeedbackDto,
@@ -23,11 +25,9 @@ export class FeedbackController {
   // Добавить обращение
   @UsePipes(new ValidationPipe())
   @Post()
-  public async add(
-    @Body() dto: AddFeedbackDto,
-    @Query('user_id') user_id: string,
-  ) {
-    return await this.feedbackService.add(dto, user_id);
+  @Auth()
+  public async add(@Body() dto: AddFeedbackDto, @CurrentUser('id') id: string) {
+    return await this.feedbackService.add(dto, id);
   }
 
   @UsePipes(new ValidationPipe())

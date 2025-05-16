@@ -1,13 +1,20 @@
 import { axiosWithAuto } from "@/api/interceptors";
-import { IAddField, IDeleteField, IPutField } from "@/types/generation.types";
+import { IAddField, IDeleteField, IPutField } from "@/types/generation.type";
+import { ISchedule } from "@/types/schedule.type";
+import { AxiosResponse } from "axios";
 
 class GroupsService {
 	private BASE_URL = "/groups";
 	private API_QUERY = `?api-key=`;
 	private SCHEDULE_ID = `?schedule_id=`;
 
-	async addGroups(data: IAddField, api: string, scheduleId: string) {
-		const response = await axiosWithAuto.post(
+	// Добавление группы в расписание
+	async addGroups(
+		data: IAddField,
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.post<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			data
 		);
@@ -15,24 +22,34 @@ class GroupsService {
 		return response;
 	}
 
-	async getGroups(api: string, scheduleId: string) {
-		const response = await axiosWithAuto.get(
+	// Вывод групп
+	async getGroups(
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.get<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`
 		);
 
 		return response;
 	}
 
-	async getAllGroups(api: string) {
-		const response = await axiosWithAuto.get(
+	// Вывод всех групп
+	async getAllGroups(api: string): Promise<AxiosResponse<ISchedule[]>> {
+		const response = await axiosWithAuto.get<ISchedule[]>(
 			`${this.BASE_URL}/all${this.API_QUERY}${api}`
 		);
 
 		return response;
 	}
 
-	async changeGroups(data: IPutField, api: string, scheduleId: string) {
-		const response = await axiosWithAuto.put(
+	// Изменение групп
+	async changeGroups(
+		data: IPutField,
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.put<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			data
 		);
@@ -40,8 +57,13 @@ class GroupsService {
 		return response;
 	}
 
-	async deleteGroups(data: IDeleteField, api: string, scheduleId: string) {
-		const response = await axiosWithAuto.delete(
+	// Удаление группы
+	async deleteGroups(
+		data: IDeleteField,
+		api: string,
+		scheduleId: string
+	): Promise<AxiosResponse<ISchedule>> {
+		const response = await axiosWithAuto.delete<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			{
 				data,

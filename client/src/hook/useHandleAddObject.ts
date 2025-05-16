@@ -2,7 +2,8 @@ import {
 	IMessageHandleAdd,
 	SetAtom,
 	TypeTeachers,
-} from "@/types/schedule.types";
+} from "@/types/schedule.type";
+import { ITeacher } from "@/types/teacher.type";
 import { SetStateAction, useState } from "react";
 import { toast } from "sonner";
 
@@ -27,7 +28,7 @@ export const useHandleAddObject = (
 			if (isDuplicate) {
 				toast.error(messageToast.messageAlready);
 			} else {
-				const newTeacher: TypeTeachers = {
+				const newTeacher: ITeacher = {
 					tid: count,
 					name: trimmedValue,
 				};
