@@ -1,7 +1,7 @@
 "use client";
 import { ButtonSubmit } from "@/components/ui/buttons/ButtonSubmit";
 import { userService } from "@/services/user.service";
-import { IUser } from "@/types/auth.type";
+import { IUser } from "@/types/user.type";
 import { maskApiKey } from "@/utils/apiKey";
 import { useMutation } from "@tanstack/react-query";
 import { Copy, Key, RefreshCcw } from "lucide-react";

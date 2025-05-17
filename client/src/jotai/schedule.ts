@@ -1,6 +1,5 @@
 import {
 	ISchedule,
-	IScheduleGetList,
 	TypeAmountLimits,
 	TypeCabinetLimits,
 	TypeScheduleForm,
@@ -21,16 +20,16 @@ export const maxLoadAtom = atom<number>(6);
 
 export const countTeacherAtom = atom<number>(1);
 
-export const currentScheduleAtom = atom<IScheduleGetList | null>(null);
+export const currentScheduleAtom = atom<ISchedule | null>(null);
 
 export const generationCurrentScheduleFormAtom = atom<TypeScheduleForm | null>(
 	null
 );
 
-export const scheduleListAtom = atom<IScheduleGetList[] | null>(null);
+export const scheduleListAtom = atom<ISchedule[] | null>(null);
 
 export const isPendingAtom = atom<boolean>(false);
 
-export const scheduleIdAtom = atom<IScheduleGetList[] | null>(null);
+export const scheduleIdAtom = atom<ISchedule[] | null>(null);
 
 export const scheduleAtom = atom<ISchedule | null | undefined>(null);

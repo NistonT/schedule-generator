@@ -46,7 +46,7 @@ export const ButtonMotionLink = ({
 					backgroundColor: "red",
 				}}
 				viewport={{ once: false }}
-				className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-md shadow-md hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 flex items-center gap-3 cursor-pointer relative select-none ${className}`}
+				className={`px-4 py-2 text-sm font-medium text-white bg-gray-950 hover:bg-white hover:text-gray-950 rounded-md shadow-md  transition-all duration-300 flex items-center gap-3 cursor-pointer relative select-none ${className}`}
 				onClick={event => {
 					setIsClicked(true);
 
@@ -67,12 +67,12 @@ export const ButtonMotionLink = ({
 							transition={{
 								duration: 1,
 							}}
-							className={`px-4 py-2 text-sm font-medium text-transparent bg-gradient-to-r from-indigo-700 to-blue-700 rounded-md shadow-md  transition-all duration-300 flex items-center gap-3 cursor-pointer z-50 overflow-hidden absolute w-full ${className} -ml-4 pr-8`}
+							className={`px-4 py-2 text-sm font-medium text-transparent text-white bg-gray-950 rounded-md shadow-md  transition-all duration-300 flex items-center gap-3 cursor-pointer z-50 overflow-hidden absolute w-full ${className} -ml-4 pr-8`}
 						>
 							<m.span
 								animate={{
 									x: `${100}%`,
-									className: "bg-gradient-to-r from-indigo-700 to-blue-700",
+									className: "text-white bg-gray-950",
 								}}
 								transition={{
 									duration: 1,

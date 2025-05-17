@@ -7,7 +7,7 @@ import { Field } from "@/components/ui/fields/Field";
 import { Title } from "@/components/ui/headers/Title";
 import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { authService } from "@/services/auth.service";
-import { IRegForm, IRegisterForm } from "@/types/auth.type";
+import { IRegistrationForm, IRegistrationRequest } from "@/types/auth.type";
 import { useMutation } from "@tanstack/react-query";
 import { KeySquare, LogIn, Mail, User, UserPlus } from "lucide-react";
 import { m } from "motion/react";
@@ -22,7 +22,7 @@ export const Registration = () => {
 		reset,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<IRegisterForm>({
+	} = useForm<IRegistrationForm>({
 		mode: "onChange",
 	});
 
@@ -31,7 +31,7 @@ export const Registration = () => {
 
 	const { mutate } = useMutation({
 		mutationKey: ["reg"],
-		mutationFn: (data: IRegForm) => authService.registerMain(data),
+		mutationFn: (data: IRegistrationRequest) => authService.registerMain(data),
 		onSuccess: () => {
 			toast.success("Регистрация прошла успешно");
 			reset();
@@ -42,7 +42,7 @@ export const Registration = () => {
 		},
 	});
 
-	const onSubmit: SubmitHandler<IRegisterForm> = data => {
+	const onSubmit: SubmitHandler<IRegistrationForm> = data => {
 		const { passwordConfirm, isConfirm, ...result } = data;
 		setIsError(false);
 		setMessage("");
@@ -194,7 +194,7 @@ export const Registration = () => {
 					<div className='text-sm text-gray-600'>
 						<Link
 							href={DASHBOARD_PAGES.HOME}
-							className='text-blue-600 hover:text-blue-800 transition-colors duration-300 underline font-medium'
+							className='text-gray-950 hover:text-gray-800 transition-colors duration-300 underline font-medium'
 						>
 							Вернуться на главную
 						</Link>

@@ -7,7 +7,7 @@ import {
 } from "@/jotai/schedule";
 import { cabinetService } from "@/services/cabinets.service";
 import { scheduleService } from "@/services/schedule.service";
-import { IScheduleGetList, TypeScheduleForm } from "@/types/schedule.type";
+import { ISchedule, TypeScheduleForm } from "@/types/schedule.type";
 import { useMutation } from "@tanstack/react-query";
 import { useAtom, useAtomValue } from "jotai";
 import { toast } from "sonner";
@@ -18,8 +18,9 @@ export const GenerationSchedule = () => {
 	const generationCurrentScheduleForm = useAtomValue<TypeScheduleForm | null>(
 		generationCurrentScheduleFormAtom
 	);
-	const [currentSchedule, setCurrentSchedule] =
-		useAtom<IScheduleGetList | null>(currentScheduleAtom);
+	const [currentSchedule, setCurrentSchedule] = useAtom<ISchedule | null>(
+		currentScheduleAtom
+	);
 
 	const { mutate: addCabinets } = useMutation({
 		mutationKey: ["add_cabinets"],

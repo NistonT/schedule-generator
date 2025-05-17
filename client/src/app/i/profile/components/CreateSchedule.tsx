@@ -14,7 +14,7 @@ import {
 	teachersMapAtom,
 } from "@/jotai/schedule";
 import { scheduleService } from "@/services/schedule.service";
-import { IScheduleGetList, TypeScheduleForm } from "@/types/schedule.type";
+import { ISchedule, TypeScheduleForm } from "@/types/schedule.type";
 import { useMutation } from "@tanstack/react-query";
 import { useAtom, useAtomValue } from "jotai";
 import { toast } from "sonner";
@@ -32,11 +32,12 @@ export const CreateSchedule = () => {
 	const generationCurrentScheduleForm = useAtomValue<TypeScheduleForm | null>(
 		generationCurrentScheduleFormAtom
 	);
-	const [scheduleListState, setScheduleListState] = useAtom<
-		IScheduleGetList[] | null
-	>(scheduleListAtom);
-	const [currentSchedule, setCurrentSchedule] =
-		useAtom<IScheduleGetList | null>(currentScheduleAtom);
+	const [scheduleListState, setScheduleListState] = useAtom<ISchedule[] | null>(
+		scheduleListAtom
+	);
+	const [currentSchedule, setCurrentSchedule] = useAtom<ISchedule | null>(
+		currentScheduleAtom
+	);
 
 	const { mutate } = useMutation({
 		mutationKey: ["create_schedule"],
@@ -45,7 +46,7 @@ export const CreateSchedule = () => {
 				data!.api_key,
 				generationCurrentScheduleForm!
 			),
-		onSuccess: (response: { data: IScheduleGetList }) => {
+		onSuccess: (response: { data: ISchedule }) => {
 			setScheduleListState(prev => [...(prev || []), response.data]);
 			setCurrentSchedule(response.data);
 			// addCabinets();

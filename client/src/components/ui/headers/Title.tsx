@@ -6,7 +6,7 @@ type Props = {
 
 export const Title = ({ title }: Props) => {
 	return (
-		<div className='relative rounded-lg text-indigo-500 font-bold text-2xl'>
+		<div className='relative rounded-lg text-gray-950 font-bold text-2xl'>
 			<span className='block'>{title}</span>
 		</div>
 	);

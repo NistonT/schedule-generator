@@ -1,9 +1,8 @@
 "use client";
-import { ScheduleFull } from "@/components/ScheduleFull";
 import { useProfile } from "@/hook/useProfile";
 import { scheduleIdAtom } from "@/jotai/schedule";
 import { scheduleService } from "@/services/schedule.service";
-import { IScheduleGetList } from "@/types/schedule.type";
+import { ISchedule } from "@/types/schedule.type";
 import { useQuery } from "@tanstack/react-query";
 import { motion as m } from "framer-motion";
 import { useSetAtom } from "jotai";
@@ -12,7 +11,7 @@ import { useEffect, useState } from "react";
 
 export const Schedule = () => {
 	const { data: profile } = useProfile();
-	const [schedules, setSchedule] = useState<IScheduleGetList[] | null>(null);
+	const [schedules, setSchedule] = useState<ISchedule[] | null>(null);
 	const [searchQuery, setSearchQuery] = useState<string>(""); // Состояние для поискового запроса
 	const [sortByNewest, setSortByNewest] = useState<boolean>(true); // Состояние для сортировки (true = новые, false = старые)
 
@@ -100,15 +99,7 @@ export const Schedule = () => {
 					initial='hidden'
 					animate='visible'
 					className='space-y-8'
-				>
-					{isPending ? (
-						<p className='text-center text-gray-600'>Загрузка...</p>
-					) : sortedSchedules && sortedSchedules.length > 0 ? (
-						<ScheduleFull schedules={sortedSchedules} isShow={false} />
-					) : (
-						<p className='text-center text-gray-600'>Расписания не найдены</p>
-					)}
-				</m.div>
+				></m.div>
 			</div>
 		</>
 	);
