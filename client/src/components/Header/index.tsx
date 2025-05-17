@@ -66,7 +66,7 @@ export const Header = () => {
 						whileInView={{ opacity: 1 }}
 						className='flex items-center'
 					>
-						<m.div className='relative text-sm sm:text-base lg:text-lg px-3 py-2 text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-md transition-all cursor-default flex items-center gap-2 sm:gap-3 overflow-hidden'>
+						<m.div className='relative text-sm sm:text-base lg:text-lg px-3 py-2 text-white bg-gray-950 rounded-md transition-all cursor-default flex items-center gap-2 sm:gap-3 overflow-hidden'>
 							<Link
 								className='flex items-center gap-2 sm:gap-3 relative z-10'
 								href={"/"}

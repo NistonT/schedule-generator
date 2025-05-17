@@ -6,7 +6,7 @@ import {
 	currentScheduleAtom,
 	teachersAtom,
 } from "@/jotai/schedule";
-import { IScheduleGetList, TypeTeachers } from "@/types/schedule.type";
+import { ISchedule, TypeTeachers } from "@/types/schedule.type";
 import { useAtom, useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { ButtonGeneration } from "../ui/buttons/ButtonGeneration";
@@ -14,9 +14,7 @@ import { FieldGeneration } from "../ui/fields/FieldGeneration";
 
 export const Teachers = () => {
 	const [teachers, setTeachers] = useAtom<TypeTeachers[]>(teachersAtom);
-	const currentSchedule = useAtomValue<IScheduleGetList | null>(
-		currentScheduleAtom
-	);
+	const currentSchedule = useAtomValue<ISchedule | null>(currentScheduleAtom);
 
 	const [countTeachers, setCountTeachers] = useAtom<number>(countTeacherAtom);
 	const { handleAdd, handleRemove, inputValue, setInputValue } =

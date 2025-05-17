@@ -2,7 +2,7 @@
 import { messageGroups } from "@/constants/messageToast.constants";
 import { useHandleAddCommon } from "@/hook/useHandleAddCommon";
 import { currentScheduleAtom, groupsAtom } from "@/jotai/schedule";
-import { IScheduleGetList } from "@/types/schedule.type";
+import { ISchedule } from "@/types/schedule.type";
 import { useAtom, useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { ButtonGeneration } from "../ui/buttons/ButtonGeneration";
@@ -10,9 +10,7 @@ import { FieldGeneration } from "../ui/fields/FieldGeneration";
 
 export const Groups = () => {
 	const [groups, setGroups] = useAtom<string[]>(groupsAtom);
-	const currentSchedule = useAtomValue<IScheduleGetList | null>(
-		currentScheduleAtom
-	);
+	const currentSchedule = useAtomValue<ISchedule | null>(currentScheduleAtom);
 
 	const { handleAdd, handleRemove, inputValue, setInputValue } =
 		useHandleAddCommon(groups, setGroups, messageGroups);

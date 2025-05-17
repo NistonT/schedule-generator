@@ -2,16 +2,19 @@
 import { Loading } from "@/components/Loading";
 import { ButtonLink } from "@/components/ui/buttons/ButtonLink";
 import { userService } from "@/services/user.service";
-import { GitHubUser } from "@/types/git.type";
+import { IGitHubUser } from "@/types/git.type";
 import { useQuery } from "@tanstack/react-query";
 import { BookText, Code, Info, LinkIcon, MapPin } from "lucide-react";
 import { m } from "motion/react";
 import Image from "next/image";
 
 export const About = () => {
-	const { data, isLoading } = useQuery<GitHubUser | null>({
+	const { data, isLoading } = useQuery<IGitHubUser | null>({
 		queryKey: ["github"],
-		queryFn: () => userService.gitHub(),
+		queryFn: async () => {
+			const response = await userService.gitHub();
+			return response.data;
+		},
 	});
 
 	if (!data) {

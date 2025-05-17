@@ -2,7 +2,8 @@
 import { ButtonSubmit } from "@/components/ui/buttons/ButtonSubmit";
 import { Field } from "@/components/ui/fields/Field";
 import { userService } from "@/services/user.service";
-import { IUser, TypeUserForm } from "@/types/auth.type";
+import { TypeUserForm } from "@/types/auth.type";
+import { IUser } from "@/types/user.type";
 import { useMutation } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { Calendar, CalendarSync, Info, Mail, Save, User } from "lucide-react";

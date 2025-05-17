@@ -3,12 +3,8 @@ import { EnumRegister, PasswordForm } from "@/components/PasswordForm";
 import { ButtonSubmit } from "@/components/ui/buttons/ButtonSubmit";
 import { Field } from "@/components/ui/fields/Field";
 import { userService } from "@/services/user.service";
-import {
-	IPassword,
-	IUpdatePassword,
-	IUser,
-	TypeUserForm,
-} from "@/types/auth.type";
+import { IPassword, IUpdatePassword, TypeUserForm } from "@/types/auth.type";
+import { IUser } from "@/types/user.type";
 import { useMutation } from "@tanstack/react-query";
 import { KeyRound, KeySquare, Save, Shield } from "lucide-react";
 import { useState } from "react";
@@ -63,12 +59,14 @@ export const PasswordSettingForm = ({ data }: Props) => {
 			username: data!.username || "",
 			email: data!.email || "",
 			password: formData.password,
-			schedule_id: data!.schedule_id,
+			schedule: data!.schedule,
 			api_key: data!.api_key,
 			CreatedAt: data!.CreatedAt,
 			UpdatedAt: data!.UpdatedAt,
 			role: data!.role || "USER",
 			feedback: data!.feedback,
+			visits: data!.visits,
+			feedback_count: data!.feedback_count,
 		};
 
 		checkPassword({ password: formData.passwordOld });

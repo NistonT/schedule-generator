@@ -1,5 +1,3 @@
-import { ScheduleId } from "./ScheeduleId";
-
 interface Props {
 	params: {
 		id: number;
@@ -7,5 +5,5 @@ interface Props {
 }
 
 export default function ScheduleIdPage({ params: { id } }: Props) {
-	return <ScheduleId id={id} />;
+	return <div>{id}</div>;
 }

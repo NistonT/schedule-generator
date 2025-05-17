@@ -16,16 +16,16 @@ export const Title = () => {
 				transition={{
 					duration: 1,
 				}}
-				className='text-center select-none'
+				className='text-center select-none cursor-default'
 			>
 				<m.h1
-					className='text-4xl text-gray-800 mb-4 font-[--font-montserrat]'
+					className='text-4xl text-gray-950 mb-4 font-[--font-montserrat] select-none cursor-default'
 					style={{ fontWeight: 700 }}
 				>
 					Генератор учебного расписания
 				</m.h1>
 				<m.p
-					className='text-lg text-gray-600 mb-8 font-[--font-montserrat]'
+					className='text-lg text-gray-600 mb-8 font-[--font-montserrat] select-none cursor-default'
 					style={{ fontWeight: 500 }}
 				>
 					Генерируй свое учебное расписание за 5 минут

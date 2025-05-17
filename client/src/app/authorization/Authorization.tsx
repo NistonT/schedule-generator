@@ -7,7 +7,7 @@ import { Field } from "@/components/ui/fields/Field";
 import { Title } from "@/components/ui/headers/Title";
 import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { authService } from "@/services/auth.service";
-import { IAuthForm } from "@/types/auth.type";
+import { IAuthorizationForm } from "@/types/auth.type";
 import { useMutation } from "@tanstack/react-query";
 import { Lock, LogIn, User, UserPlus } from "lucide-react";
 import { m } from "motion/react";
@@ -23,7 +23,7 @@ export const Authorization = () => {
 		reset,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<IAuthForm>({
+	} = useForm<IAuthorizationForm>({
 		mode: "onChange",
 	});
 
@@ -33,7 +33,7 @@ export const Authorization = () => {
 	// хук для запроса
 	const { mutate } = useMutation({
 		mutationKey: ["auth"],
-		mutationFn: (data: IAuthForm) => authService.loginMain(data),
+		mutationFn: (data: IAuthorizationForm) => authService.loginMain(data),
 		onSuccess: () => {
 			toast.success("Авторизация прошла успешно");
 			reset();
@@ -46,7 +46,7 @@ export const Authorization = () => {
 	});
 
 	// функция для оправление запроса
-	const onSubmit: SubmitHandler<IAuthForm> = data => {
+	const onSubmit: SubmitHandler<IAuthorizationForm> = data => {
 		mutate(data);
 	};
 
@@ -121,7 +121,7 @@ export const Authorization = () => {
 					<div className='text-sm text-gray-600'>
 						<Link
 							href={DASHBOARD_PAGES.HOME}
-							className='text-blue-600 hover:text-blue-800 transition-colors duration-300 underline font-medium'
+							className='text-gray-950 hover:text-gray-800 transition-colors duration-300 underline font-medium'
 						>
 							Вернуться на главную
 						</Link>

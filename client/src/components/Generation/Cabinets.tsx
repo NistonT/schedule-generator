@@ -2,7 +2,7 @@
 import { messageCabinets } from "@/constants/messageToast.constants";
 import { useHandleAddCommon } from "@/hook/useHandleAddCommon";
 import { cabinetsAtom, currentScheduleAtom } from "@/jotai/schedule";
-import { IScheduleGetList } from "@/types/schedule.type";
+import { ISchedule } from "@/types/schedule.type";
 import { useAtom, useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { ButtonGeneration } from "../ui/buttons/ButtonGeneration";
@@ -10,9 +10,7 @@ import { FieldGeneration } from "../ui/fields/FieldGeneration";
 
 export const Cabinets = () => {
 	const [cabinets, setCabinets] = useAtom<string[]>(cabinetsAtom);
-	const currentSchedule = useAtomValue<IScheduleGetList | null>(
-		currentScheduleAtom
-	);
+	const currentSchedule = useAtomValue<ISchedule | null>(currentScheduleAtom);
 
 	useEffect(() => {
 		if (currentSchedule) {

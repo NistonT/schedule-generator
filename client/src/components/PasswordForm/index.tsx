@@ -1,4 +1,4 @@
-import { IRegisterForm } from "@/types/auth.type";
+import { IRegistrationForm } from "@/types/auth.type";
 import { ReactNode, useState } from "react";
 import { UseFormRegister } from "react-hook-form";
 import { PasswordIsSee } from "./PasswordIsSee";
@@ -16,7 +16,7 @@ export enum EnumRegister {
 }
 
 type Props = {
-	register: UseFormRegister<IRegisterForm> | any;
+	register: UseFormRegister<IRegistrationForm> | any;
 	errors: string | undefined | any;
 	label: string;
 	name: EnumRegister;
@@ -40,13 +40,13 @@ export const PasswordForm = ({
 		<div className='mb-4'>
 			<label
 				htmlFor={name}
-				className='leading-7 text-sm text-indigo-500 select-none'
+				className='leading-7 text-sm text-gray-950 select-none'
 			>
 				{label}
 			</label>
 			<div className='relative'>
 				<div className='relative flex items-center'>
-					<div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-indigo-500'>
+					<div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-950'>
 						{icon}
 					</div>
 					<input
@@ -68,7 +68,7 @@ export const PasswordForm = ({
 						})}
 						type={`${isSee ? "text" : "password"}`}
 						id={name}
-						className='w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 pl-10 leading-8 transition-colors duration-200 ease-in-out'
+						className='w-full bg-white rounded border border-gray-300 focus:border-gray-500 focus:ring-2 focus:ring-gray-200 text-base outline-none text-gray-700 py-1 px-3 pl-10 leading-8 transition-colors duration-200 ease-in-out'
 					/>
 
 					<button
