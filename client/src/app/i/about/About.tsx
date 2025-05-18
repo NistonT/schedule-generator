@@ -58,7 +58,7 @@ export const About = () => {
 									duration: 1.5,
 									delay: Math.random() * 2, // Разная задержка для каждой частицы
 								}}
-								className='absolute w-4 h-4 rounded-full bg-indigo-500 shadow-md'
+								className='absolute w-4 h-4 rounded-full bg-gray-950 shadow-md'
 								style={{
 									top: `${Math.random() * 100}%`,
 									left: `${Math.random() * 100}%`,
@@ -78,7 +78,7 @@ export const About = () => {
 							transition={{ duration: 0.5, delay: 0.2 }}
 							className='mb-8'
 						>
-							<h1 className='text-3xl font-bold text-indigo-600 flex items-center gap-2'>
+							<h1 className='text-3xl font-bold text-gray-950 flex items-center gap-2'>
 								<Info size={24} /> <span>О сайте</span>
 							</h1>
 						</m.div>
@@ -90,7 +90,7 @@ export const About = () => {
 							transition={{ duration: 0.5, delay: 0.4 }}
 							className='bg-white rounded-lg shadow-lg p-6 mb-8'
 						>
-							<h2 className='text-3xl font-bold text-indigo-600 flex items-center gap-2 mb-4'>
+							<h2 className='text-3xl font-bold text-gray-950 flex items-center gap-2 mb-4'>
 								<BookText size={24} /> <span>Описание</span>
 							</h2>
 							<p className='text-gray-700 text-lg leading-relaxed'>

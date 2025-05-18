@@ -9,7 +9,6 @@ export const NotFound = () => {
 		<div className='w-full flex overflow-hidden gap-0 pt-5'>
 			<div className='w-full h-screen relative flex justify-center items-center px-4'>
 				<div className='relative w-full h-5/6 rounded-xl overflow-hidden bg-gray-950'>
-					{/* Фоновое изображение справа */}
 					<div className='absolute top-0 right-0 h-full w-1/3 z-10'>
 						<Image
 							src={image_404}
@@ -22,13 +21,11 @@ export const NotFound = () => {
 						</div>
 					</div>
 
-					{/* Основной контент */}
 					<div className='text-white text-8xl font-bold p-5 relative z-30'>
 						<div>Страница</div>
 						<div>не работает</div>
 					</div>
 
-					{/* Кнопка */}
 					<div className='text-white text-2xl font-bold p-5 absolute z-30 bottom-0'>
 						<ButtonMotionLink
 							href={DASHBOARD_PAGES.HOME}
@@ -37,7 +34,6 @@ export const NotFound = () => {
 						/>
 					</div>
 
-					{/* Цифры 404 */}
 					<div className='absolute text-gray-800 text-[350px] right-1/2 top-0 translate-x-1/2 font-bold z-10'>
 						404
 					</div>

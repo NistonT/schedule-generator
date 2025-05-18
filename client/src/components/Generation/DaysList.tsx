@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 
-export const Days = () => {
+export const DaysList = () => {
 	const days = useAtomValue(daysAtom);
 	const [showAll, setShowAll] = useState(false);
 
@@ -30,7 +30,7 @@ export const Days = () => {
 				{days.length > 5 && (
 					<button
 						onClick={() => setShowAll(!showAll)}
-						className='text-indigo-600 hover:text-indigo-800 text-sm font-medium'
+						className='text-gray-950 text-sm font-medium'
 					>
 						{showAll ? "Свернуть" : "Показать все"}
 					</button>
@@ -47,8 +47,8 @@ export const Days = () => {
 							<span className='text-gray-500 ml-6'>...</span>
 						) : (
 							<>
-								<span className='w-5 h-5 bg-indigo-100 rounded-full flex items-center justify-center mr-3'>
-									<span className='w-2 h-2 bg-indigo-600 rounded-full'></span>
+								<span className='w-5 h-5 rounded-full flex items-center justify-center mr-3'>
+									<span className='w-2 h-2 bg-gray-950 rounded-full'></span>
 								</span>
 								<span>{formatDate(day)}</span>
 							</>

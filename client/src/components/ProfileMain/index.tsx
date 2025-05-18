@@ -4,19 +4,14 @@ import {
 	ButtonSubmit,
 	EnumTypeButton,
 } from "@/components/ui/buttons/ButtonSubmit";
-import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { navigateProfile } from "@/constants/profile.constants";
+import { useLogout } from "@/hook/useLogout";
 import { useProfile } from "@/hook/useProfile";
 import { isAdminAtom, isAuthAtom } from "@/jotai/auth";
-import { profileDataAtom } from "@/jotai/profile";
-import { authService } from "@/services/auth.service";
-import { useMutation } from "@tanstack/react-query";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import { LogOut, Mail, ShieldCheck, User } from "lucide-react";
 import { LayoutGroup, m } from "motion/react";
-import { useRouter } from "next/navigation";
-import { ReactNode, useEffect } from "react";
-import { toast } from "sonner";
+import { ReactNode } from "react";
 import { Loading } from "../Loading";
 import { ButtonNavigate } from "../ui/buttons/ButtonNavigate";
 
@@ -26,37 +21,10 @@ type Props = {
 
 export const ProfileMain = ({ children }: Props) => {
 	const { data, isLoading } = useProfile();
-	const setProfile = useSetAtom(profileDataAtom);
-
-	const { push } = useRouter();
 	const [isAuth, setIsAuth] = useAtom(isAuthAtom);
 	const [isAdmin, setIsAdmin] = useAtom(isAdminAtom);
 
-	const { mutate } = useMutation({
-		mutationKey: ["logout"],
-		mutationFn: () => authService.logout(),
-		onSuccess: () => {
-			toast("Вы вышли из профиля!");
-			setProfile(null);
-			setIsAuth(false);
-			setIsAdmin(false);
-			push(DASHBOARD_PAGES.HOME);
-			location.reload();
-		},
-	});
-
-	const onLogout = () => {
-		mutate();
-	};
-
-	useEffect(() => {
-		if (data?.role === "ADMIN") {
-			setIsAdmin(true);
-		}
-		if (data) {
-			setProfile(data);
-		}
-	}, [data]);
+	const { onLogout } = useLogout();
 
 	if (isLoading) {
 		return <Loading />;
@@ -89,7 +57,7 @@ export const ProfileMain = ({ children }: Props) => {
 								}}
 								initial='hidden'
 								animate='visible'
-								className='flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-md shadow-lg max-w-fit select-none'
+								className='flex items-center gap-2 bg-gray-950 text-white px-4 py-2 rounded-md shadow-lg max-w-fit select-none'
 							>
 								{/* Иконка */}
 								<ShieldCheck size={20} className='text-white' />
@@ -120,9 +88,8 @@ export const ProfileMain = ({ children }: Props) => {
 						<div className='w-1/5 p-5 relative ml-14' />
 						<div className='w-1/5 p-5 fixed flex flex-col gap-5'>
 							<LayoutGroup>
-								{/* Фильтруем ссылки в зависимости от роли пользователя */}
 								{navigateProfile
-									.filter(link => !link.isAdmin || isAdmin) // Показываем ссылку, если она не админская или пользователь админ
+									.filter(link => !link.isAdmin || isAdmin)
 									.map(link => (
 										<m.div layout key={link.title}>
 											<ButtonNavigate

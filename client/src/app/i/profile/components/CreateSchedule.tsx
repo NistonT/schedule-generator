@@ -79,7 +79,7 @@ export const CreateSchedule = () => {
 		<button
 			onClick={handlerCreateSchedule}
 			type='submit'
-			className='bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700'
+			className='bg-gray-950 text-white px-4 py-2 rounded-md'
 		>
 			Создать пустое расписание
 		</button>

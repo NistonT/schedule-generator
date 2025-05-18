@@ -10,7 +10,7 @@ export const ScheduleGroups = ({ groups }: Props) => {
 				{groups.map((group: string) => (
 					<span
 						key={group}
-						className='bg-green-100 text-green-800 text-sm px-2 py-1 rounded'
+						className='bg-green-100 text-gray-950 text-sm px-2 py-1 rounded'
 					>
 						{group}
 					</span>
