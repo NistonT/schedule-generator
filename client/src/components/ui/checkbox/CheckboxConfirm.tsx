@@ -14,7 +14,7 @@ export const CheckboxConfirm = ({ register, required, label, name }: Props) => {
 				{...register(name, { required })}
 				type='checkbox'
 				id={name}
-				className='mr-2 rounded focus:ring-indigo-200 text-indigo-600'
+				className='mr-2 rounded focus:ring-indigo-200 text-gray-950'
 			/>
 			<label htmlFor={name} className='text-sm text-gray-600 select-none'>
 				{label}

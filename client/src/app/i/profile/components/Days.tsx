@@ -33,7 +33,7 @@ export const Days = ({ date }: Props) => {
 	return (
 		<div className='select-none'>
 			{/* Заголовок месяца */}
-			<div className='text-center text-xl font-bold mb-6 text-indigo-600'>
+			<div className='text-center text-xl font-bold mb-6 text-gray-950'>
 				{date.format("MMMM YYYY")}
 			</div>
 
@@ -72,13 +72,13 @@ export const Days = ({ date }: Props) => {
 								isPastDate
 									? "bg-gray-50 text-gray-300 cursor-not-allowed"
 									: isSelected
-									? "!bg-indigo-200 !text-indigo-900"
+									? "!bg-indigo-200 !text-gray-950"
 									: isWeekend
 									? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
-									: "bg-white text-indigo-900 hover:bg-indigo-50"
+									: "bg-white text-gray-950 hover:bg-indigo-50"
 							} ${
 								isToday
-									? "border-indigo-600 bg-indigo-50 font-bold"
+									? "border-gray-950 bg-indigo-50 font-bold"
 									: "border-indigo-200"
 							}`}
 						>

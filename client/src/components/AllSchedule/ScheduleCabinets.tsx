@@ -10,7 +10,7 @@ export const ScheduleCabinets = ({ cabinets }: Props) => {
 				{cabinets.map((cabinet: string) => (
 					<span
 						key={cabinet}
-						className='bg-purple-100 text-purple-800 text-sm px-2 py-1 rounded'
+						className='bg-purple-100 text-gray-950 text-sm px-2 py-1 rounded'
 					>
 						{cabinet}
 					</span>

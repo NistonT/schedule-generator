@@ -9,7 +9,7 @@ export const ScheduleId = ({ index, id }: Props) => {
 			<h2 className='text-xl font-bold text-gray-800'>
 				Расписание #{index + 1}
 			</h2>
-			<span className='inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full'>
+			<span className='inline-block bg-blue-100 text-gray-950 text-xs px-2 py-1 rounded-full'>
 				ID: {id}
 			</span>
 		</div>

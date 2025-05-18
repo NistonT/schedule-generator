@@ -1,7 +1,6 @@
 "use client";
 import { CabinetLimits } from "@/components/Generation/CabinetLimits";
 import { Cabinets } from "@/components/Generation/Cabinets";
-import { Days } from "@/components/Generation/Days";
 import { Groups } from "@/components/Generation/Groups";
 import { MaxLoad } from "@/components/Generation/MaxLoad";
 import { MultiSubject } from "@/components/Generation/MultiSubject";
@@ -24,11 +23,8 @@ import { TypeScheduleForm } from "@/types/schedule.type";
 import { useAtom, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { AllSchedule } from "./AllSchedule";
-import { CreateSchedule } from "./CreateSchedule";
-import { GenerationSchedule } from "./GenerationSchedule";
 
-export const Modal = () => {
+export const Panel = () => {
 	const setGenerationCurrentScheduleForm = useSetAtom(
 		generationCurrentScheduleFormAtom
 	);
@@ -87,9 +83,8 @@ export const Modal = () => {
 	]);
 
 	return (
-		<div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
-			<div className='bg-white p-6 rounded-lg shadow-lg w-full h-[90vh] max-w-[95vw] flex flex-col overflow-hidden'>
-				<h2 className='text-xl font-bold mb-4'>Форма генерации</h2>
+		<div className='relative inset-0 flex items-center justify-center z-50 w-full'>
+			<div className='p-6 flex flex-col w-full'>
 				<div className='flex-1 overflow-y-auto pr-4'>
 					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
 						<div className='space-y-6'>
@@ -100,18 +95,14 @@ export const Modal = () => {
 						<div className='space-y-6'>
 							<MaxLoad />
 							<CabinetLimits />
-							<Days />
 						</div>
 
 						<div className='space-y-6'>
 							<MultiSubject />
 						</div>
 					</div>
-					<div>
-						<AllSchedule />
-					</div>
 				</div>
-				<div className='flex justify-end gap-2 mt-4'>
+				{/* <div className='flex justify-end gap-2 mt-4'>
 					<a
 						href={`http://localhost:5555/api/schedule/generate?api-key=${data?.api_key}`}
 						target='_blank'
@@ -128,7 +119,7 @@ export const Modal = () => {
 					</button>
 					<GenerationSchedule />
 					<CreateSchedule />
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);
