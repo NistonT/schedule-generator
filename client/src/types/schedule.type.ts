@@ -31,7 +31,7 @@ export interface ISchedule {
 	schedule_count: number;
 
 	schedule: {
-		schedule: ILesson[];
+		schedule: ILesson[][];
 		failedAllocations: [];
 	} | null;
 	scheduleMain: {} | null;

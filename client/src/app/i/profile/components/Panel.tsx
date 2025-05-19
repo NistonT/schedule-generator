@@ -6,7 +6,6 @@ import { MaxLoad } from "@/components/Generation/MaxLoad";
 import { MultiSubject } from "@/components/Generation/MultiSubject";
 import { Teachers } from "@/components/Generation/Teachers";
 import { useProfile } from "@/hook/useProfile";
-import { modalAtom } from "@/jotai/modal";
 import {
 	amountLimitsAtom,
 	cabinetLimitsAtom,
@@ -38,11 +37,6 @@ export const Panel = () => {
 	const [cabinetLimits, setCabinetLimits] = useAtom(cabinetLimitsAtom);
 	const [days, setDays] = useAtom(daysAtom);
 	const [maxLoad, setMaxLoad] = useAtom(maxLoadAtom);
-	const [isModal, setIsModal] = useAtom(modalAtom);
-
-	const handlerIsModal = () => {
-		setIsModal(!isModal);
-	};
 
 	const { data } = useProfile();
 
@@ -61,8 +55,6 @@ export const Panel = () => {
 			days,
 			maxLoad,
 		};
-
-		console.log("Отправляемые данные:", JSON.stringify(schedule, null, 2));
 
 		if (!data) {
 			toast.error("Данные пользователя отсутствуют!");
