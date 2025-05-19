@@ -77,6 +77,8 @@ export class AuthService {
 
     if (!isValid) throw new UnauthorizedException('Пароль неверный');
 
+    await this.userService.updateCount(user.id);
+
     return user;
   }
 

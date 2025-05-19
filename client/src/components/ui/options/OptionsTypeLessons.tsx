@@ -8,7 +8,9 @@ export const OptionsTypeLessons = ({ array }: Props) => {
 	return (
 		<>
 			{array.map((type: ITypeLessons) => (
-				<option value={type.value}>{type.name}</option>
+				<option key={type.name} value={type.value}>
+					{type.name}
+				</option>
 			))}
 		</>
 	);

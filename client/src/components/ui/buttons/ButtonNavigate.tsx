@@ -6,17 +6,18 @@ import { ReactNode } from "react";
 type Props = {
 	title: string;
 	href: string;
-	icon?: ReactNode;
+	icon: ReactNode;
 };
 
 export const ButtonNavigate = ({ title, href, icon }: Props) => {
 	const pathname = usePathname();
-
 	return (
 		<Link
 			href={href}
-			className={`flex items-center w-full p-4 space-x-3 text-2xl rounded-xl transition-all ${
-				pathname === href ? "text-white bg-gray-950 shadow-md" : ""
+			className={`flex items-center w-full p-4 space-x-3 text-lg rounded-xl transition-all ${
+				pathname === href
+					? "text-white bg-gray-950 shadow-md"
+					: "hover:text-white hover:bg-gray-950 hover:shadow-md"
 			}`}
 		>
 			{icon}

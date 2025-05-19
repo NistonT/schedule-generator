@@ -81,6 +81,8 @@ export class ScheduleController {
       );
     }
 
+    await this.scheduleDefaultService.scheduleCount(api_key, scheduleId);
+
     return await this.scheduleService.generatedSchedulePrisma(
       api_key,
       scheduleId,

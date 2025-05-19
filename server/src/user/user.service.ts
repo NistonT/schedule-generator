@@ -144,4 +144,20 @@ export class UserService {
       },
     });
   }
+
+  // Счетчик входа в аккаунт
+  public async updateCount(id: string) {
+    const user = await this.getById(id);
+
+    const userCount = await this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        visits: user.visits + 1,
+      },
+    });
+
+    return userCount;
+  }
 }

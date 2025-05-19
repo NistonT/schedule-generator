@@ -3,10 +3,9 @@ import { DaysList } from "@/components/Generation/DaysList";
 import { monthGeneration } from "@/constants/month.generate.constants";
 import { useProfile } from "@/hook/useProfile";
 import { dataProfileAtom } from "@/jotai/generation";
-import { modalAtom } from "@/jotai/modal";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
-import { useAtom, useSetAtom } from "jotai";
+import { useSetAtom } from "jotai";
 import Cookies from "js-cookie";
 import { Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -21,13 +20,8 @@ dayjs.locale("ru");
 
 export const Profile = () => {
 	const [currentDate, setCurrentDate] = useState(dayjs());
-	const [isModal, setIsModal] = useAtom<boolean>(modalAtom);
 	const { data } = useProfile();
 	const setDataProfile = useSetAtom(dataProfileAtom);
-
-	const handlerIsModal = () => {
-		setIsModal(!isModal);
-	};
 
 	useEffect(() => {
 		if (!data) {
@@ -62,13 +56,6 @@ export const Profile = () => {
 						Перейти к расписанию
 					</a>
 
-					<button
-						type='button'
-						className='bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600'
-						onClick={() => handlerIsModal()}
-					>
-						Закрыть
-					</button>
 					<GenerationSchedule />
 					<CreateSchedule />
 				</div>

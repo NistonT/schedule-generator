@@ -10,8 +10,8 @@ import { useProfile } from "@/hook/useProfile";
 import { isAdminAtom, isAuthAtom } from "@/jotai/auth";
 import { useAtom } from "jotai";
 import { LogOut, Mail, ShieldCheck, User } from "lucide-react";
-import { LayoutGroup, m } from "motion/react";
-import { ReactNode } from "react";
+import { m } from "motion/react";
+import { ReactNode, useState } from "react";
 import { Loading } from "../Loading";
 import { ButtonNavigate } from "../ui/buttons/ButtonNavigate";
 
@@ -23,6 +23,8 @@ export const ProfileMain = ({ children }: Props) => {
 	const { data, isLoading } = useProfile();
 	const [isAuth, setIsAuth] = useAtom(isAuthAtom);
 	const [isAdmin, setIsAdmin] = useAtom(isAdminAtom);
+
+	const [selectedTab, setSelectedTab] = useState(navigateProfile[0]);
 
 	const { onLogout } = useLogout();
 
@@ -84,23 +86,21 @@ export const ProfileMain = ({ children }: Props) => {
 							/>
 						</m.div>
 					</m.div>
-					<div className='mx-auto w-full flex relative mt-10'>
+					<div className='mx-auto w-full flex relative mt-5'>
 						<div className='w-1/5 p-5 relative ml-14' />
 						<div className='w-1/5 p-5 fixed flex flex-col gap-5'>
-							<LayoutGroup>
-								{navigateProfile
-									.filter(link => !link.isAdmin || isAdmin)
-									.map(link => (
-										<m.div layout key={link.title}>
-											<ButtonNavigate
-												key={link.title}
-												icon={<link.icon />}
-												title={link.title}
-												href={link.href}
-											/>
-										</m.div>
-									))}
-							</LayoutGroup>
+							{navigateProfile
+								.filter(link => !link.isAdmin || isAdmin)
+								.map(link => (
+									<m.div key={link.title}>
+										<ButtonNavigate
+											key={link.title}
+											icon={<link.icon />}
+											title={link.title}
+											href={link.href}
+										/>
+									</m.div>
+								))}
 						</div>
 						<div className='w-4/5 p-5'>{children}</div>
 					</div>

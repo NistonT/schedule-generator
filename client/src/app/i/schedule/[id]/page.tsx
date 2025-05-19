@@ -1,9 +1,11 @@
+import { ScheduleId } from "./ScheduleId";
+
 interface Props {
 	params: {
-		id: number;
+		id: string;
 	};
 }
 
 export default function ScheduleIdPage({ params: { id } }: Props) {
-	return <div>{id}</div>;
+	return <ScheduleId id={id} />;
 }

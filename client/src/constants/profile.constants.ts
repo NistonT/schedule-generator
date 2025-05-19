@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { ComponentType, SVGProps } from "react";
 
-interface INavigateProfile {
+export interface INavigateProfile {
 	icon: ComponentType<SVGProps<SVGSVGElement>>;
 	title: string;
 	href: string;
