@@ -105,3 +105,8 @@ export type TypeGetSchedule = {
 	subject: string;
 	teacher: string;
 };
+
+export interface IGroupedDays {
+	date: string;
+	lessons: ILesson[];
+}
