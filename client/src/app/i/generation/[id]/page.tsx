@@ -2,7 +2,7 @@ import { GenerationId } from "./GenerationId";
 
 type Props = {
 	params: {
-		id: number;
+		id: string;
 	};
 };
 

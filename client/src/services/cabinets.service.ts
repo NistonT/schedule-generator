@@ -10,7 +10,7 @@ class CabinetsService {
 
 	// Добавить кабинет
 	async addCabinets(
-		name: string | string[],
+		name: string[],
 		api: string,
 		scheduleId: string
 	): Promise<AxiosResponse<ISchedule>> {
