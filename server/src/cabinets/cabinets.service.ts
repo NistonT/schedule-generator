@@ -42,38 +42,33 @@ export class CabinetsService {
   }
 
   public async addCabinet(
-    name: string | string[],
+    names: string[],
     apiKey: string,
     scheduleId?: string,
   ): Promise<string[]> {
     // Проверяем входные данные
-    if (Array.isArray(name)) {
-      if (name.length === 0) {
-        throw new BadRequestException(
-          'Необходимо указать хотя бы один кабинет',
-        );
-      }
+    if (!Array.isArray(names)) {
+      throw new BadRequestException(
+        'Кабинеты должны быть переданы в виде массива',
+      );
+    }
 
-      for (const cabinetName of name) {
-        if (!cabinetName?.trim()) {
-          throw new BadRequestException('Название кабинета обязательно');
-        }
-      }
-    } else {
+    if (names.length === 0) {
+      throw new BadRequestException('Необходимо указать хотя бы один кабинет');
+    }
+
+    for (const name of names) {
       if (!name?.trim()) {
         throw new BadRequestException('Название кабинета обязательно');
       }
-      name = [name];
     }
 
     const { schedule } = await this.validateUserAndSchedule(apiKey, scheduleId);
 
-    // Фильтруем кабинеты, оставляя только те, которых ещё нет в расписании
-    const uniqueNames = Array.isArray(name)
-      ? name.filter((cabinetName) => !schedule.cabinets.includes(cabinetName))
-      : !schedule.cabinets.includes(name)
-        ? [name]
-        : [];
+    // Фильтруем кабинеты, оставляя только уникальные (тех, которых ещё нет в расписании)
+    const uniqueNames = names.filter(
+      (name) => !schedule.cabinets.includes(name),
+    );
 
     if (uniqueNames.length === 0) {
       return schedule.cabinets; // Возвращаем текущий список, если все кабинеты уже существуют
