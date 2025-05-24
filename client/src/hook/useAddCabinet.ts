@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+// Добавление кабинета
 export const useAddCabinet = (profile: IUser | null, schedule_id: string) => {
 	const {
 		register,
@@ -32,5 +33,5 @@ export const useAddCabinet = (profile: IUser | null, schedule_id: string) => {
 		mutate(list_cabinets);
 	};
 
-	return { onSubmit, register, handleSubmit };
+	return { onSubmit, register, handleSubmit, errors };
 };

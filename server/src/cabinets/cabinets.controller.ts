@@ -30,7 +30,7 @@ export class CabinetsController {
   */
   @Post()
   public async add(
-    @Body() body: { name: string | string[] }, // Изменено на получение всего body
+    @Body() body: { name: string[] }, // Изменено на получение всего body
     @Query('api-key') api_key: string,
     @Query('schedule_id') scheduleId: string,
   ): Promise<string[]> {
