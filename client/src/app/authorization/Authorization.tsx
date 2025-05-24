@@ -17,7 +17,6 @@ export const Authorization = () => {
 	return (
 		<div className='min-h-screen flex items-center justify-center'>
 			<div className='w-full max-w-md p-8 space-y-3 bg-white backdrop-blur-lg'>
-				{/* Первый блок */}
 				<m.div
 					{...motionAuthorization}
 					className='flex items-center justify-between'
