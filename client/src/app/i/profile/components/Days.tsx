@@ -5,7 +5,9 @@ import { excludedDaysOfWeekAtom, viewModeAtom } from "@/jotai/viewModeAtom";
 import dayjs, { Dayjs } from "dayjs";
 import { motion } from "framer-motion";
 import { useAtom } from "jotai";
+import { m } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
+import { ScaleControl } from "./ScaleControl";
 
 type Props = {
 	date: Dayjs;
@@ -18,7 +20,13 @@ export const Days = ({ date, onClear }: Props) => {
 	const [startDay, setStartDay] = useState<number | null>(null);
 	const [isShiftPressed, setIsShiftPressed] = useState(false);
 	const [viewMode, setViewMode] = useAtom(viewModeAtom);
-	const [excludedDaysOfWeek] = useAtom(excludedDaysOfWeekAtom);
+	const [excludedDaysOfWeek, setExcludedDaysOfWeek] = useAtom(
+		excludedDaysOfWeekAtom
+	);
+
+	const handleClear = () => {
+		setArrayDays([]);
+	};
 
 	// Кэшируем значения дней месяца и первого дня месяца
 	const daysInMonth = useMemo(() => date.daysInMonth(), [date]);
@@ -183,36 +191,14 @@ export const Days = ({ date, onClear }: Props) => {
 	return (
 		<div className='select-none p-4'>
 			{/* Управление масштабом */}
-			<div className='flex items-center justify-between mb-4'>
-				<div>
-					<button
-						onClick={zoomOut}
-						className='px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition'
-					>
-						-
-					</button>
-					<button
-						onClick={zoomIn}
-						className='ml-2 px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition'
-					>
-						+
-					</button>
-				</div>
 
-				{/* Заголовок месяца или года */}
-				<div className='text-center text-xl font-bold text-gray-950'>
-					{viewMode === "month"
-						? date.format("YYYY")
-						: date.format("MMMM YYYY")}
-				</div>
-
-				<button
-					onClick={onClear}
-					className='px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition'
-				>
-					Очистить
-				</button>
-			</div>
+			<ScaleControl
+				zoomIn={zoomIn}
+				zoomOut={zoomOut}
+				viewMode={viewMode}
+				date={date}
+				onClear={handleClear}
+			/>
 
 			{/* Режим месяцев */}
 			{viewMode === "month" && (
@@ -257,7 +243,7 @@ export const Days = ({ date, onClear }: Props) => {
 						const allSelected = isAllSelected(weekDates);
 
 						return (
-							<motion.div
+							<m.div
 								key={weekIndex}
 								onClick={() => handleWeekClick(startWeekDay)}
 								className={`p-3 border rounded-lg shadow-sm bg-white text-gray-950 cursor-pointer ${
@@ -271,7 +257,7 @@ export const Days = ({ date, onClear }: Props) => {
 							>
 								Неделя {weekIndex + 1} — {startWeekDay.format("D")} –{" "}
 								{endWeekDay.format("D MMM")}
-							</motion.div>
+							</m.div>
 						);
 					})}
 				</div>
@@ -314,7 +300,7 @@ export const Days = ({ date, onClear }: Props) => {
 							const isSelected = arrayDays.includes(formattedDate);
 
 							return (
-								<motion.div
+								<m.div
 									key={day}
 									onMouseDown={e => handleMouseDown(e, day)}
 									onMouseEnter={() => handleMouseEnter(day)}
@@ -336,7 +322,7 @@ export const Days = ({ date, onClear }: Props) => {
 									whileTap={!isExcluded ? { scale: 0.95 } : {}}
 								>
 									{day}
-								</motion.div>
+								</m.div>
 							);
 						})}
 					</div>

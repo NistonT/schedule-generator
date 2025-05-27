@@ -16,6 +16,7 @@ import { Days } from "./components/Days";
 
 import { DaysList } from "@/components/Generation/DaysList";
 import { CreateSchedule } from "./components/CreateSchedule";
+import { ExcludedDaysToggle } from "./components/ExcludedDaysToggle";
 import { GenerationSchedule } from "./components/GenerationSchedule";
 import { Panel } from "./components/Panel";
 
@@ -82,14 +83,13 @@ export const Profile = () => {
 						Следующий год →
 					</button>
 				</div>
-
+				<ExcludedDaysToggle />
 				{/* Свайпер с месяцами */}
 				<Swiper
 					modules={[Navigation]}
 					spaceBetween={50}
 					slidesPerView={1}
 					initialSlide={0}
-					navigation
 					className='mb-8'
 				>
 					{generateMonths().map((monthDate, index) => (
