@@ -81,17 +81,24 @@ export const Panel = () => {
 					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
 						<div className='space-y-6'>
 							<Cabinets />
+						</div>
+						<div className='space-y-6'>
 							<Groups />
+						</div>
+						<div className='space-y-6'>
 							<Teachers />
 						</div>
+					</div>
+					<div className='flex justify-between'>
 						<div className='space-y-6'>
 							<MaxLoad />
+						</div>
+						<div className='space-y-6'>
 							<CabinetLimits />
 						</div>
-
-						<div className='space-y-6'>
-							<MultiSubject />
-						</div>
+					</div>
+					<div className='space-y-6'>
+						<MultiSubject />
 					</div>
 				</div>
 				{/* <div className='flex justify-end gap-2 mt-4'>

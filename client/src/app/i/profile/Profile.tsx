@@ -19,6 +19,7 @@ import { CreateSchedule } from "./components/CreateSchedule";
 import { ExcludedDaysToggle } from "./components/ExcludedDaysToggle";
 import { GenerationSchedule } from "./components/GenerationSchedule";
 import { Panel } from "./components/Panel";
+import { YearNavigation } from "./components/YearNavigationButtons";
 
 dayjs.locale("ru");
 
@@ -65,25 +66,12 @@ export const Profile = () => {
 
 				<Panel />
 
-				{/* Кнопки навигации по годам */}
-				<div className='flex justify-between items-center my-4'>
-					<button
-						onClick={handlePrevYear}
-						className='px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition'
-					>
-						← Предыдущий год
-					</button>
-					<h2 className='text-xl font-semibold'>
-						{currentDateRef.current.add(yearOffset, "year").format("YYYY")}
-					</h2>
-					<button
-						onClick={handleNextYear}
-						className='px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition'
-					>
-						Следующий год →
-					</button>
-				</div>
 				<ExcludedDaysToggle />
+				{/* Кнопки навигации по годам */}
+				<YearNavigation
+					handlePrevYear={handlePrevYear}
+					handleNextYear={handleNextYear}
+				/>
 				{/* Свайпер с месяцами */}
 				<Swiper
 					modules={[Navigation]}

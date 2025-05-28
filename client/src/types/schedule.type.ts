@@ -110,3 +110,8 @@ export interface IGroupedDays {
 	date: string;
 	lessons: ILesson[];
 }
+
+export type IMonthItem = {
+	name: string;
+	value: number;
+};

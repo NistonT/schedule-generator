@@ -3,11 +3,12 @@
 import { daysAtom } from "@/jotai/schedule";
 import { excludedDaysOfWeekAtom, viewModeAtom } from "@/jotai/viewModeAtom";
 import dayjs, { Dayjs } from "dayjs";
-import { motion } from "framer-motion";
 import { useAtom } from "jotai";
-import { m } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
+import { DayMode } from "./DayMode";
+import { MonthlyMode } from "./MonthlyMode";
 import { ScaleControl } from "./ScaleControl";
+import { WeekMode } from "./WeekMode";
 
 type Props = {
 	date: Dayjs;
@@ -35,6 +36,26 @@ export const Days = ({ date, onClear }: Props) => {
 		() => (firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1),
 		[firstDayOfMonth]
 	);
+
+	const handleRightClick = (e: React.MouseEvent, day: number) => {
+		e.preventDefault(); // 🔥 Блокируем стандартное меню браузера
+		e.stopPropagation();
+
+		const currentDate = date.date(day);
+		const dayOfWeek = currentDate.day();
+
+		if (excludedDaysOfWeek.has(dayOfWeek)) return; // если день исключён — не выбираем
+
+		const formattedDate = currentDate.format("YYYY-MM-DD");
+		const isSelected = arrayDays.includes(formattedDate);
+
+		// Просто добавляем или убираем дату по ПКМ
+		setArrayDays(prev =>
+			isSelected
+				? prev.filter(d => d !== formattedDate)
+				: [...prev, formattedDate]
+		);
+	};
 
 	// Обработчик начала выделения (только при зажатом Shift)
 	const handleMouseDown = (e: React.MouseEvent, day: number) => {
@@ -201,133 +222,37 @@ export const Days = ({ date, onClear }: Props) => {
 			/>
 
 			{/* Режим месяцев */}
-			{viewMode === "month" && (
-				<div className='grid grid-cols-3 gap-4'>
-					{months.map(m => {
-						const monthDate = date.month(m.value);
-						const monthDates = getMonthDates(monthDate);
-						const allSelected = isAllSelected(monthDates);
-
-						return (
-							<motion.div
-								key={m.value}
-								onClick={() => handleMonthClick(m.value)}
-								className={`p-3 text-center border rounded-lg shadow-sm bg-white text-gray-950 cursor-pointer ${
-									allSelected
-										? "bg-indigo-200 border-indigo-500"
-										: "hover:bg-indigo-50 border-indigo-200"
-								}`}
-								initial={{ scale: 1 }}
-								whileTap={{ scale: 0.98 }}
-								transition={{ type: "spring", stiffness: 300 }}
-							>
-								{m.name}
-							</motion.div>
-						);
-					})}
-				</div>
-			)}
+			<MonthlyMode
+				viewMode={viewMode}
+				months={months}
+				date={date}
+				arrayDays={arrayDays}
+				handleMonthClick={handleMonthClick}
+				isAllSelected={isAllSelected}
+				getMonthDates={getMonthDates}
+			/>
 
 			{/* Режим недель */}
-			{viewMode === "week" && (
-				<div className='grid grid-cols-1 gap-2'>
-					{Array.from({ length: 6 }).map((_, weekIndex) => {
-						const startWeekDay = date
-							.startOf("month")
-							.add(weekIndex * 7, "day");
-						const endWeekDay = startWeekDay.endOf("week");
-
-						if (startWeekDay.month() !== date.month()) return null;
-
-						const weekDates = getWeekDates(startWeekDay);
-						const allSelected = isAllSelected(weekDates);
-
-						return (
-							<m.div
-								key={weekIndex}
-								onClick={() => handleWeekClick(startWeekDay)}
-								className={`p-3 border rounded-lg shadow-sm bg-white text-gray-950 cursor-pointer ${
-									allSelected
-										? "bg-indigo-200 border-indigo-500"
-										: "hover:bg-indigo-50 border-indigo-200"
-								}`}
-								initial={{ scale: 1 }}
-								whileTap={{ scale: 0.98 }}
-								transition={{ type: "spring", stiffness: 300 }}
-							>
-								Неделя {weekIndex + 1} — {startWeekDay.format("D")} –{" "}
-								{endWeekDay.format("D MMM")}
-							</m.div>
-						);
-					})}
-				</div>
-			)}
+			<WeekMode
+				viewMode={viewMode}
+				date={date}
+				isAllSelected={isAllSelected}
+				getWeekDates={getWeekDates}
+				handleWeekClick={handleWeekClick}
+			/>
 
 			{/* Режим дней */}
-			{viewMode === "day" && (
-				<>
-					{/* Дни недели */}
-					<div className='grid grid-cols-7 gap-2'>
-						{["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"].map((day, index) => (
-							<div
-								key={day}
-								className={`text-center text-sm font-medium ${
-									excludedDaysOfWeek.has(index)
-										? "text-red-500"
-										: "text-gray-500"
-								}`}
-							>
-								{day}
-							</div>
-						))}
-					</div>
-
-					{/* Дни месяца */}
-					<div className='grid grid-cols-7 gap-2 mt-2'>
-						{/* Пустые ячейки перед первым днем месяца */}
-						{Array.from({ length: adjustedFirstDay }).map((_, i) => (
-							<div key={`empty-${i}`} />
-						))}
-
-						{Array.from({ length: daysInMonth }).map((_, i) => {
-							const day = i + 1;
-							const currentDate = date.date(day);
-							const dayOfWeek = currentDate.day();
-							const isExcluded = excludedDaysOfWeek.has(dayOfWeek);
-							const isToday = currentDate.isSame(dayjs(), "day");
-							const isPastDate = currentDate.isBefore(dayjs(), "day");
-							const formattedDate = currentDate.format("YYYY-MM-DD");
-							const isSelected = arrayDays.includes(formattedDate);
-
-							return (
-								<m.div
-									key={day}
-									onMouseDown={e => handleMouseDown(e, day)}
-									onMouseEnter={() => handleMouseEnter(day)}
-									className={`p-2 text-center border-2 rounded-lg shadow-sm flex items-center justify-center text-2xl cursor-pointer select-none ${
-										isPastDate
-											? "bg-gray-50 text-gray-300 cursor-not-allowed"
-											: isSelected
-											? "!bg-indigo-200 !text-gray-950"
-											: isExcluded
-											? "bg-gray-100 text-gray-400"
-											: "bg-white text-gray-950 hover:bg-indigo-50"
-									} ${
-										isToday
-											? "border-gray-950 bg-indigo-50 font-bold"
-											: "border-indigo-200"
-									}`}
-									initial={{ scale: 1 }}
-									whileHover={!isExcluded ? { scale: 1.05 } : {}}
-									whileTap={!isExcluded ? { scale: 0.95 } : {}}
-								>
-									{day}
-								</m.div>
-							);
-						})}
-					</div>
-				</>
-			)}
+			<DayMode
+				viewMode={viewMode}
+				excludedDaysOfWeek={excludedDaysOfWeek}
+				adjustedFirstDay={adjustedFirstDay}
+				daysInMonth={daysInMonth}
+				date={date}
+				arrayDays={arrayDays}
+				handleMouseDown={handleMouseDown}
+				handleMouseEnter={handleMouseEnter}
+				handleRightClick={handleRightClick}
+			/>
 		</div>
 	);
 };

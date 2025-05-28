@@ -1,18 +1,13 @@
 "use client";
-import { typeLessons } from "@/constants/schedule.constants";
 import {
 	amountLimitsAtom,
+	daysAtom,
 	groupsAtom,
 	subjectsMapAtom,
 	teachersAtom,
 	teachersMapAtom,
 } from "@/jotai/schedule";
-import {
-	CombinedRecord,
-	TypeAmountLimits,
-	TypeTeachers,
-	TypeTeachersMap,
-} from "@/types/schedule.type";
+import { CombinedRecord } from "@/types/schedule.type";
 import { useAtom } from "jotai";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -26,14 +21,12 @@ import {
 import { ConclusionSubjects } from "./СonclusionSubjects";
 
 export const MultiSubject = () => {
-	const [amountLimits, setAmountLimits] =
-		useAtom<TypeAmountLimits[]>(amountLimitsAtom);
-	const [teachersMap, setTeachersMap] =
-		useAtom<TypeTeachersMap[]>(teachersMapAtom);
-	const [subjectsMap, setSubjectsMap] =
-		useAtom<Record<string, string[]>>(subjectsMapAtom);
-	const [groups, setGroups] = useAtom<string[]>(groupsAtom);
-	const [teachers, setTeachers] = useAtom<TypeTeachers[]>(teachersAtom);
+	const [arrayDays] = useAtom(daysAtom);
+	const [groups, setGroups] = useAtom(groupsAtom);
+	const [subjectsMap, setSubjectsMap] = useAtom(subjectsMapAtom);
+	const [teachersMap, setTeachersMap] = useAtom(teachersMapAtom);
+	const [amountLimits, setAmountLimits] = useAtom(amountLimitsAtom);
+	const [teachers, setTeachers] = useAtom(teachersAtom);
 
 	const formattedTeachers = teachers?.map(teacher => ({
 		tid: teacher.tid,
@@ -43,7 +36,9 @@ export const MultiSubject = () => {
 	const [selectedGroup, setSelectedGroup] = useState("");
 	const [selectedSubject, setSelectedSubject] = useState("");
 	const [selectedTeacher, setSelectedTeacher] = useState("");
-	const [amount, setAmount] = useState<number>(0);
+	const [lecturesAmount, setLecturesAmount] = useState<number>(0); // лекции (общие)
+	const [subgroup1Amount, setSubgroup1Amount] = useState<number>(0); // подгруппа 1
+	const [subgroup2Amount, setSubgroup2Amount] = useState<number>(0); // подгруппа 2
 	const [lessonType, setLessonType] = useState<"L" | "1" | "2">("L");
 	const [inputValue, setInputValue] = useState("");
 
@@ -60,122 +55,117 @@ export const MultiSubject = () => {
 		setSelectedTeacher(e.target.value);
 	};
 
-	const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = parseInt(e.target.value, 10);
-		setAmount(isNaN(value) ? 0 : value);
-	};
-
-	const handleLessonTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		setLessonType(e.target.value as "L" | "1" | "2");
-	};
-
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setInputValue(e.target.value);
 	};
 
-	// Основная функция добавления предмета с привязкой к группе, преподавателю и количеству
 	const handleAddSubject = () => {
-		const trimmedValue = inputValue.trim();
-
-		if (!trimmedValue || !selectedGroup || !selectedTeacher || amount <= 0) {
-			toast.error("Заполните все поля корректно!");
+		if (!selectedGroup || !inputValue) {
+			toast.error("Выберите группу и введите название предмета!");
 			return;
 		}
 
-		// Проверка на дубликат предмета для группы
-		const isSubjectDuplicate =
-			subjectsMap[selectedGroup]?.includes(trimmedValue);
-		if (isSubjectDuplicate) {
-			toast.error("Предмет уже добавлен для этой группы!");
-			return;
-		}
-
-		// Проверка на дубликат записи в amountLimits
-		const isAmountLimitDuplicate = amountLimits.some(
-			item =>
-				item.group === selectedGroup &&
-				item.subject === trimmedValue &&
-				item.lessonType === lessonType
-		);
-		if (isAmountLimitDuplicate) {
-			toast.error("Ограничение для этого предмета уже существует!");
-			return;
-		}
-
-		// Проверка на дубликат записи в teachersMap
-		const isTeacherMapDuplicate = teachersMap.some(
-			item =>
-				item.group === selectedGroup &&
-				item.subject === trimmedValue &&
-				item.tid === parseInt(selectedTeacher)
-		);
-		if (isTeacherMapDuplicate) {
-			toast.error("Преподаватель уже привязан к этому предмету!");
-			return;
-		}
-
-		// Добавление предмета в subjectsMap
+		// Добавляем в subjectsMap
 		setSubjectsMap(prev => ({
 			...prev,
-			[selectedGroup]: [...(prev[selectedGroup] || []), trimmedValue],
+			[selectedGroup]: prev[selectedGroup]?.includes(inputValue)
+				? [...prev[selectedGroup]]
+				: [...(prev[selectedGroup] || []), inputValue],
 		}));
 
-		// Добавление записи в amountLimits
-		const newAmountLimit: TypeAmountLimits = {
-			group: selectedGroup,
-			subject: trimmedValue,
-			amount: amount,
-			lessonType: lessonType,
-		};
-		setAmountLimits(prev => [...prev, newAmountLimit]);
+		// Формируем три типа записей
+		if (lecturesAmount > 0) {
+			setAmountLimits(prev => [
+				...prev,
+				{
+					group: selectedGroup,
+					subject: inputValue,
+					amount: lecturesAmount,
+					lessonType: "L",
+				},
+			]);
+		}
 
-		// Добавление записи в teachersMap
-		const newTeacherMap: TypeTeachersMap = {
-			tid: parseInt(selectedTeacher),
-			subject: trimmedValue,
-			group: selectedGroup,
-		};
-		setTeachersMap(prev => [...prev, newTeacherMap]);
+		if (subgroup1Amount > 0) {
+			setAmountLimits(prev => [
+				...prev,
+				{
+					group: `${selectedGroup}`,
+					subject: inputValue,
+					amount: subgroup1Amount,
+					lessonType: "1",
+				},
+			]);
+		}
 
-		// Очистка полей
+		if (subgroup2Amount > 0) {
+			setAmountLimits(prev => [
+				...prev,
+				{
+					group: `${selectedGroup}`,
+					subject: inputValue,
+					amount: subgroup2Amount,
+					lessonType: "2",
+				},
+			]);
+		}
+
+		// Привязываем преподавателя ко всем трём типам занятий
+		const tid = parseInt(selectedTeacher);
+		if (tid && !isNaN(tid)) {
+			if (lecturesAmount > 0) {
+				setTeachersMap(prev => [
+					...prev,
+					{ tid, subject: inputValue, group: selectedGroup },
+				]);
+			}
+			if (subgroup1Amount > 0) {
+				setTeachersMap(prev => [
+					...prev,
+					{ tid, subject: inputValue, group: `${selectedGroup}-1` },
+				]);
+			}
+			if (subgroup2Amount > 0) {
+				setTeachersMap(prev => [
+					...prev,
+					{ tid, subject: inputValue, group: `${selectedGroup}-2` },
+				]);
+			}
+		}
+
+		// Сброс формы
 		setInputValue("");
-		setAmount(0);
+		setLecturesAmount(0);
+		setSubgroup1Amount(0);
+		setSubgroup2Amount(0);
 		setSelectedGroup("");
 		setSelectedTeacher("");
 		setLessonType("L");
 
-		toast.success("Предмет успешно добавлен!");
+		toast.success("Предмет и нагрузки успешно добавлены!");
 	};
 
-	// Удаление группы и её предметов
+	// Удаление группы
 	const handleRemoveGroup = (group: string) => {
-		if (
-			window.confirm(
-				`Вы уверены, что хотите удалить группу "${group}" и все её предметы?`
-			)
-		) {
+		if (window.confirm(`Удалить группу "${group}" и все её предметы?`)) {
 			setGroups(prev => prev.filter(g => g !== group));
 			setSubjectsMap(prev => {
-				const newSubjectsMap = { ...prev };
-				delete newSubjectsMap[group];
-				return newSubjectsMap;
+				const updated = { ...prev };
+				delete updated[group];
+				return updated;
 			});
-			toast.success(`Группа "${group}" и все её предметы удалены!`);
+			toast.success(`Группа "${group}" удалена`);
 		}
 	};
 
-	// Удаление предмета
+	// Удаление предмета из subjectsMap
 	const handleRemoveSubject = (group: string, subject: string) => {
-		if (
-			window.confirm(
-				`Вы уверены, что хотите удалить предмет "${subject}" для группы "${group}"?`
-			)
-		) {
+		if (window.confirm(`Удалить предмет "${subject}" у группы "${group}"?`)) {
 			setSubjectsMap(prev => ({
 				...prev,
 				[group]: prev[group].filter(s => s !== subject),
 			}));
-			toast.success(`Предмет "${subject}" удален для группы "${group}"!`);
+			toast.success(`Предмет "${subject}" удален из "${group}"`);
 		}
 	};
 
@@ -183,45 +173,36 @@ export const MultiSubject = () => {
 	const handleRemoveAmountLimit = (index: number) => {
 		if (window.confirm("Вы уверены, что хотите удалить эту запись?")) {
 			setAmountLimits(prev => prev.filter((_, i) => i !== index));
-			toast.success("Запись удалена!");
+			toast.success("Запись удалена");
 		}
 	};
 
-	// Удаление записи из teachersMap
+	// Удаление из teachersMap
 	const handleRemoveTeachersMap = (tid: number) => {
 		if (window.confirm("Вы уверены, что хотите удалить эту запись?")) {
 			setTeachersMap(prev => prev.filter(item => item.tid !== tid));
-			toast.success("Запись удалена!");
+			toast.success("Преподаватель удален из привязки");
 		}
 	};
 
-	// Функция для получения имени преподавателя по его tid
-	const getTeacherName = (tid: number) => {
-		const teacher = formattedTeachers?.find(t => t.tid === tid);
-		return teacher ? teacher.name : "Неизвестный преподаватель";
-	};
+	// Получаем имя преподавателя по tid
+	const getTeacherName = (tid: number) =>
+		formattedTeachers.find(t => t.tid === tid)?.name ||
+		"Неизвестный преподаватель";
 
 	// Создание объединенного списка для вывода
-	const combinedRecords: CombinedRecord[] = amountLimits.map(amountLimit => {
-		const teacherRecord = teachersMap.find(
-			record =>
-				record.group === amountLimit.group &&
-				record.subject === amountLimit.subject
-		);
-
-		// Убедимся, что lessonType соответствует типу "L" | "1" | "2"
-		const lessonType = amountLimit.lessonType as "L" | "1" | "2";
-
-		return {
-			group: amountLimit.group,
-			subject: amountLimit.subject,
-			teacherName: teacherRecord
-				? getTeacherName(teacherRecord.tid)
-				: "Неизвестный преподаватель",
-			amount: amountLimit.amount,
-			lessonType: lessonType,
-		};
-	});
+	const combinedRecords: CombinedRecord[] = amountLimits.map(limit => ({
+		group: limit.group,
+		subject: limit.subject,
+		teacherName: (() => {
+			const teacher = teachersMap.find(
+				t => t.group === limit.group && t.subject === limit.subject
+			);
+			return teacher ? getTeacherName(teacher.tid) : "Не назначен";
+		})(),
+		amount: limit.amount,
+		lessonType: limit.lessonType as "L" | "1" | "2",
+	}));
 
 	return (
 		<>
@@ -243,12 +224,14 @@ export const MultiSubject = () => {
 					array={groups}
 					type={EnumTypeArray.COMMON}
 				/>
+
 				<FieldGeneration
 					label={"Название предмета"}
 					name={"subject"}
 					value={inputValue}
 					onChange={handleInputChange}
 				/>
+
 				<SelectMultiSubject
 					label={"Выберите преподавателя"}
 					id={"teacher"}
@@ -257,20 +240,35 @@ export const MultiSubject = () => {
 					array={formattedTeachers}
 					type={EnumTypeArray.OBJECT}
 				/>
-				<FieldMulti
-					label={"Количество"}
-					id={"amount"}
-					value={amount}
-					onChange={handleAmountChange}
-				/>
-				<SelectMultiSubject
-					label={"Тип занятия"}
-					id={"lesson-type"}
-					value={lessonType}
-					onChange={handleLessonTypeChange}
-					type={EnumTypeArray.TYPE}
-					array={typeLessons}
-				/>
+
+				{/* Поля для ввода количества */}
+				<div className='space-y-4 mt-4'>
+					<FieldMulti
+						label={"Количество лекций"}
+						id={"lectures"}
+						value={lecturesAmount}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+							setLecturesAmount(parseInt(e.target.value) || 0)
+						}
+					/>
+					<FieldMulti
+						label={"Количество на первую подгруппу"}
+						id={"subgroup1"}
+						value={subgroup1Amount}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+							setSubgroup1Amount(parseInt(e.target.value) || 0)
+						}
+					/>
+					<FieldMulti
+						label={"Количество на вторую подгруппу"}
+						id={"subgroup2"}
+						value={subgroup2Amount}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+							setSubgroup2Amount(parseInt(e.target.value) || 0)
+						}
+					/>
+				</div>
+
 				<ButtonGeneration title={"Добавить предмет"} />
 			</form>
 		</>
