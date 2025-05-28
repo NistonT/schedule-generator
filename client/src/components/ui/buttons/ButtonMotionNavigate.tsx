@@ -9,22 +9,31 @@ type Props = {
 	iconLeft?: boolean;
 };
 
-export const ButtonMotion = ({
+export const ButtonMotionNavigation = ({
 	title,
 	icon: Icon,
 	className,
 	onClick,
-	iconLeft = false,
+	iconLeft = true,
 }: Props) => {
 	return (
 		<m.button
 			whileTap={{ scale: 0.95 }}
 			type='submit'
-			className={`mt-4 px-4 py-2 rounded-md ${className}`}
+			className={`mt-4 px-4 py-2 rounded-md flex items-center ${className}`}
 			onClick={onClick}
 		>
-			<Icon size={20} />
-			{title}
+			{iconLeft ? (
+				<>
+					<Icon size={20} />
+					{title}
+				</>
+			) : (
+				<>
+					{title}
+					<Icon size={20} />
+				</>
+			)}
 		</m.button>
 	);
 };
