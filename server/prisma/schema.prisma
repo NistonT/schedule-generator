@@ -13,7 +13,14 @@ model User {
   email    String @unique
   password String
 
-  telegram_id String?
+  telegram_id String? @unique
+
+  firstName_telegram String?
+  lastName_telegram  String?
+  username_telegram  String?
+
+  authCode          String?
+  authCodeExpiresAt DateTime?
 
   schedule Schedule[]
   feedback Feedback[]
