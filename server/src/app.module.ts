@@ -15,6 +15,7 @@ import { TitleScheduleModule } from './title-schedule/title-schedule.module';
 import { UserModule } from './user/user.module';
 import { MapSubjectModule } from './map-subject/map-subject.module';
 import { SubjectModule } from './subject/subject.module';
+import { AuthTelegramModule } from './auth-telegram/auth-telegram.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SubjectModule } from './subject/subject.module';
     FeedbackModule,
     MapSubjectModule,
     SubjectModule,
+    AuthTelegramModule,
   ],
 })
 export class AppModule {}

@@ -20,6 +20,7 @@ import {
 } from "@/jotai/schedule";
 import { TypeScheduleForm } from "@/types/schedule.type";
 import { useAtom, useSetAtom } from "jotai";
+import { m } from "motion/react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
@@ -77,30 +78,42 @@ export const Panel = () => {
 	return (
 		<div className='relative inset-0 flex items-center justify-center z-50 w-full'>
 			<div className='p-6 flex flex-col w-full'>
-				<div className='flex-1 overflow-y-auto pr-4'>
-					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-						<div className='space-y-6'>
-							<Cabinets />
+				<m.div
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					exit={{ opacity: 0 }}
+					className='h-full'
+				>
+					<div className='flex-1 overflow-y-auto p-4 md:p-6'>
+						{/* Основные три колонки */}
+						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6'>
+							<div className='space-y-6'>
+								<Cabinets />
+							</div>
+							<div className='space-y-6'>
+								<Groups />
+							</div>
+							<div className='space-y-6'>
+								<Teachers />
+							</div>
 						</div>
-						<div className='space-y-6'>
-							<Groups />
+
+						{/* Два блока под основными колонками */}
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>
+							<div className='space-y-6'>
+								<MaxLoad />
+							</div>
+							<div className='space-y-6'>
+								<CabinetLimits />
+							</div>
 						</div>
-						<div className='space-y-6'>
-							<Teachers />
+
+						{/* Блок по центру внизу */}
+						<div className='mb-6'>
+							<MultiSubject />
 						</div>
 					</div>
-					<div className='flex justify-between'>
-						<div className='space-y-6'>
-							<MaxLoad />
-						</div>
-						<div className='space-y-6'>
-							<CabinetLimits />
-						</div>
-					</div>
-					<div className='space-y-6'>
-						<MultiSubject />
-					</div>
-				</div>
+				</m.div>
 				{/* <div className='flex justify-end gap-2 mt-4'>
 					<a
 						href={`http://localhost:5555/api/schedule/generate?api-key=${data?.api_key}`}
