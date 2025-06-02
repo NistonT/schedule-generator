@@ -3,7 +3,7 @@ import { User } from '@prisma/client';
 import { hash, verify } from 'argon2';
 import * as cuid from 'cuid';
 import { console } from 'inspector';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from '../prisma.service';
 import { RegisterAuth } from './dto/register.dto';
 import { UpdateUserDto } from './dto/user.dto';
 @Injectable()
