@@ -1,5 +1,6 @@
 "use client";
 
+import { ScheduleId } from "@/components/AllSchedule/ScheduleId";
 import { DASHBOARD_PAGES } from "@/config/pages-url.config";
 import { useGetAllUsersSchedule } from "@/hook/useGetAllUsersSchedule";
 import { useProfile } from "@/hook/useProfile";
@@ -17,17 +18,12 @@ export const Generation = () => {
 		<div>
 			{!isLoading && !isError ? (
 				<>
-					{list_schedule?.map(schedule => (
+					{list_schedule?.map((schedule, index) => (
 						<div
 							key={schedule.id}
 							className='bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 p-4 mb-4'
 						>
-							<div className='flex justify-between items-start mb-2'>
-								<h3 className='text-lg font-semibold text-gray-800'>
-									{schedule.title}
-								</h3>
-								<span className='text-xs text-gray-500'>ID: {schedule.id}</span>
-							</div>
+							<ScheduleId index={index} id={schedule.id} />
 
 							<p className='text-gray-600 mb-3 line-clamp-2'>
 								{schedule.description}

@@ -15,6 +15,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Days } from "./components/Days";
 
 import { DaysList } from "@/components/Generation/DaysList";
+import { AllSchedule } from "./components/AllSchedule";
 import { CreateSchedule } from "./components/CreateSchedule";
 import { ExcludedDaysToggle } from "./components/ExcludedDaysToggle";
 import { GenerationSchedule } from "./components/GenerationSchedule";
@@ -104,6 +105,9 @@ export const Profile = () => {
 				{/* Список выбранных дней */}
 				<div className='mt-10'>
 					<DaysList />
+				</div>
+				<div>
+					<AllSchedule />
 				</div>
 			</div>
 		</>
