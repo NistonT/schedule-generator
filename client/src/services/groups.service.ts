@@ -1,23 +1,27 @@
 import { axiosWithAuto } from "@/api/interceptors";
-import { IAddField, IDeleteField, IPutField } from "@/types/generation.type";
+import { IDeleteField, IPutField } from "@/types/generation.type";
 import { ISchedule } from "@/types/schedule.type";
 import { AxiosResponse } from "axios";
 
 class GroupsService {
 	private BASE_URL = "/groups";
 	private API_QUERY = `?api-key=`;
-	private SCHEDULE_ID = `?schedule_id=`;
+	private SCHEDULE_ID = `&schedule_id=`;
 
 	// Добавление группы в расписание
 	async addGroups(
-		data: IAddField,
+		name: string[],
 		api: string,
 		scheduleId: string
 	): Promise<AxiosResponse<ISchedule>> {
 		const response = await axiosWithAuto.post<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
-			data
+			{
+				name,
+			}
 		);
+
+		console.log(response);
 
 		return response;
 	}

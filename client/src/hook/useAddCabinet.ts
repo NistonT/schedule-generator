@@ -57,6 +57,7 @@ export const useAddCabinet = (profile: IUser | null, schedule_id: string) => {
 
 	const onSubmit = (data: IAddCabinetForm) => {
 		const list_cabinets = data.name.trim().split(/\s+/);
+		console.log(list_cabinets);
 		mutate(list_cabinets);
 	};
 

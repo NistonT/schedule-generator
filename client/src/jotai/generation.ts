@@ -7,3 +7,4 @@ export const dataScheduleAtom = atom<ISchedule | null>(null);
 export const dataIsLoadingAtom = atom<boolean>(true);
 
 export const cabinetsGenerationAtom = atom<string[]>([]);
+export const groupsGenerationAtom = atom<string[]>([]);
