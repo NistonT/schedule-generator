@@ -5,12 +5,14 @@ import { ScheduleData } from "@/components/AllSchedule/ScheduleData";
 import { ScheduleGroups } from "@/components/AllSchedule/ScheduleGroups";
 import { ScheduleId } from "@/components/AllSchedule/ScheduleId";
 import { ScheduleTeachers } from "@/components/AllSchedule/ScheduleTeachers";
+import { ButtonIcon } from "@/components/ui/buttons/ButtonIcon";
 import { useProfile } from "@/hook/useProfile";
 import { currentScheduleAtom, scheduleListAtom } from "@/jotai/schedule";
 import { scheduleService } from "@/services/schedule.service";
 import { ISchedule } from "@/types/schedule.type";
 import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
+import { Trash } from "lucide-react";
 import { useEffect } from "react";
 
 export const AllSchedule = () => {
@@ -74,8 +76,8 @@ export const AllSchedule = () => {
 									UpdatedAt={schedule.UpdatedAt}
 								/>
 							</div>
-							<div className='flex justify-end'>
-								<button type='button'>Удалить</button>
+							<div className='flex justify-end pr-10 pb-10'>
+								<ButtonIcon icon={Trash} />
 							</div>
 						</div>
 					))}

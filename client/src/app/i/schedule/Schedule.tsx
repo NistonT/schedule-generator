@@ -16,7 +16,7 @@ export const Schedule = () => {
 		<div>
 			{!isLoading && !isError ? (
 				<>
-					{list_schedule?.map(schedule => (
+					{list_schedule?.map((schedule, index) => (
 						<div
 							key={schedule.id}
 							className='bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow'
@@ -24,7 +24,7 @@ export const Schedule = () => {
 							<div className='p-5'>
 								<div className='flex justify-between items-start mb-3'>
 									<h3 className='text-lg font-semibold text-gray-800'>
-										{schedule.title}
+										{schedule.title} {index + 1}
 									</h3>
 									<span
 										className={`px-2 py-1 text-xs rounded-full ${

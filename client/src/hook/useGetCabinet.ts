@@ -12,7 +12,7 @@ export const useGetCabinet = (schedule_id: string, apiKey: string) => {
 		isLoading,
 		isError,
 	} = useQuery({
-		queryKey: ["get_cabinets", schedule_id], // Добавил schedule_id в ключ запроса
+		queryKey: ["get_cabinets", schedule_id],
 		queryFn: () => cabinetService.getCabinets(apiKey, schedule_id),
 		select: data => data.data,
 	});

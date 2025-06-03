@@ -10,6 +10,7 @@ import {
 	amountLimitsAtom,
 	cabinetLimitsAtom,
 	cabinetsAtom,
+	currentScheduleAtom,
 	daysAtom,
 	generationCurrentScheduleFormAtom,
 	groupsAtom,
@@ -28,6 +29,8 @@ export const Panel = () => {
 	const setGenerationCurrentScheduleForm = useSetAtom(
 		generationCurrentScheduleFormAtom
 	);
+
+	const [currentSchedule, setCurrentSchedule] = useAtom(currentScheduleAtom);
 
 	const [cabinets, setCabinets] = useAtom(cabinetsAtom);
 	const [groups, setGroups] = useAtom(groupsAtom);
@@ -74,6 +77,10 @@ export const Panel = () => {
 		days,
 		maxLoad,
 	]);
+
+	useEffect(() => {
+		if (currentSchedule?.cabinets) setCabinets(currentSchedule?.cabinets);
+	}, [currentSchedule]);
 
 	return (
 		<div className='relative inset-0 flex items-center justify-center z-50 w-full'>
