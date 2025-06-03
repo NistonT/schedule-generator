@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { UserService } from 'src/user/user.service';
@@ -15,7 +17,7 @@ export class GroupsService {
 
   private async validateUserAndSchedule(apiKey: string, scheduleId?: string) {
     if (!apiKey?.trim()) {
-      throw new BadRequestException('API ключ обязателен');
+      throw new UnauthorizedException('API ключ обязателен');
     }
 
     const user = await this.userService.getByApiKey(apiKey);
@@ -39,34 +41,57 @@ export class GroupsService {
     return { user, schedule };
   }
 
-  public async add(name: string, apiKey: string, scheduleId?: string) {
-    if (!name?.trim()) {
-      throw new BadRequestException('Название группы обязательно');
+  public async addGroup(
+    names: string[],
+    apiKey: string,
+    scheduleId?: string,
+  ): Promise<string[]> {
+    if (!Array.isArray(names)) {
+      throw new BadRequestException(
+        'Группы должны быть переданы в виде массива',
+      );
+    }
+
+    if (names.length === 0) {
+      throw new BadRequestException('Необходимо указать хотя бы одну группу');
+    }
+
+    for (const name of names) {
+      if (!name?.trim()) {
+        throw new BadRequestException('Название группы обязательно');
+      }
     }
 
     const { schedule } = await this.validateUserAndSchedule(apiKey, scheduleId);
 
-    // Проверяем существование группы
-    if (schedule.groups.includes(name)) {
-      throw new BadRequestException(`Группа "${name}" уже существует`);
+    // Фильтруем уникальные группы
+    const uniqueNames = names.filter((name) => !schedule.groups.includes(name));
+
+    if (uniqueNames.length === 0) {
+      return schedule.groups; // Все группы уже существуют
     }
 
-    return this.prisma.schedule.update({
+    const updatedSchedule = await this.prisma.schedule.update({
       where: { id: schedule.id },
       data: {
         groups: {
-          push: name,
+          push: uniqueNames,
         },
       },
     });
+
+    return updatedSchedule.groups;
   }
 
-  public async get(apiKey: string, scheduleId?: string): Promise<string[]> {
+  public async getGroups(
+    apiKey: string,
+    scheduleId?: string,
+  ): Promise<string[]> {
     const { schedule } = await this.validateUserAndSchedule(apiKey, scheduleId);
     return schedule.groups;
   }
 
-  public async getAll(
+  public async getAllGroups(
     apiKey: string,
   ): Promise<{ id: string; groups: string[] }[]> {
     const user = await this.validateUserAndSchedule(apiKey);
@@ -77,12 +102,12 @@ export class GroupsService {
     return schedules;
   }
 
-  public async change(
+  public async changeGroup(
     oldName: string,
     newName: string,
     apiKey: string,
     scheduleId?: string,
-  ) {
+  ): Promise<string[]> {
     if (!oldName?.trim()) {
       throw new BadRequestException('Текущее название группы обязательно');
     }
@@ -92,45 +117,48 @@ export class GroupsService {
 
     const { schedule } = await this.validateUserAndSchedule(apiKey, scheduleId);
 
-    // Проверяем существование старой группы
     const groupIndex = schedule.groups.indexOf(oldName);
     if (groupIndex === -1) {
       throw new NotFoundException(`Группа "${oldName}" не найдена`);
     }
 
-    // Проверяем уникальность нового имени
     if (schedule.groups.includes(newName)) {
-      throw new BadRequestException(`Группа "${newName}" уже существует`);
+      throw new ConflictException(`Группа "${newName}" уже существует`);
     }
 
-    // Обновляем массив групп
     const updatedGroups = [...schedule.groups];
     updatedGroups[groupIndex] = newName;
 
-    return this.prisma.schedule.update({
+    const updatedSchedule = await this.prisma.schedule.update({
       where: { id: schedule.id },
       data: { groups: updatedGroups },
     });
+
+    return updatedSchedule.groups;
   }
 
-  public async delete(name: string, apiKey: string, scheduleId?: string) {
+  public async deleteGroup(
+    name: string,
+    apiKey: string,
+    scheduleId?: string,
+  ): Promise<string[]> {
     if (!name?.trim()) {
       throw new BadRequestException('Название группы обязательно');
     }
 
     const { schedule } = await this.validateUserAndSchedule(apiKey, scheduleId);
 
-    // Проверяем существование группы
     if (!schedule.groups.includes(name)) {
       throw new NotFoundException(`Группа "${name}" не найдена`);
     }
 
-    // Фильтруем массив групп
-    const updatedGroups = schedule.groups.filter((group) => group !== name);
+    const updatedGroups = schedule.groups.filter((g) => g !== name);
 
-    return this.prisma.schedule.update({
+    const updatedSchedule = await this.prisma.schedule.update({
       where: { id: schedule.id },
       data: { groups: updatedGroups },
     });
+
+    return updatedSchedule.groups;
   }
 }
