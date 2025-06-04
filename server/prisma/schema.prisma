@@ -88,9 +88,10 @@ model Schedule {
 }
 
 model Teacher {
-  tid      Int        @id @default(autoincrement())
-  name     String
-  schedule Schedule[]
+  tid         Int      @id @default(autoincrement())
+  name        String
+  schedule_id String
+  schedule    Schedule @relation(fields: [schedule_id], references: [id])
 }
 
 model MapSubject {

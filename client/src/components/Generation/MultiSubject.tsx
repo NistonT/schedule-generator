@@ -244,7 +244,7 @@ export const MultiSubject = () => {
 				{/* Поля для ввода количества */}
 				<div className='space-y-4 mt-4'>
 					<FieldMulti
-						label={"Количество лекций"}
+						label={"Количество часов лекций"}
 						id={"lectures"}
 						value={lecturesAmount}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -252,7 +252,7 @@ export const MultiSubject = () => {
 						}
 					/>
 					<FieldMulti
-						label={"Количество на первую подгруппу"}
+						label={"Количество часов на первую подгруппу"}
 						id={"subgroup1"}
 						value={subgroup1Amount}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -260,7 +260,7 @@ export const MultiSubject = () => {
 						}
 					/>
 					<FieldMulti
-						label={"Количество на вторую подгруппу"}
+						label={"Количество часов на вторую подгруппу"}
 						id={"subgroup2"}
 						value={subgroup2Amount}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

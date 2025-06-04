@@ -192,26 +192,22 @@ export class ScheduleService {
       reason: string;
     }[] = [];
 
-    // Создаем пустое расписание для каждой группы
     for (const group of groups) {
       groupTimetables[group] = {};
       for (const day of days) {
         groupTimetables[group][day] = [];
       }
 
-      // Проверяем, есть ли предметы для группы
       const subjects = subjectsMap[group] || [];
       if (!Array.isArray(subjects)) {
         throw new Error(`Invalid subjects data for group ${group}`);
       }
 
-      // Создаем очередь предметов
       const subjectQueue = this.createSubjectQueue(
         subjects,
         amountLimits.filter((limit) => limit.group === group),
       );
 
-      // Инициализация карты доступности преподавателей и кабинетов
       const teacherAvailability: Record<string, boolean[]> = {};
       const cabinetAvailability: Record<string, boolean[]> = {};
 
@@ -223,15 +219,14 @@ export class ScheduleService {
       let dayIndex = 0;
       for (const subjectInfo of subjectQueue) {
         let attempts = 0;
-        const maxAttempts = 1000; // Ограничение на количество попыток
+        const maxAttempts = 1000;
 
-        while (subjectInfo.remaining > 0) {
+        while (subjectInfo.remainingPairs > 0) {
           if (attempts >= maxAttempts) {
-            // Логируем проблему, но продолжаем генерацию
             failedAllocations.push({
               group,
               subject: subjectInfo.subject,
-              reason: `Не удалось распределить занятие после ${maxAttempts} попыток`,
+              reason: `Не удалось распределить пару после ${maxAttempts} попыток`,
             });
             console.warn(
               `Пропущено занятие: ${subjectInfo.subject} для группы ${group}`,
@@ -241,7 +236,6 @@ export class ScheduleService {
 
           const currentDay = days[dayIndex % days.length];
 
-          // Проверяем доступность преподавателя
           const teacherInfo = this.findAvailableTeacherForSubject(
             subjectInfo.subject,
             teachersMap,
@@ -249,13 +243,13 @@ export class ScheduleService {
             group,
             teacherAvailability[currentDay],
           );
+
           if (!teacherInfo) {
             dayIndex = (dayIndex + 1) % days.length;
             attempts++;
             continue;
           }
 
-          // Проверяем доступность кабинета
           const cabinet = this.findAvailableCabinetForTeacher(
             teacherInfo.tid,
             cabinetLimits,
@@ -266,6 +260,7 @@ export class ScheduleService {
             groupTimetables[group][currentDay].length + 1,
             maxLoad,
           );
+
           if (!cabinet) {
             console.warn(
               `Нет доступных кабинетов для преподавателя ${teacherInfo.name} (tid: ${teacherInfo.tid}) в день ${currentDay}`,
@@ -275,8 +270,13 @@ export class ScheduleService {
             continue;
           }
 
-          // Добавляем занятие в расписание группы
-          if (groupTimetables[group][currentDay].length < maxLoad) {
+          const hour = groupTimetables[group][currentDay].length;
+
+          if (
+            hour + 1 < maxLoad &&
+            cabinetAvailability[currentDay][hour] &&
+            cabinetAvailability[currentDay][hour + 1]
+          ) {
             groupTimetables[group][currentDay].push([
               {
                 cabinet,
@@ -285,26 +285,44 @@ export class ScheduleService {
                 group,
                 lessonType: subjectInfo.lessonType,
               },
+              {
+                cabinet,
+                teacher: teacherInfo.name,
+                subject: subjectInfo.subject,
+                group,
+                lessonType: subjectInfo.lessonType,
+              },
             ]);
+
             this.markTeacherAndCabinetAsBusy(
               teacherInfo.tid,
               cabinet,
               teacherAvailability[currentDay],
               cabinetAvailability[currentDay],
-              groupTimetables[group][currentDay].length - 1,
+              hour,
             );
+            this.markTeacherAndCabinetAsBusy(
+              teacherInfo.tid,
+              cabinet,
+              teacherAvailability[currentDay],
+              cabinetAvailability[currentDay],
+              hour + 1,
+            );
+
+            subjectInfo.remainingPairs--;
+            this.decrementAmountLimit(amountLimits, group, subjectInfo.subject);
+
+            dayIndex = (dayIndex + 1) % days.length;
+            attempts = 0;
+          } else {
+            dayIndex = (dayIndex + 1) % days.length;
+            attempts++;
           }
-
-          subjectInfo.remaining--;
-          this.decrementAmountLimit(amountLimits, group, subjectInfo.subject);
-
-          dayIndex = (dayIndex + 1) % days.length;
-          attempts = 0; // Сбрасываем счетчик попыток при успешном распределении
         }
       }
     }
 
-    let globalId = 1; // Счетчик глобальных ID
+    let globalId = 1;
 
     const flatSchedule = Object.entries(groupTimetables).flatMap(
       ([group, timetable]) =>
@@ -334,27 +352,30 @@ export class ScheduleService {
     };
   }
 
-  // Метод для создания очереди предметов с учетом лимитов
+  // Создает очередь предметов по парам
   private createSubjectQueue(subjects: string[], amountLimits: any[]): any[] {
     if (!Array.isArray(subjects)) {
       throw new Error('Subjects must be an array');
     }
 
     const queue: any[] = [];
+
     for (const subject of subjects) {
       const limits = amountLimits.filter((l) => l.subject === subject);
       for (const limit of limits) {
+        const pairCount = Math.ceil(limit.amount / 2); // Делим на 2 и округляем вверх
         queue.push({
           subject,
-          remaining: limit.amount || 0,
+          remainingPairs: pairCount,
           lessonType: limit.lessonType || 'L',
         });
       }
     }
-    return queue.filter((item) => item.remaining > 0);
+
+    return queue.filter((item) => item.remainingPairs > 0);
   }
 
-  // Метод для поиска доступного преподавателя
+  // Поиск доступного преподавателя
   private findAvailableTeacherForSubject(
     subject: string,
     teachersMap: any[],
@@ -365,6 +386,7 @@ export class ScheduleService {
     const teacherMapping = teachersMap.find(
       (map) => map.subject === subject && map.group === group,
     );
+
     if (teacherMapping) {
       const teacher = teachers.find((t) => t.tid === teacherMapping.tid);
       if (teacher && availability.some((val) => val)) {
@@ -374,7 +396,7 @@ export class ScheduleService {
     return null;
   }
 
-  // Метод для поиска доступного кабинета
+  // Поиск доступного кабинета
   private findAvailableCabinetForTeacher(
     tid: number,
     cabinetLimits: any[],
@@ -385,28 +407,34 @@ export class ScheduleService {
     effectiveLoad: number,
     maxLoad: number,
   ): string | null {
-    // Получаем разрешенные кабинеты для преподавателя
     const allowedCabinets =
       cabinetLimits.find((limit) => limit.tid === tid)?.cabinets || [];
 
-    // Если для преподавателя не указаны кабинеты, используем общий список кабинетов
     const candidateCabinets =
       allowedCabinets.length > 0 ? allowedCabinets : cabinets;
 
-    // Проверяем каждый кандидатский кабинет на доступность
     for (const cabinet of candidateCabinets) {
       if (
+        effectiveLoad + 1 <= maxLoad &&
         availability[effectiveLoad - 1] &&
-        !this.isCabinetBusy(timetable, day, effectiveLoad, cabinet)
+        availability[effectiveLoad]
       ) {
-        return cabinet; // Возвращаем первый доступный кабинет
+        const isBusy = this.isCabinetBusy(
+          timetable,
+          day,
+          effectiveLoad,
+          cabinet,
+        );
+        if (!isBusy) {
+          return cabinet;
+        }
       }
     }
 
-    return null; // Если ни один кабинет не доступен, возвращаем null
+    return null;
   }
 
-  // Метод для проверки занятости кабинета
+  // Проверка занятости кабинета
   private isCabinetBusy(
     timetable: Record<string, any[]>,
     day: string,
@@ -425,7 +453,7 @@ export class ScheduleService {
     });
   }
 
-  // Метод для отметки преподавателя и кабинета как занятых
+  // Отметка как занятые
   private markTeacherAndCabinetAsBusy(
     tid: number,
     cabinet: string,
@@ -433,11 +461,13 @@ export class ScheduleService {
     cabinetAvailability: boolean[],
     hour: number,
   ) {
-    teacherAvailability[hour] = false;
-    cabinetAvailability[hour] = false;
+    if (hour < teacherAvailability.length) {
+      teacherAvailability[hour] = false;
+      cabinetAvailability[hour] = false;
+    }
   }
 
-  // Метод для уменьшения лимита
+  // Уменьшение лимита на 2 (или до нуля)
   private decrementAmountLimit(
     amountLimits: any[],
     group: string,
@@ -446,11 +476,13 @@ export class ScheduleService {
     const limit = amountLimits.find(
       (l) => l.group === group && l.subject === subject,
     );
-    if (limit && limit.amount > 0) {
-      limit.amount--;
+    if (limit && limit.amount >= 2) {
+      limit.amount -= 2;
+    } else if (limit && limit.amount === 1) {
+      limit.amount = 0; // если остался один — обнуляем
     } else {
       console.warn(
-        `Лимит для группы ${group} и предмета ${subject} уже достиг нуля.`,
+        `Лимит для группы ${group} и предмета ${subject} уже исчерпан.`,
       );
     }
   }

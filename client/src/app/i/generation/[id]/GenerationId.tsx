@@ -3,20 +3,25 @@ import { useGetSchedule } from "@/hook/useGetSchedule";
 import { useProfile } from "@/hook/useProfile";
 import { Loader2 } from "lucide-react";
 import { m } from "motion/react";
+import { useState } from "react";
 import { CabinetsGeneration } from "./components/CabinetsGeneration";
 import { GroupGeneration } from "./components/GroupsGeneration";
+import { TeacherGeneration } from "./components/TeacherGeneration";
 
 type Props = {
 	id: string;
 };
 
 export const GenerationId = ({ id }: Props) => {
+	const [activeTab, setActiveTab] = useState<
+		"cabinets" | "groups" | "teachers"
+	>("cabinets");
 	const { data: profile } = useProfile();
 	const { schedule, isLoading, isError } = useGetSchedule(profile!, id);
 
 	return (
 		<div className='min-h-screen py-10 px-4'>
-			<div className='max-w-5xl mx-auto w-full space-y-8'>
+			<div className='max-w-5xl mx-auto space-y-8'>
 				{/* Заголовок */}
 				<m.div
 					initial={{ opacity: 0, y: -20 }}
@@ -28,7 +33,7 @@ export const GenerationId = ({ id }: Props) => {
 						Управление расписанием
 					</h1>
 					<p className='text-gray-500 mt-2'>
-						Добавляйте кабинеты и группы для текущего расписания
+						Выберите категорию ниже, чтобы добавлять элементы
 					</p>
 				</m.div>
 
@@ -55,40 +60,74 @@ export const GenerationId = ({ id }: Props) => {
 					</m.div>
 				)}
 
-				{/* Контент: кабинеты и группы один под другим */}
-				{!isLoading && !isError && schedule ? (
+				{!isLoading && !isError && schedule && (
 					<>
-						<div className='flex'>
-							{/* Кабинеты */}
-							<m.div
-								initial={{ opacity: 0, y: 20 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ delay: 0.2 }}
-								className='w-full'
+						{/* Табы */}
+						<div className='flex justify-center space-x-4 mb-6'>
+							<button
+								onClick={() => setActiveTab("cabinets")}
+								className={`px-6 py-2 rounded-lg font-medium transition-all ${
+									activeTab === "cabinets"
+										? "bg-brand text-gray-950 shadow-md"
+										: "bg-white text-gray-700 hover:bg-gray-100"
+								}`}
 							>
+								Кабинеты
+							</button>
+							<button
+								onClick={() => setActiveTab("groups")}
+								className={`px-6 py-2 rounded-lg font-medium transition-all ${
+									activeTab === "groups"
+										? "bg-brand text-gray-950 shadow-md"
+										: "bg-white text-gray-700 hover:bg-gray-100"
+								}`}
+							>
+								Группы
+							</button>
+							<button
+								onClick={() => setActiveTab("teachers")}
+								className={`px-6 py-2 rounded-lg font-medium transition-all ${
+									activeTab === "teachers"
+										? "bg-brand text-gray-950 shadow-md"
+										: "bg-white text-gray-700 hover:bg-gray-100"
+								}`}
+							>
+								Преподаватели
+							</button>
+						</div>
+
+						{/* Контент в зависимости от активного таба */}
+						<m.div
+							key={activeTab}
+							initial={{ opacity: 0, x: 20 }}
+							animate={{ opacity: 1, x: 0 }}
+							exit={{ opacity: 0, x: -20 }}
+							transition={{ type: "spring", stiffness: 300, damping: 20 }}
+						>
+							{activeTab === "cabinets" && (
 								<CabinetsGeneration
 									profile={profile}
 									id={id}
 									schedule={schedule}
 								/>
-							</m.div>
-
-							{/* Группы */}
-							<m.div
-								initial={{ opacity: 0, y: 20 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ delay: 0.3 }}
-								className='w-full'
-							>
+							)}
+							{activeTab === "groups" && (
 								<GroupGeneration
 									profile={profile}
 									id={id}
 									schedule={schedule}
 								/>
-							</m.div>
-						</div>
+							)}
+							{activeTab === "teachers" && (
+								<TeacherGeneration
+									profile={profile}
+									id={id}
+									schedule={schedule}
+								/>
+							)}
+						</m.div>
 					</>
-				) : null}
+				)}
 			</div>
 		</div>
 	);

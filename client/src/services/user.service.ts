@@ -7,14 +7,19 @@ import axios, { AxiosResponse } from "axios";
 class UserService {
 	private BASE_URL = "/user";
 
-	async getUserId(): Promise<AxiosResponse<IUser>> {
+	public async getUserId(): Promise<AxiosResponse<IUser>> {
 		const response = await axiosWithAuto.get<IUser>(`${this.BASE_URL}/user_id`);
+		return response;
+	}
+
+	public async getAllUser(): Promise<AxiosResponse<IUser[]>> {
+		const response = await axiosWithAuto.get<IUser[]>(`${this.BASE_URL}/users`);
 		return response;
 	}
 
 	// useProfile>useQuery
 
-	async update(data: TypeUserForm): Promise<AxiosResponse<IUser>> {
+	public async update(data: TypeUserForm): Promise<AxiosResponse<IUser>> {
 		const response = await axiosWithAuto.put<IUser>(
 			`${this.BASE_URL}/update`,
 			data
@@ -22,12 +27,12 @@ class UserService {
 		return response;
 	}
 
-	async updateApi(): Promise<AxiosResponse<IUser>> {
+	public async updateApi(): Promise<AxiosResponse<IUser>> {
 		const response = await axiosWithAuto.put<IUser>(`${this.BASE_URL}/api_key`);
 		return response;
 	}
 
-	async check(password: IPassword): Promise<boolean> {
+	public async check(password: IPassword): Promise<boolean> {
 		const response = await axiosWithAuto.post<boolean>(
 			`${this.BASE_URL}/check`,
 			password
@@ -37,7 +42,7 @@ class UserService {
 		return response.data;
 	}
 
-	async gitHub(): Promise<AxiosResponse<IGitHubUser>> {
+	public async gitHub(): Promise<AxiosResponse<IGitHubUser>> {
 		const response = await axios.get<IGitHubUser>(
 			`https://api.github.com/users/NistonT`
 		);
