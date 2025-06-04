@@ -201,7 +201,7 @@ const FeedbackItem = ({ feedback }: PropsFeedback) => {
 			<div className='mt-4 flex justify-end'>
 				<Link
 					href={`${DASHBOARD_PAGES.ADMIN_PANEL}/${feedback.id}`}
-					className='flex items-center gap-1 text-indigo-600 hover:text-indigo-700 transition-colors'
+					className='flex items-center gap-1 text-gray-950 transition-colors'
 				>
 					<span>Перейти</span>
 					<ExternalLink size={16} />

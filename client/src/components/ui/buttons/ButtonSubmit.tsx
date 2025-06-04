@@ -25,7 +25,7 @@ export const ButtonSubmit = ({
 	return (
 		<button
 			type={type}
-			className={`flex items-center justify-center w-full px-4 py-2 text-white bg-gray-950 hover:bg-white hover:text-gray-950 rounded-md shadow-md transition-all duration-300 gap-2 cursor-pointer ${className}`}
+			className={`flex items-center justify-center w-full px-4 py-2 text-white border-2 border-gray-950 bg-gray-950 hover:bg-white hover:text-gray-950 rounded-md transition-all duration-300 gap-2 cursor-pointer ${className}`}
 			onClick={onClick}
 		>
 			<div className='flex-shrink-0'>{icon}</div>
