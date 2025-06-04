@@ -1,8 +1,8 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class ChangeTeachersDto {
-  @IsNumber()
-  teacherId: number;
+  @IsString()
+  oldName: string;
 
   @IsString()
   newName: string;

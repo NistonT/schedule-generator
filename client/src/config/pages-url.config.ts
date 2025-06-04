@@ -15,6 +15,7 @@ class DASHBOARD {
 	ABOUT = `${this.root}/about`;
 	FEEDBACK = `${this.root}/feedback`;
 	ADMIN_PANEL = `${this.root}/admin-panel`;
+	STATISTIC = `${this.root}/statistic`;
 }
 
 export const DASHBOARD_PAGES = new DASHBOARD();

@@ -10,14 +10,17 @@ type Props = {
 export const ScheduleTeachers = ({ teachers }: Props) => {
 	const [showAll, setShowAll] = useState(false);
 
-	const visibleTeachers = showAll ? teachers : teachers.slice(0, 3);
-	const hasMore = teachers.length > 3;
+	const visibleTeachers = showAll
+		? teachers || []
+		: (teachers || []).slice(0, 3);
+
+	const hasMore = (teachers?.length || 0) > 3;
 
 	return (
 		<div className='bg-gray-50 p-4 rounded-lg'>
 			<h3 className='font-medium text-gray-700 mb-2'>Преподаватели</h3>
 
-			{teachers.length === 0 ? (
+			{teachers?.length === 0 ? (
 				<span className='text-gray-500 text-sm'>Нет преподавателей</span>
 			) : (
 				<>
@@ -34,7 +37,7 @@ export const ScheduleTeachers = ({ teachers }: Props) => {
 						{visibleTeachers.map(teacher => (
 							<span
 								key={teacher.tid}
-								className='bg-yellow-100 text-red-100 text-sm px-2 py-1 rounded'
+								className='bg-red-100 text-gray-950 text-sm px-2 py-1 rounded'
 							>
 								{teacher.name}
 							</span>

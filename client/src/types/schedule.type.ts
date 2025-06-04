@@ -65,6 +65,7 @@ export interface IMessageHandleAdd {
 export type TypeTeachers = {
 	tid: number;
 	name: string;
+	schedule_id: string;
 	schedule?: ISchedule;
 };
 

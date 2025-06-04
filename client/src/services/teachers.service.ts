@@ -1,32 +1,30 @@
 import { axiosWithAuto } from "@/api/interceptors";
-import {
-	IAddField,
-	IDeleteFieldNumber,
-	IPutFieldNumber,
-} from "@/types/generation.type";
+import { IDeleteFieldNumber, IPutFieldNumber } from "@/types/generation.type";
 import { ITeacher } from "@/types/teacher.type";
 import { AxiosResponse } from "axios";
 class TeachersService {
 	private BASE_URL = "/teachers";
 	private API_QUERY = `?api-key=`;
-	private SCHEDULE_ID = `?schedule_id=`;
+	private SCHEDULE_ID = `&schedule_id=`;
 
 	// Создать преподавателя
-	async addTeachers(
-		data: IAddField,
+	public async addTeachers(
+		name: string[],
 		api: string,
 		scheduleId: string
 	): Promise<AxiosResponse<ITeacher>> {
 		const response = await axiosWithAuto.post<ITeacher>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
-			data
+			{
+				name,
+			}
 		);
 
 		return response;
 	}
 
 	// Получить всех преподавателей из одного расписание
-	async getTeachers(
+	public async getTeachers(
 		api: string,
 		scheduleId: string
 	): Promise<AxiosResponse<ITeacher[]>> {
@@ -38,7 +36,7 @@ class TeachersService {
 	}
 
 	// Получить все преподавателей
-	async getAllTeachers(api: string): Promise<AxiosResponse<ITeacher[]>> {
+	public async getAllTeachers(api: string): Promise<AxiosResponse<ITeacher[]>> {
 		const response = await axiosWithAuto.get<ITeacher[]>(
 			`${this.BASE_URL}${this.API_QUERY}${api}`
 		);
@@ -47,7 +45,7 @@ class TeachersService {
 	}
 
 	// Изменить преподавателя
-	async changeTeachers(
+	public async changeTeachers(
 		data: IPutFieldNumber,
 		api: string,
 		scheduleId: string
@@ -61,7 +59,7 @@ class TeachersService {
 	}
 
 	// Удалить преподавателя
-	async deleteTeachers(
+	public async deleteTeachers(
 		data: IDeleteFieldNumber,
 		api: string,
 		scheduleId: string

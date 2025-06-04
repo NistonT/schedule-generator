@@ -51,6 +51,7 @@ export const Panel = () => {
 			teachers: teachers?.map(teacher => ({
 				tid: teacher.tid,
 				name: teacher.name,
+				schedule_id: teacher.schedule_id,
 			})),
 			subjectsMap,
 			teachersMap,

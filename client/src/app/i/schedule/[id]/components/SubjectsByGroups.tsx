@@ -21,7 +21,7 @@ export const SubjectsByGroups = ({ lessonsByGroup }: Props) => {
 									>
 										<span>{subject}</span>
 										<span className='font-medium text-gray-700'>
-											{count} пар
+											{count} часов
 										</span>
 									</li>
 								))}
