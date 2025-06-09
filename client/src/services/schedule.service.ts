@@ -73,7 +73,7 @@ class ScheduleService {
 
 	// Удаление расписания
 
-	async deleteSchedule(
+	public async deleteSchedule(
 		api: string,
 		scheduleId: string
 	): Promise<AxiosResponse<ISchedule>> {
