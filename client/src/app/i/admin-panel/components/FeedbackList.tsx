@@ -77,7 +77,7 @@ export const FeedbackList = () => {
 						onClick={() => setShowChecked(prev => !prev)}
 						className={`px-3 py-2 text-sm rounded ${
 							showChecked
-								? "bg-green-500 text-white"
+								? "bg-white text-gray-950"
 								: "bg-gray-200 text-gray-700"
 						}`}
 					>
@@ -87,7 +87,7 @@ export const FeedbackList = () => {
 						onClick={() => setShowUnchecked(prev => !prev)}
 						className={`px-3 py-2 text-sm rounded ${
 							showUnchecked
-								? "bg-blue-500 text-white"
+								? "bg-gray-950 text-white"
 								: "bg-gray-200 text-gray-700"
 						}`}
 					>

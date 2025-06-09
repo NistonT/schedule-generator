@@ -16,7 +16,7 @@ class DescriptionScheduleService {
 		const response = await axiosWithAuto.post<ISchedule>(
 			`${this.BASE_URL}${this.API_QUERY}${api}${this.SCHEDULE_ID}${scheduleId}`,
 			{
-				description: text,
+				text: text,
 			}
 		);
 

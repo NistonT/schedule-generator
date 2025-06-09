@@ -90,14 +90,6 @@ export const Profile = () => {
 
 				{/* Дополнительные кнопки управления */}
 				<div className='flex justify-end gap-2 mt-4'>
-					<a
-						href={`http://localhost:5555/api/schedule/generate?api-key=${data?.api_key}`}
-						target='_blank'
-						rel='noopener noreferrer'
-						className='px-4 py-2 border border-gray-950 text-gray-600 rounded hover:bg-gray-50 transition'
-					>
-						Перейти к расписанию
-					</a>
 					<GenerationSchedule />
 					<CreateSchedule />
 				</div>
