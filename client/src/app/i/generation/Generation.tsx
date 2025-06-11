@@ -1,17 +1,17 @@
 "use client";
 
-import { DASHBOARD_PAGES } from "@/config/pages-url.config";
-import { useGetAllUsersSchedule } from "@/hook/useGetAllUsersSchedule";
-import { useProfile } from "@/hook/useProfile";
+import { DASHBOARD_PAGES } from "@/config/pages-url.config"
+import { useGetAllUsersSchedule } from "@/hook/useGetAllUsersSchedule"
+import { useProfile } from "@/hook/useProfile"
 import {
 	ArrowRightIcon,
 	CalendarIcon,
 	ClipboardList,
 	Search,
-} from "lucide-react";
-import { m } from "motion/react";
-import Link from "next/link";
-import { useState } from "react";
+} from "lucide-react"
+import { m } from "motion/react"
+import Link from "next/link"
+import { useState } from "react"
 
 export const Generation = () => {
 	const { data: profile } = useProfile();
